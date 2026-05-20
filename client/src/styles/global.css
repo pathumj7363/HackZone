@@ -1,0 +1,585 @@
+/* ==========================================================================
+   HackZone — Step 1.1 Design tokens
+   Undo: revert this file to empty, or use git checkout -- client/src/styles/global.css
+   ========================================================================== */
+
+:root {
+  /* Brand */
+  --hz-primary: #5850e1;
+  --hz-primary-hover: #4f46e5;
+  --hz-primary-active: #4338ca;
+  --hz-primary-light: #eef2ff;
+  --hz-primary-muted: #c7d2fe;
+
+  /* Neutrals */
+  --hz-bg: #ffffff;
+  --hz-surface: #f8fafc;
+  --hz-surface-raised: #ffffff;
+  --hz-border: #e2e8f0;
+  --hz-border-strong: #cbd5e1;
+  --hz-text: #0f172a;
+  --hz-text-secondary: #334155;
+  --hz-text-muted: #64748b;
+  --hz-text-inverse: #ffffff;
+
+  /* Semantic */
+  --hz-success: #10b981;
+  --hz-success-bg: #ecfdf5;
+  --hz-success-text: #047857;
+  --hz-warning: #f59e0b;
+  --hz-warning-bg: #fffbeb;
+  --hz-warning-text: #b45309;
+  --hz-danger: #ef4444;
+  --hz-danger-bg: #fef2f2;
+  --hz-danger-text: #b91c1c;
+  --hz-info: #3b82f6;
+  --hz-info-bg: #eff6ff;
+  --hz-info-text: #1d4ed8;
+
+  /* Typography */
+  --hz-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  --hz-font-size-xs: 0.75rem;
+  --hz-font-size-sm: 0.875rem;
+  --hz-font-size-base: 1rem;
+  --hz-font-size-lg: 1.125rem;
+  --hz-font-size-xl: 1.25rem;
+  --hz-font-size-2xl: 1.5rem;
+  --hz-font-size-3xl: 1.875rem;
+  --hz-font-size-4xl: 2.25rem;
+  --hz-font-weight-normal: 400;
+  --hz-font-weight-medium: 500;
+  --hz-font-weight-semibold: 600;
+  --hz-font-weight-bold: 700;
+  --hz-font-weight-extrabold: 800;
+  --hz-line-height-tight: 1.25;
+  --hz-line-height-normal: 1.5;
+  --hz-line-height-relaxed: 1.65;
+
+  /* Spacing (8px grid) */
+  --hz-space-1: 0.25rem;
+  --hz-space-2: 0.5rem;
+  --hz-space-3: 0.75rem;
+  --hz-space-4: 1rem;
+  --hz-space-5: 1.25rem;
+  --hz-space-6: 1.5rem;
+  --hz-space-8: 2rem;
+  --hz-space-10: 2.5rem;
+  --hz-space-12: 3rem;
+  --hz-space-16: 4rem;
+
+  /* Radius & shadow */
+  --hz-radius-sm: 8px;
+  --hz-radius: 12px;
+  --hz-radius-lg: 16px;
+  --hz-radius-full: 9999px;
+  --hz-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --hz-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --hz-shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);
+  --hz-shadow-lg: 0 10px 40px rgba(15, 23, 42, 0.1);
+
+  /* Layout */
+  --hz-container-max: 1200px;
+  --hz-navbar-height: 64px;
+
+  /* Motion */
+  --hz-transition-fast: 150ms ease;
+  --hz-transition: 200ms ease;
+
+  /* Focus */
+  --hz-focus-ring: 0 0 0 3px rgba(88, 80, 225, 0.35);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Base                                                                       */
+/* -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--hz-font-family);
+  font-size: var(--hz-font-size-base);
+  font-weight: var(--hz-font-weight-normal);
+  line-height: var(--hz-line-height-normal);
+  color: var(--hz-text);
+  background-color: var(--hz-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--hz-primary);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--hz-focus-ring);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Typography utilities                                                       */
+/* -------------------------------------------------------------------------- */
+
+.hz-text-muted {
+  color: var(--hz-text-muted);
+}
+
+.hz-text-secondary {
+  color: var(--hz-text-secondary);
+}
+
+.hz-heading-1 {
+  font-size: var(--hz-font-size-4xl);
+  font-weight: var(--hz-font-weight-extrabold);
+  line-height: var(--hz-line-height-tight);
+  letter-spacing: -0.03em;
+  color: var(--hz-text);
+}
+
+.hz-heading-2 {
+  font-size: var(--hz-font-size-3xl);
+  font-weight: var(--hz-font-weight-bold);
+  line-height: var(--hz-line-height-tight);
+  letter-spacing: -0.02em;
+  color: var(--hz-text);
+}
+
+.hz-heading-3 {
+  font-size: var(--hz-font-size-xl);
+  font-weight: var(--hz-font-weight-bold);
+  line-height: var(--hz-line-height-tight);
+  color: var(--hz-text);
+}
+
+.hz-label {
+  display: block;
+  font-size: var(--hz-font-size-sm);
+  font-weight: var(--hz-font-weight-medium);
+  color: var(--hz-text-secondary);
+  margin-bottom: var(--hz-space-2);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Layout                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.hz-container {
+  width: 100%;
+  max-width: var(--hz-container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--hz-space-6);
+  padding-right: var(--hz-space-6);
+}
+
+.hz-page {
+  padding-top: var(--hz-space-8);
+  padding-bottom: var(--hz-space-12);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Card                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.hz-card {
+  background: var(--hz-surface-raised);
+  border: 1px solid var(--hz-border);
+  border-radius: var(--hz-radius);
+  box-shadow: var(--hz-shadow-sm);
+}
+
+.hz-card--padding {
+  padding: var(--hz-space-6);
+}
+
+.hz-card--hover:hover {
+  border-color: var(--hz-primary-muted);
+  box-shadow: var(--hz-shadow-md);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Buttons                                                                    */
+/* -------------------------------------------------------------------------- */
+
+.hz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hz-space-2);
+  padding: 0.625rem 1.25rem;
+  font-family: inherit;
+  font-size: var(--hz-font-size-sm);
+  font-weight: var(--hz-font-weight-semibold);
+  line-height: 1;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--hz-transition),
+    color var(--hz-transition),
+    border-color var(--hz-transition),
+    transform var(--hz-transition-fast),
+    box-shadow var(--hz-transition);
+}
+
+.hz-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.hz-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.hz-btn--sm {
+  padding: 0.5rem 0.875rem;
+  font-size: var(--hz-font-size-xs);
+}
+
+.hz-btn--lg {
+  padding: 0.75rem 1.5rem;
+  font-size: var(--hz-font-size-base);
+}
+
+.hz-btn-primary {
+  background: var(--hz-primary);
+  color: var(--hz-text-inverse);
+  border-color: var(--hz-primary);
+}
+
+.hz-btn-primary:not(:disabled):hover {
+  background: var(--hz-primary-hover);
+  border-color: var(--hz-primary-hover);
+  color: var(--hz-text-inverse);
+}
+
+.hz-btn-outline {
+  background: var(--hz-bg);
+  color: var(--hz-primary);
+  border-color: var(--hz-primary);
+}
+
+.hz-btn-outline:not(:disabled):hover {
+  background: var(--hz-primary-light);
+  color: var(--hz-primary-hover);
+}
+
+.hz-btn-ghost {
+  background: transparent;
+  color: var(--hz-text-secondary);
+  border-color: transparent;
+}
+
+.hz-btn-ghost:not(:disabled):hover {
+  color: var(--hz-primary);
+  background: var(--hz-primary-light);
+  transform: none;
+}
+
+.hz-btn-danger {
+  background: var(--hz-danger);
+  color: var(--hz-text-inverse);
+  border-color: var(--hz-danger);
+}
+
+.hz-btn-danger:not(:disabled):hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: var(--hz-text-inverse);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Form controls                                                              */
+/* -------------------------------------------------------------------------- */
+
+.hz-input,
+.hz-textarea,
+.hz-select {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-family: inherit;
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text);
+  background: var(--hz-bg);
+  border: 1px solid var(--hz-border);
+  border-radius: var(--hz-radius-sm);
+  transition:
+    border-color var(--hz-transition),
+    box-shadow var(--hz-transition);
+}
+
+.hz-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.hz-input::placeholder,
+.hz-textarea::placeholder {
+  color: var(--hz-text-muted);
+}
+
+.hz-input:hover,
+.hz-textarea:hover,
+.hz-select:hover {
+  border-color: var(--hz-border-strong);
+}
+
+.hz-input:focus,
+.hz-textarea:focus,
+.hz-select:focus {
+  outline: none;
+  border-color: var(--hz-primary);
+  box-shadow: var(--hz-focus-ring);
+}
+
+.hz-input--error,
+.hz-textarea--error {
+  border-color: var(--hz-danger);
+}
+
+.hz-input--error:focus,
+.hz-textarea--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
+
+.hz-field-error {
+  margin-top: var(--hz-space-1);
+  font-size: var(--hz-font-size-xs);
+  color: var(--hz-danger);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Badges                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.hz-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hz-space-1);
+  padding: 0.2rem 0.625rem;
+  font-size: var(--hz-font-size-xs);
+  font-weight: var(--hz-font-weight-semibold);
+  line-height: 1.4;
+  border-radius: var(--hz-radius-full);
+  white-space: nowrap;
+}
+
+.hz-badge--primary {
+  background: var(--hz-primary-light);
+  color: var(--hz-primary-active);
+}
+
+.hz-badge--success {
+  background: var(--hz-success-bg);
+  color: var(--hz-success-text);
+}
+
+.hz-badge--warning {
+  background: var(--hz-warning-bg);
+  color: var(--hz-warning-text);
+}
+
+.hz-badge--danger {
+  background: var(--hz-danger-bg);
+  color: var(--hz-danger-text);
+}
+
+.hz-badge--neutral {
+  background: var(--hz-surface);
+  color: var(--hz-text-muted);
+  border: 1px solid var(--hz-border);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Alerts (inline / banner)                                                   */
+/* -------------------------------------------------------------------------- */
+
+.hz-alert {
+  padding: var(--hz-space-4);
+  border-radius: var(--hz-radius-sm);
+  font-size: var(--hz-font-size-sm);
+  border: 1px solid transparent;
+}
+
+.hz-alert--error {
+  background: var(--hz-danger-bg);
+  color: var(--hz-danger-text);
+  border-color: #fecaca;
+}
+
+.hz-alert--success {
+  background: var(--hz-success-bg);
+  color: var(--hz-success-text);
+  border-color: #a7f3d0;
+}
+
+.hz-alert--info {
+  background: var(--hz-info-bg);
+  color: var(--hz-info-text);
+  border-color: #bfdbfe;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Spacing helpers (optional)                                                 */
+/* -------------------------------------------------------------------------- */
+
+.hz-mt-4 { margin-top: var(--hz-space-4); }
+.hz-mt-6 { margin-top: var(--hz-space-6); }
+.hz-mb-4 { margin-bottom: var(--hz-space-4); }
+.hz-mb-6 { margin-bottom: var(--hz-space-6); }
+.hz-gap-4 { gap: var(--hz-space-4); }
+.hz-gap-6 { gap: var(--hz-space-6); }
+
+/* -------------------------------------------------------------------------- */
+/* Step 1.2 — UI component styles                                             */
+/* -------------------------------------------------------------------------- */
+
+.hz-field {
+  margin-bottom: var(--hz-space-4);
+}
+
+.hz-field-required {
+  color: var(--hz-danger);
+}
+
+.hz-field-hint {
+  margin-top: var(--hz-space-1);
+  font-size: var(--hz-font-size-xs);
+  color: var(--hz-text-muted);
+}
+
+/* Page header */
+.hz-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--hz-space-4);
+  margin-bottom: var(--hz-space-8);
+}
+
+.hz-page-header__title {
+  margin: 0;
+  font-size: var(--hz-font-size-3xl);
+  font-weight: var(--hz-font-weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--hz-text);
+}
+
+.hz-page-header__subtitle {
+  margin: var(--hz-space-2) 0 0;
+  font-size: var(--hz-font-size-base);
+  color: var(--hz-text-muted);
+  max-width: 42rem;
+}
+
+.hz-page-header__action {
+  flex-shrink: 0;
+}
+
+/* Empty state */
+.hz-empty {
+  text-align: center;
+  padding: var(--hz-space-12) var(--hz-space-6);
+  border: 1px dashed var(--hz-border);
+  border-radius: var(--hz-radius);
+  background: var(--hz-surface);
+}
+
+.hz-empty__icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--hz-space-4);
+  color: var(--hz-text-muted);
+}
+
+.hz-empty__title {
+  margin: 0 0 var(--hz-space-2);
+  font-size: var(--hz-font-size-xl);
+  font-weight: var(--hz-font-weight-semibold);
+  color: var(--hz-text);
+}
+
+.hz-empty__description {
+  margin: 0 auto var(--hz-space-6);
+  max-width: 24rem;
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text-muted);
+  line-height: var(--hz-line-height-relaxed);
+}
+
+.hz-empty__action {
+  display: flex;
+  justify-content: center;
+}
+
+/* Loading spinner */
+@keyframes hz-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hz-spinner-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hz-space-3);
+}
+
+.hz-spinner-wrap--centered {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: var(--hz-space-8);
+}
+
+.hz-spinner {
+  display: inline-block;
+  border: 2px solid var(--hz-border);
+  border-top-color: var(--hz-primary);
+  border-radius: 50%;
+  animation: hz-spin 0.7s linear infinite;
+}
+
+.hz-spinner--sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.hz-spinner--md {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.hz-spinner--lg {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-width: 3px;
+}
+
+.hz-spinner-label {
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text-muted);
+}

@@ -1,0 +1,14 @@
+# Auto-detect text files and perform LF normalization on commit
+* text=auto
+
+# Standard text files to normalize to LF
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
