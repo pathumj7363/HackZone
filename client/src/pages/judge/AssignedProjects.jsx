@@ -162,7 +162,7 @@ export default function AssignedProjects() {
         <Card padding style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p className="hz-label" style={{ marginBottom: '0.25rem' }}>EVALUATED</p>
-            <h2 className="hz-heading-1" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+            <h2 className="hz-heading-2" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
               {completedProjectsCount.toString().padStart(2, '0')} <span style={{ fontSize: '1rem', color: 'var(--hz-text-muted)', fontWeight: 400 }}>/ {projects.length}</span>
             </h2>
           </div>
@@ -174,7 +174,7 @@ export default function AssignedProjects() {
         <Card padding style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p className="hz-label" style={{ marginBottom: '0.25rem' }}>DEADLINE</p>
-            <h2 className="hz-heading-1" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+            <h2 className="hz-heading-2" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
               2 Days <span style={{ fontSize: '1rem', color: 'var(--hz-text-muted)', fontWeight: 400 }}>remaining</span>
             </h2>
           </div>
@@ -186,7 +186,7 @@ export default function AssignedProjects() {
         <Card padding style={{ background: 'var(--hz-primary)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.8)' }}>SCORING AVG</p>
-            <h2 className="hz-heading-1" style={{ color: 'white', display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+            <h2 className="hz-heading-2" style={{ color: 'white', display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
               {avgScoreDisplay}
             </h2>
           </div>
