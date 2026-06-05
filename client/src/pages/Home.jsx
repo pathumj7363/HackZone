@@ -1,11 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import bgImage from '../assets/home-bg.png';
 
+const ROLES = ['Developers', 'Designers', 'Innovators', 'AI'];
+
 export default function Home() {
+  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
+  useEffect(() => {
+    let timer;
+    const handleTyping = () => {
+      const fullText = ROLES[currentRoleIndex];
+      
+      if (isDeleting) {
+        setCurrentText(fullText.substring(0, currentText.length - 1));
+        setTypingSpeed(50);
+      } else {
+        setCurrentText(fullText.substring(0, currentText.length + 1));
+        setTypingSpeed(150);
+      }
+
+      if (!isDeleting && currentText === fullText) {
+        timer = setTimeout(() => setIsDeleting(true), 1500);
+      } else if (isDeleting && currentText === '') {
+        setIsDeleting(false);
+        setCurrentRoleIndex((prev) => (prev + 1) % ROLES.length);
+        setTypingSpeed(500);
+      } else {
+        timer = setTimeout(handleTyping, typingSpeed);
+      }
+    };
+
+    timer = setTimeout(handleTyping, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, currentRoleIndex, typingSpeed]);
+
   return (
     <div className="hz-page" style={{ paddingTop: 0 }}>
       {/* Hero Section */}
@@ -51,7 +86,14 @@ export default function Home() {
             v1.0 is Live 🚀
           </Badge>
           <h1 className="hz-heading-1" style={{ marginBottom: '1.5rem', color: 'var(--hz-text)' }}>
-            Build the Future at <span style={{ color: 'var(--hz-primary)' }}>HackZone</span>
+            Build the Future with <span style={{ color: 'var(--hz-primary)' }}>{currentText}</span>
+            <style>{`
+              @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+              }
+            `}</style>
+            <span style={{ color: 'var(--hz-primary)', animation: 'blink 1s step-end infinite' }}>|</span>
           </h1>
           <p className="hz-text-secondary" style={{ fontSize: 'var(--hz-font-size-xl)', maxWidth: '700px', margin: '0 auto 2.5rem', lineHeight: 'var(--hz-line-height-relaxed)' }}>
             The ultimate platform to host, participate, and evaluate hackathons. Unleash your creativity and collaborate with developers globally.
