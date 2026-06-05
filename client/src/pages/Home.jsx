@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import bgImage from '../assets/home-bg.png';
 
 export default function Home() {
   return (
@@ -10,13 +11,42 @@ export default function Home() {
       {/* Hero Section */}
       <section 
         style={{ 
-          background: 'linear-gradient(135deg, var(--hz-primary-light) 0%, var(--hz-bg) 100%)',
+          position: 'relative',
           padding: '6rem 0',
-          borderBottom: '1px solid var(--hz-border)'
+          borderBottom: '1px solid var(--hz-border)',
+          overflow: 'hidden'
         }}
         className="px-3"
       >
-        <div className="hz-container" style={{ textAlign: 'center' }}>
+        {/* Blurred Background Layer */}
+        <div 
+          style={{
+            position: 'absolute',
+            top: -20, // Negative offsets to prevent blurred edges from showing white
+            left: -20,
+            right: -20,
+            bottom: -20,
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(8px)',
+            opacity: 0.3,
+            zIndex: 0
+          }}
+        />
+        {/* Gradient Overlay for better text readability */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(var(--hz-primary-rgb, 108, 92, 231), 0.2) 0%, var(--hz-bg) 100%)',
+            zIndex: 0
+          }}
+        />
+        <div className="hz-container" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
           <Badge variant="primary" className="hz-mb-4" style={{ padding: '0.4rem 1rem', fontSize: 'var(--hz-font-size-sm)' }}>
             v1.0 is Live 🚀
           </Badge>
