@@ -13,6 +13,11 @@ export default function Home() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(150);
 
+  // Counter states
+  const [developersCount, setDevelopersCount] = useState(0);
+  const [prizesCount, setPrizesCount] = useState(0);
+  const [hackathonsCount, setHackathonsCount] = useState(0);
+
   useEffect(() => {
     let timer;
     const handleTyping = () => {
@@ -40,6 +45,34 @@ export default function Home() {
     timer = setTimeout(handleTyping, typingSpeed);
     return () => clearTimeout(timer);
   }, [currentText, isDeleting, currentRoleIndex, typingSpeed]);
+
+  useEffect(() => {
+    // Animate counters
+    const duration = 2000; // 2 seconds
+    const steps = 60;
+    const interval = duration / steps;
+    let currentStep = 0;
+
+    const counterTimer = setInterval(() => {
+      currentStep++;
+      const progress = currentStep / steps;
+      // Ease out quad
+      const easing = progress * (2 - progress);
+
+      setDevelopersCount(Math.floor(easing * 12450));
+      setPrizesCount(Math.floor(easing * 50000));
+      setHackathonsCount(Math.floor(easing * 14));
+
+      if (currentStep >= steps) {
+        clearInterval(counterTimer);
+        setDevelopersCount(12450);
+        setPrizesCount(50000);
+        setHackathonsCount(14);
+      }
+    }, interval);
+
+    return () => clearInterval(counterTimer);
+  }, []);
 
   return (
     <div className="hz-page" style={{ paddingTop: 0 }}>
@@ -98,13 +131,40 @@ export default function Home() {
           <p className="hz-text-secondary" style={{ fontSize: 'var(--hz-font-size-xl)', maxWidth: '700px', margin: '0 auto 2.5rem', lineHeight: 'var(--hz-line-height-relaxed)' }}>
             The ultimate platform to host, participate, and evaluate hackathons. Unleash your creativity and collaborate with developers globally.
           </p>
-          <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center" style={{ gap: '1rem' }}>
+          <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center" style={{ gap: '1rem', marginBottom: '3rem' }}>
             <Link to="/register/role-select" style={{ width: '100%', maxWidth: '280px' }} className="d-block w-sm-auto">
               <Button variant="primary" size="lg" style={{ width: '100%' }}>Get Started</Button>
             </Link>
             <Link to="/hackathons" style={{ width: '100%', maxWidth: '280px' }} className="d-block w-sm-auto">
               <Button variant="outline" size="lg" style={{ width: '100%' }}>Browse Hackathons</Button>
             </Link>
+          </div>
+
+          {/* Social Proof Counters */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '1.5rem',
+            color: 'var(--hz-text-secondary)',
+            fontSize: 'var(--hz-font-size-md)',
+            animation: 'fadeInUp 1s ease-out 0.5s both'
+          }}>
+            <div className="d-flex align-items-center" style={{ gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>⚡</span>
+              <span><strong style={{ color: 'var(--hz-text)' }}>{developersCount.toLocaleString()}</strong> Developers Active</span>
+            </div>
+            <div className="d-none d-md-block" style={{ width: '1px', height: '1.5rem', background: 'var(--hz-border)' }} />
+            <div className="d-flex align-items-center" style={{ gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>🏆</span>
+              <span><strong style={{ color: 'var(--hz-text)' }}>${prizesCount.toLocaleString()}+</strong> In Prizes</span>
+            </div>
+            <div className="d-none d-md-block" style={{ width: '1px', height: '1.5rem', background: 'var(--hz-border)' }} />
+            <div className="d-flex align-items-center" style={{ gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>🚀</span>
+              <span><strong style={{ color: 'var(--hz-text)' }}>{hackathonsCount}</strong> Active Hackathons</span>
+            </div>
           </div>
         </div>
       </section>
