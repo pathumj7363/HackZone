@@ -446,12 +446,29 @@ img {
 /* Spacing helpers (optional)                                                 */
 /* -------------------------------------------------------------------------- */
 
-.hz-mt-4 { margin-top: var(--hz-space-4); }
-.hz-mt-6 { margin-top: var(--hz-space-6); }
-.hz-mb-4 { margin-bottom: var(--hz-space-4); }
-.hz-mb-6 { margin-bottom: var(--hz-space-6); }
-.hz-gap-4 { gap: var(--hz-space-4); }
-.hz-gap-6 { gap: var(--hz-space-6); }
+.hz-mt-4 {
+  margin-top: var(--hz-space-4);
+}
+
+.hz-mt-6 {
+  margin-top: var(--hz-space-6);
+}
+
+.hz-mb-4 {
+  margin-bottom: var(--hz-space-4);
+}
+
+.hz-mb-6 {
+  margin-bottom: var(--hz-space-6);
+}
+
+.hz-gap-4 {
+  gap: var(--hz-space-4);
+}
+
+.hz-gap-6 {
+  gap: var(--hz-space-6);
+}
 
 /* -------------------------------------------------------------------------- */
 /* Step 1.2 — UI component styles                                             */
