@@ -23,7 +23,7 @@ export default function Home() {
     let timer;
     const handleTyping = () => {
       const fullText = ROLES[currentRoleIndex];
-      
+
       if (isDeleting) {
         setCurrentText(fullText.substring(0, currentText.length - 1));
         setTypingSpeed(50);
@@ -78,8 +78,8 @@ export default function Home() {
   return (
     <div className="hz-page" style={{ paddingTop: 0 }}>
       {/* Hero Section */}
-      <section 
-        style={{ 
+      <section
+        style={{
           position: 'relative',
           padding: '6rem 0',
           borderBottom: '1px solid var(--hz-border)',
@@ -88,7 +88,7 @@ export default function Home() {
         className="px-3"
       >
         {/* Blurred Background Layer */}
-        <div 
+        <div
           style={{
             position: 'absolute',
             top: -20, // Negative offsets to prevent blurred edges from showing white
@@ -174,8 +174,8 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="hz-container px-3" style={{ paddingBottom: '5rem' }}>
-        <Card padding style={{ 
-          background: 'var(--hz-text)', 
+        <Card padding style={{
+          background: 'var(--hz-text)',
           color: 'var(--hz-text-inverse)',
           textAlign: 'center',
           padding: '4rem 1.5rem',
