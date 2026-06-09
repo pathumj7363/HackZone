@@ -42,15 +42,27 @@ export default function Dashboard() {
 
   // Safe formatting of the first name to prevent rendering errors
   const fullName = user?.name || 'Alex';
-  const firstName = fullName.split(' ')[0];
-
+  const firstName = (() => {
+    const namePart = fullName.split(' ')[0];
+    // If name is placeholder like 'Google', fall back to email prefix
+    if (namePart && namePart.toLowerCase() !== 'google') return namePart;
+    if (user?.email) return user.email.split('@')[0];
+    return namePart;
+  })();
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Good morning';
+    if (hour >= 12 && hour < 17) return 'Good afternoon';
+    if (hour >= 17 && hour < 21) return 'Good evening';
+    return 'Good night';
+  })();
   return (
     <div className="hz-page">
       <div className="hz-container">
         {/* Header Greeting */}
         <div className="hz-mb-6">
           <h1 className="hz-heading-1" style={{ fontSize: 'var(--hz-font-size-4xl)', marginBottom: '0.25rem' }}>
-            Good morning, {firstName}
+            {greeting} {firstName}
           </h1>
           <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-base)', margin: 0 }}>
             Here is what's happening with your hackathons today.
