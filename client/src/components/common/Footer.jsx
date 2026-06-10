@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 export default function Footer() {
   const location = useLocation();
-  const isDark   = location.pathname === '/';
+  const isDark   = true;
 
   const bg      = isDark ? '#04060f'                  : 'var(--hz-surface)';
   const border  = isDark ? 'rgba(255,255,255,0.07)'   : 'var(--hz-border)';

@@ -40,6 +40,26 @@ export default function Login() {
   };
 
   return (
+<<<<<<< HEAD
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, var(--hz-surface) 0%, var(--hz-primary-light) 100%)',
+      }}
+      className="px-3 py-4"
+    >
+      <div style={{ width: '100%', maxWidth: '420px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <Link to="/" style={{ textDecoration: 'none', fontWeight: 'bold', fontSize: '2rem', color: 'var(--hz-primary)', display: 'inline-block' }}>
+            HackZone
+          </Link>
+        </div>
+
+        <Card padding style={{ boxShadow: 'var(--hz-shadow-lg)', border: 'none', background: '#ffffff', borderRadius: '16px' }} className="p-3 p-sm-4">
+=======
     <>
       <style>{`
         /* Override input styles for dark mode */
@@ -74,12 +94,49 @@ export default function Login() {
         <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
         <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
+>>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <Link to="/" style={{ textDecoration: 'none', fontWeight: '900', fontSize: '2.5rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
               HackZone
             </Link>
           </div>
 
+<<<<<<< HEAD
+          {error && <div className="hz-alert hz-alert--error hz-mb-4">{error}</div>}
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <Input
+              label="Email Address"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: 'var(--hz-font-size-xs)' }}>
+              <p className="hz-text-muted" style={{ margin: 0 }}>Hint: Use password "password"</p>
+              <a href="#" style={{ color: 'var(--hz-primary)', fontWeight: '500', textDecoration: 'none' }}>Forgot password?</a>
+            </div>
+
+            <Button type="submit" variant="primary" disabled={loading} style={{ width: '100%', padding: '0.75rem', fontWeight: 'bold' }}>
+              {loading ? 'Signing In...' : 'Sign In'}
+            </Button>
+
+            <p className="hz-text-muted" style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: 'var(--hz-font-size-sm)', marginBottom: 0 }}>
+              Don't have an account? <Link to="/register/role-select" style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'none' }}>Create one</Link>
+            </p>
+          </form>
+        </Card>
+=======
           <div style={{
             background: 'rgba(255, 255, 255, 0.03)',
             backdropFilter: 'blur(20px)',
@@ -143,6 +200,7 @@ export default function Login() {
             </form>
           </div>
         </div>
+>>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
       </div>
     </>
   );

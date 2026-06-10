@@ -104,15 +104,9 @@ function toRgb(hex) {
   return r ? `${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)}` : '255,255,255';
 }
 
-/* ─────────────────────────────────────────────
-   Particle Canvas (120 dots, mouse repulsion)
-───────────────────────────────────────────── */
-function ParticleCanvas() {
-  const cvs = useRef(null);
-  const mouse = useRef({ x: -9999, y: -9999 });
-  const raf = useRef(null);
-  const pts = useRef([]);
 
+<<<<<<< HEAD
+=======
   useEffect(() => {
     const canvas = cvs.current;
     if (!canvas) return;
@@ -214,6 +208,7 @@ function ParticleCanvas() {
     />
   );
 }
+>>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
 
 /* ─────────────────────────────────────────────
    Single Floating Card
@@ -274,15 +269,7 @@ export default function Home() {
   const [prizes, setPrizes] = useState(0);
   const [hacks, setHacks] = useState(0);
 
-  /* ── Apply dark body class ── */
-  useEffect(() => {
-    document.body.style.background = BG;
-    document.body.classList.add('hz-dark-home');
-    return () => {
-      document.body.style.background = '';
-      document.body.classList.remove('hz-dark-home');
-    };
-  }, []);
+
 
   /* ── Typing ── */
   useEffect(() => {
@@ -326,7 +313,7 @@ export default function Home() {
 
   /* ─────────── RENDER ─────────── */
   return (
-    <div style={{ background: BG, color: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: 'transparent', position: 'relative', overflow: 'hidden' }}>
 
       {/* ── Global keyframes injected once ── */}
       <style>{`
@@ -347,11 +334,10 @@ export default function Home() {
           from { opacity: 0; transform: translateY(22px); }
           to   { opacity: 1; transform: translateY(0);    }
         }
-        body.hz-dark-home { background: ${BG} !important; }
+
       `}</style>
 
-      {/* ── Particle Network ── */}
-      <ParticleCanvas />
+
 
       {/* ══════════════════════════════════════
           HERO SECTION
