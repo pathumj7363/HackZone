@@ -6,7 +6,7 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate  = useNavigate();
   const location  = useLocation();
-  const isDark    = location.pathname === '/';
+  const isDark    = true;
 
   const handleLogout = () => { logout(); navigate('/login'); };
 

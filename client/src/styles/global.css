@@ -12,14 +12,14 @@
   --hz-primary-muted: #c7d2fe;
 
   /* Neutrals */
-  --hz-bg: #ffffff;
-  --hz-surface: #f8fafc;
-  --hz-surface-raised: #ffffff;
-  --hz-border: #e2e8f0;
-  --hz-border-strong: #cbd5e1;
-  --hz-text: #0f172a;
-  --hz-text-secondary: #334155;
-  --hz-text-muted: #64748b;
+  --hz-bg: #07091a;
+  --hz-surface: rgba(255, 255, 255, 0.03);
+  --hz-surface-raised: rgba(255, 255, 255, 0.05);
+  --hz-border: rgba(255, 255, 255, 0.08);
+  --hz-border-strong: rgba(255, 255, 255, 0.18);
+  --hz-text: #f8fafc;
+  --hz-text-secondary: #cbd5e1;
+  --hz-text-muted: #94a3b8;
   --hz-text-inverse: #ffffff;
 
   /* Semantic */

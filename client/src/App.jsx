@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/common/ProtectedRoute'
+import GlobalBackground from './components/common/GlobalBackground'
 
 import Home from './pages/Home'
 import Login from './pages/auth/Login'
@@ -36,6 +37,7 @@ import AdminLayout from './components/layout/AdminLayout'
 export default function App() {
   return (
     <BrowserRouter>
+      <GlobalBackground />
       <AuthProvider>
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
