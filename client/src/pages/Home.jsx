@@ -6,7 +6,7 @@ import FeatureSection from '../components/home/InteractiveFeatures';
    Constants
 ───────────────────────────────────────────── */
 const TYPING_WORDS = ['Develop', 'Build', 'Create', 'Innovate', 'Launch', 'Hack'];
-const BG = '#07091a';
+const BG = '#0f172a';
 
 /* ─────────────────────────────────────────────
    SVG Icons for Floating Cards
@@ -83,17 +83,17 @@ const IC = {
 ───────────────────────────────────────────── */
 const FLOAT_CARDS = [
   // Left side (5)
-  { id: 1,  icon: 'lightning', label: 'Fast',   color: '#6366f1', top: '10%',  left: '2%',  delay: '0s',    dur: '4.2s'  },
-  { id: 2,  icon: 'shield',    label: 'Secure', color: '#10b981', top: '28%',  left: '7%',  delay: '1.3s',  dur: '5.1s'  },
-  { id: 3,  icon: 'code',      label: 'Code',   color: '#3b82f6', top: '50%',  left: '1%',  delay: '0.6s',  dur: '4.6s'  },
-  { id: 4,  icon: 'cube',      label: 'Build',  color: '#8b5cf6', top: '68%',  left: '8%',  delay: '2.1s',  dur: '3.9s'  },
-  { id: 5,  icon: 'star',      label: 'Win',    color: '#f59e0b', top: '83%',  left: '3%',  delay: '0.9s',  dur: '5.3s'  },
+  { id: 1, icon: 'lightning', label: 'Fast', color: '#6366f1', top: '10%', left: '2%', delay: '0s', dur: '4.2s' },
+  { id: 2, icon: 'shield', label: 'Secure', color: '#10b981', top: '28%', left: '7%', delay: '1.3s', dur: '5.1s' },
+  { id: 3, icon: 'code', label: 'Code', color: '#3b82f6', top: '50%', left: '1%', delay: '0.6s', dur: '4.6s' },
+  { id: 4, icon: 'cube', label: 'Build', color: '#8b5cf6', top: '68%', left: '8%', delay: '2.1s', dur: '3.9s' },
+  { id: 5, icon: 'star', label: 'Win', color: '#f59e0b', top: '83%', left: '3%', delay: '0.9s', dur: '5.3s' },
   // Right side (5)
-  { id: 6,  icon: 'globe',     label: 'Global', color: '#06b6d4', top: '7%',   right: '3%', delay: '0.4s',  dur: '4.9s'  },
-  { id: 7,  icon: 'chain',     label: 'Chain',  color: '#8b5cf6', top: '25%',  right: '1%', delay: '1.7s',  dur: '4.3s'  },
-  { id: 8,  icon: 'cpu',       label: 'AI',     color: '#10b981', top: '45%',  right: '6%', delay: '0.2s',  dur: '5.6s'  },
-  { id: 9,  icon: 'award',     label: 'Prize',  color: '#f59e0b', top: '63%',  right: '2%', delay: '1.5s',  dur: '3.7s'  },
-  { id: 10, icon: 'rocket',    label: 'Launch', color: '#ef4444', top: '79%',  right: '5%', delay: '0.7s',  dur: '4.5s'  },
+  { id: 6, icon: 'globe', label: 'Global', color: '#06b6d4', top: '7%', right: '3%', delay: '0.4s', dur: '4.9s' },
+  { id: 7, icon: 'chain', label: 'Chain', color: '#8b5cf6', top: '25%', right: '1%', delay: '1.7s', dur: '4.3s' },
+  { id: 8, icon: 'cpu', label: 'AI', color: '#10b981', top: '45%', right: '6%', delay: '0.2s', dur: '5.6s' },
+  { id: 9, icon: 'award', label: 'Prize', color: '#f59e0b', top: '63%', right: '2%', delay: '1.5s', dur: '3.7s' },
+  { id: 10, icon: 'rocket', label: 'Launch', color: '#ef4444', top: '79%', right: '5%', delay: '0.7s', dur: '4.5s' },
 ];
 
 /* ─────────────────────────────────────────────
@@ -105,15 +105,119 @@ function toRgb(hex) {
 }
 
 
+<<<<<<< HEAD
+=======
+  useEffect(() => {
+    const canvas = cvs.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    const init = () => {
+      pts.current = Array.from({ length: 120 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        r: Math.random() * 1.5 + 0.5,
+      }));
+    };
+
+    resize();
+    init();
+
+    const onMouseMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
+    const onResize = () => { resize(); init(); };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('resize', onResize);
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const p = pts.current;
+      const m = mouse.current;
+
+      p.forEach(pt => {
+        // repulsion
+        const dx = pt.x - m.x, dy = pt.y - m.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 110 && d > 0) {
+          const f = (110 - d) / 110;
+          pt.vx += (dx / d) * f * 0.55;
+          pt.vy += (dy / d) * f * 0.55;
+        }
+        // speed cap
+        const spd = Math.hypot(pt.vx, pt.vy);
+        if (spd > 2.5) { pt.vx = (pt.vx / spd) * 2.5; pt.vy = (pt.vy / spd) * 2.5; }
+        // damping + move
+        pt.vx *= 0.98; pt.vy *= 0.98;
+        pt.x += pt.vx; pt.y += pt.vy;
+        // bounce
+        if (pt.x < 0) { pt.x = 0; pt.vx *= -1; }
+        if (pt.x > canvas.width) { pt.x = canvas.width; pt.vx *= -1; }
+        if (pt.y < 0) { pt.y = 0; pt.vy *= -1; }
+        if (pt.y > canvas.height) { pt.y = canvas.height; pt.vy *= -1; }
+        // dot
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(148, 130, 255, 0.45)';
+        ctx.fill();
+      });
+
+      // connections
+      for (let i = 0; i < p.length; i++) {
+        for (let j = i + 1; j < p.length; j++) {
+          const d = Math.hypot(p[i].x - p[j].x, p[i].y - p[j].y);
+          if (d < 140) {
+            ctx.beginPath();
+            ctx.moveTo(p[i].x, p[i].y);
+            ctx.lineTo(p[j].x, p[j].y);
+            ctx.strokeStyle = `rgba(108, 86, 255, ${0.14 * (1 - d / 140)})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      raf.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={cvs}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
+    />
+  );
+}
+>>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
 
 /* ─────────────────────────────────────────────
    Single Floating Card
 ───────────────────────────────────────────── */
 function FloatCard({ card }) {
   const Icon = IC[card.icon];
-  const rgb  = toRgb(card.color);
-  const pos  = {};
-  if (card.left)  pos.left  = card.left;
+  const rgb = toRgb(card.color);
+  const pos = {};
+  if (card.left) pos.left = card.left;
   if (card.right) pos.right = card.right;
 
   return (
@@ -155,15 +259,15 @@ function FloatCard({ card }) {
 ───────────────────────────────────────────── */
 export default function Home() {
   /* Typing effect */
-  const [wIdx,        setWIdx]        = useState(0);
-  const [typed,       setTyped]       = useState('');
-  const [isDeleting,  setIsDeleting]  = useState(false);
-  const [speed,       setSpeed]       = useState(120);
+  const [wIdx, setWIdx] = useState(0);
+  const [typed, setTyped] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [speed, setSpeed] = useState(120);
 
   /* Counters */
-  const [devs,   setDevs]   = useState(0);
+  const [devs, setDevs] = useState(0);
   const [prizes, setPrizes] = useState(0);
-  const [hacks,  setHacks]  = useState(0);
+  const [hacks, setHacks] = useState(0);
 
 
 
@@ -302,7 +406,7 @@ export default function Home() {
           {/* Subtitle */}
           <p style={{
             fontSize: 'clamp(0.95rem, 2vw, 1.15rem)',
-            color: 'rgba(255,255,255,0.58)',
+            color: 'rgba(255,255,255,0.75)',
             maxWidth: '570px', margin: '0 auto 2.75rem',
             lineHeight: 1.72,
             animation: 'hz-fade-up 0.7s ease-out 0.2s both',
@@ -319,15 +423,15 @@ export default function Home() {
             <Link to="/register/role-select" style={{ textDecoration: 'none' }}>
               <button
                 style={{
-                  background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)',
+                  background: '#4f46e5',
                   color: '#fff', border: 'none',
                   padding: '0.78rem 2.1rem', borderRadius: '10px',
                   fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
                   transition: 'all 0.22s ease',
-                  boxShadow: '0 4px 24px rgba(108,99,255,0.42)',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,99,255,0.55)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(108,99,255,0.42)'; }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'; e.currentTarget.style.background = '#4338ca'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#4f46e5'; }}
               >
                 Get Started
               </button>
@@ -354,13 +458,13 @@ export default function Home() {
           {/* Stats */}
           <div style={{
             display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem',
-            color: 'rgba(255,255,255,0.55)', fontSize: '0.9rem',
+            color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem',
             animation: 'hz-fade-up 0.7s ease-out 0.45s both',
           }}>
             {[
-              { icon: '⚡', num: devs.toLocaleString(),     suffix: '',  rest: 'Developers Active' },
-              { icon: '🏆', num: `$${prizes.toLocaleString()}`, suffix: '+', rest: 'In Prizes'         },
-              { icon: '🚀', num: hacks,                     suffix: '',  rest: 'Active Hackathons'  },
+              { icon: '⚡', num: devs.toLocaleString(), suffix: '', rest: 'Developers Active' },
+              { icon: '🏆', num: `$${prizes.toLocaleString()}`, suffix: '+', rest: 'In Prizes' },
+              { icon: '🚀', num: hacks, suffix: '', rest: 'Active Hackathons' },
             ].map((s, i) => (
               <React.Fragment key={s.icon}>
                 {i > 0 && (
@@ -401,27 +505,27 @@ export default function Home() {
             position: 'relative', overflow: 'hidden',
           }}>
             {/* subtle gradient orbs */}
-            <div style={{ position:'absolute', top:'-60px', left:'10%', width:'300px', height:'300px', background:'radial-gradient(ellipse,rgba(108,99,255,0.12),transparent 70%)', pointerEvents:'none' }} />
-            <div style={{ position:'absolute', bottom:'-60px', right:'10%', width:'300px', height:'300px', background:'radial-gradient(ellipse,rgba(139,92,246,0.1),transparent 70%)', pointerEvents:'none' }} />
+            <div style={{ position: 'absolute', top: '-60px', left: '10%', width: '300px', height: '300px', background: 'radial-gradient(ellipse,rgba(108,99,255,0.12),transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '-60px', right: '10%', width: '300px', height: '300px', background: 'radial-gradient(ellipse,rgba(139,92,246,0.1),transparent 70%)', pointerEvents: 'none' }} />
 
-            <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.2rem)', fontWeight: 800, color: '#fff', marginBottom: '0.85rem', position:'relative', zIndex:1 }}>
+            <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.2rem)', fontWeight: 800, color: '#fff', marginBottom: '0.85rem', position: 'relative', zIndex: 1 }}>
               Ready to start building?
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1.05rem', marginBottom: '2.25rem', position:'relative', zIndex:1 }}>
+            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1.05rem', marginBottom: '2.25rem', position: 'relative', zIndex: 1 }}>
               Join thousands of developers building the next big thing.
             </p>
-            <Link to="/register/role-select" style={{ textDecoration: 'none', position:'relative', zIndex:1 }}>
+            <Link to="/register/role-select" style={{ textDecoration: 'none', position: 'relative', zIndex: 1 }}>
               <button
                 style={{
-                  background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)',
+                  background: '#4f46e5',
                   color: '#fff', border: 'none',
                   padding: '0.875rem 2.5rem', borderRadius: '10px',
                   fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
                   transition: 'all 0.22s ease',
-                  boxShadow: '0 4px 24px rgba(108,99,255,0.4)',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 36px rgba(108,99,255,0.55)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(108,99,255,0.4)'; }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'; e.currentTarget.style.background = '#4338ca'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#4f46e5'; }}
               >
                 Create Your Free Account
               </button>

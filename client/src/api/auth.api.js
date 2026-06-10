@@ -1,25 +1,25 @@
-// Mocked Auth API
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import API from './axios.js';
 
 export const loginApi = async (email, password) => {
-  await delay(500);
-  let role = 'participant';
-  if (email.includes('organizer')) role = 'organizer';
-  if (email.includes('judge')) role = 'judge';
-  if (email.includes('admin')) role = 'admin';
-
-  if (password === 'password') {
-    const user = { id: Date.now().toString(), email, role, name: `Mock ${role}` };
-    const token = `mock-jwt-token-for-${role}`;
-    return { user, token };
+  try {
+    const response = await API.post('/auth/login', { email, password });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('An error occurred during login');
   }
-  throw new Error('Invalid credentials. Use password="password"');
 };
 
 export const registerApi = async (userData) => {
-  await delay(500);
-  const role = userData.role || 'participant';
-  const user = { id: Date.now().toString(), email: userData.email, role, name: userData.name };
-  const token = `mock-jwt-token-for-${role}`;
-  return { user, token };
+  try {
+    const response = await API.post('/auth/register', userData);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('An error occurred during registration');
+  }
 };
