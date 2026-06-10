@@ -15,8 +15,8 @@ const roles = [
       </svg>
     ),
     color: '#3b82f6',
-    bgLight: '#eff6ff',
-    borderColor: '#bfdbfe',
+    bgLight: 'rgba(59, 130, 246, 0.15)',
+    borderColor: 'rgba(59, 130, 246, 0.3)',
   },
   {
     id: 'organizer',
@@ -31,8 +31,8 @@ const roles = [
       </svg>
     ),
     color: '#10b981',
-    bgLight: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    bgLight: 'rgba(16, 185, 129, 0.15)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   {
     id: 'judge',
@@ -45,8 +45,8 @@ const roles = [
       </svg>
     ),
     color: '#f59e0b',
-    bgLight: '#fffbeb',
-    borderColor: '#fde68a',
+    bgLight: 'rgba(245, 158, 11, 0.15)',
+    borderColor: 'rgba(245, 158, 11, 0.3)',
   },
 ];
 
@@ -68,33 +68,38 @@ export default function RoleSelect() {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, var(--hz-surface) 0%, var(--hz-primary-light) 100%)',
-      }}
-      className="px-3 py-5"
-    >
-      {/* Logo */}
-      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-        <Link to="/" style={{ textDecoration: 'none', fontWeight: 'bold', fontSize: '2rem', color: 'var(--hz-primary)', display: 'inline-block' }}>
-          HackZone
-        </Link>
-      </div>
+      <div
+        className="px-3 py-5"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: '#0f172a',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Ambient Glow */}
+        <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem', maxWidth: '500px' }} className="px-2">
-        <h2 className="hz-heading-2" style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>
-          Who are you?
-        </h2>
-        <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.6' }}>
-          Select your role to get started. This helps us personalize your experience on HackZone.
-        </p>
-      </div>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
+          <Link to="/" style={{ textDecoration: 'none', fontWeight: '900', fontSize: '2.5rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
+            HackZone
+          </Link>
+        </div>
+
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem', maxWidth: '500px', position: 'relative', zIndex: 1 }} className="px-2">
+          <h2 className="hz-heading-2" style={{ fontSize: '1.75rem', marginBottom: '0.75rem', color: '#f8fafc' }}>
+            Who are you?
+          </h2>
+          <p style={{ fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.6', color: '#94a3b8' }}>
+            Select your role to get started. This helps us personalize your experience on HackZone.
+          </p>
+        </div>
 
       {/* Role Cards */}
       <div style={{
@@ -104,6 +109,8 @@ export default function RoleSelect() {
         width: '100%',
         maxWidth: '820px',
         marginBottom: '2.5rem',
+        position: 'relative',
+        zIndex: 1
       }}>
         {roles.map((role) => {
           const isHovered = hoveredRole === role.id;
@@ -123,12 +130,14 @@ export default function RoleSelect() {
                 alignItems: 'center',
                 textAlign: 'center',
                 padding: '2rem 1.25rem 1.75rem',
-                borderRadius: '16px',
-                background: isSelected ? role.bgLight : '#ffffff',
-                border: `2px solid ${isSelected ? role.color : isHovered ? role.borderColor : 'var(--hz-border)'}`,
+                borderRadius: '24px',
+                background: isSelected ? role.bgLight : 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: `1px solid ${isSelected ? role.color : isHovered ? role.color : 'rgba(255, 255, 255, 0.08)'}`,
                 boxShadow: isHovered || isSelected
-                  ? `0 12px 40px rgba(0,0,0,0.1), 0 0 0 3px ${role.bgLight}`
-                  : 'var(--hz-shadow-sm)',
+                  ? `0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px ${role.color}`
+                  : '0 4px 20px rgba(0,0,0,0.2)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 transform: isHovered ? 'translateY(-6px)' : isSelected ? 'scale(0.97)' : 'translateY(0)',
                 position: 'relative',
@@ -170,7 +179,7 @@ export default function RoleSelect() {
                 margin: '0 0 0.5rem',
                 fontSize: '1.2rem',
                 fontWeight: '700',
-                color: isHovered || isSelected ? role.color : 'var(--hz-text)',
+                color: isHovered || isSelected ? role.color : '#f8fafc',
                 transition: 'color 0.3s ease',
               }}>
                 {role.label}
@@ -180,7 +189,7 @@ export default function RoleSelect() {
               <p style={{
                 margin: 0,
                 fontSize: 'var(--hz-font-size-sm)',
-                color: 'var(--hz-text-muted)',
+                color: '#94a3b8',
                 lineHeight: '1.55',
               }}>
                 {role.description}
@@ -212,9 +221,9 @@ export default function RoleSelect() {
       </div>
 
       {/* Footer link */}
-      <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', textAlign: 'center' }}>
+      <p style={{ fontSize: 'var(--hz-font-size-sm)', textAlign: 'center', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
         Already have an account?{' '}
-        <Link to="/login" style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'none' }}>
+        <Link to="/login" style={{ color: '#8b5cf6', fontWeight: '700', textDecoration: 'none' }}>
           Sign in
         </Link>
       </p>
