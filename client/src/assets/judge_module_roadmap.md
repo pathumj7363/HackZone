@@ -50,7 +50,7 @@ The Dashboard is the landing page for a judge. It should immediately show them t
 
 > [!TIP]
 > **Prompt to copy & paste for Phase 4:**
-> "Design and implement the `JudgeDashboard.jsx` page in `client/src/pages/dashboard`. The UI should feature the modern dark glassmorphism theme. It should display:
+> "Design and implement the `JudgeDashboard.jsx` page in `client/src/pages/dashboard`. CRITICAL: Do NOT change `global.css` or the overall theme. Implement the UI using the existing light theme and existing components. It should display:
 > 1. Metric cards: Pending Reviews, Completed Reviews, Total Hackathons Judging.
 > 2. A 'To-Do' list or grid of project submissions that have been assigned to them but not yet scored.
 > 3. Visual indicators (like progress bars) showing how many projects they have left to evaluate for a specific hackathon.
@@ -68,7 +68,7 @@ This is the core workspace for a judge. They need to see the project details and
 > 1. Create a `ReviewSubmission.jsx` page. The left column should display the project's details (Title, Description, GitHub Link, and an embedded Demo Video). 
 > 2. The right column should be a sticky 'Scoring Rubric' form. Implement slider inputs or star ratings for the scoring criteria (Innovation, Technical, Design, Usability). 
 > 3. Include a text area for written feedback and a 'Submit Evaluation' button. 
-> 4. Ensure the UI looks clean, utilizes the dark theme, and connects to the `submitEvaluation` API service."
+> 4. Ensure the UI looks clean, utilizes the light theme, and connects to the `submitEvaluation` API service."
 
 ---
 
@@ -90,4 +90,4 @@ Judges often want to see how their scoring impacts the overall hackathon results
 As we execute these phases, we will verify by:
 1. Creating an account with the `judge` role and testing the `isJudge` middleware to ensure they cannot access organizer routes, but can access their assigned submissions.
 2. Manually submitting an evaluation via the frontend UI and verifying that the database correctly updates the `evaluation.model.js` and aggregates the score on the `submission.model.js`.
-3. Ensuring the sliders/rating inputs in the UI update state correctly and look premium in the dark theme.
+3. Ensuring the sliders/rating inputs in the UI update state correctly and look premium in the light theme.
