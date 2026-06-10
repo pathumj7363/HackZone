@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
+import judgeRoutes from "./routes/judge.routes.js";
+import evaluationRoutes from "./routes/evaluation.routes.js";
 
 const app = express();
 
@@ -13,6 +15,8 @@ app.get("/", (req, res) => {
 
 // Mount Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/judge", judgeRoutes);
+app.use("/api/evaluations", evaluationRoutes);
 
 const PORT = 5000;
 
