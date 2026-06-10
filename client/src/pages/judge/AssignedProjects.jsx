@@ -13,7 +13,11 @@ export default function AssignedProjects() {
 
   useEffect(() => {
     getAssignedProjectsApi().then(data => {
-      setProjects(data);
+      setProjects(data || []);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setProjects([]);
       setLoading(false);
     });
   }, []);
