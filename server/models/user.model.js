@@ -1,0 +1,40 @@
+import pool from '../database/db.js';
+
+/**
+ * Fetch a user by their email address.
+ * @param {string} email 
+ * @returns {Promise<Object|null>} The user object or null if not found
+ */
+export const findUserByEmail = async (email) => {
+  const query = `SELECT * FROM users WHERE email = ?`;
+  
+  // pool.query returns [rows, fields]
+  const [rows] = await pool.query(query, [email]);
+  
+  if (rows.length === 0) {
+    return null;
+  }
+  
+  return rows[0];
+};
+
+/**
+ * Insert a new user into the database.
+ * @param {string} id - Unique identifier (e.g. UUID or Date.now().toString())
+ * @param {string} name - User's full name
+ * @param {string} email - User's email address
+ * @param {string} password_hash - The bcrypt hashed password
+ * @param {string} role - The user's role (e.g. 'participant', 'organizer', 'judge')
+ * @returns {Promise<Object>} The created user object
+ */
+export const createUser = async (id, name, email, password_hash, role) => {
+  const query = `
+    INSERT INTO users (id, name, email, password_hash, role) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  
+  await pool.query(query, [id, name, email, password_hash, role]);
+  
+  // Return the user object (excluding password hash)
+  return { id, name, email, role };
+};
