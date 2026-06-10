@@ -15,13 +15,8 @@ const roles = [
       </svg>
     ),
     color: '#3b82f6',
-<<<<<<< HEAD
-    bgLight: '#9cbdecff',
-    borderColor: '#08182dff',
-=======
     bgLight: 'rgba(59, 130, 246, 0.15)',
     borderColor: 'rgba(59, 130, 246, 0.3)',
->>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
   },
   {
     id: 'organizer',
@@ -36,13 +31,8 @@ const roles = [
       </svg>
     ),
     color: '#10b981',
-<<<<<<< HEAD
-    bgLight: '#0b5331ff',
-    borderColor: '#a7f3d0',
-=======
     bgLight: 'rgba(16, 185, 129, 0.15)',
     borderColor: 'rgba(16, 185, 129, 0.3)',
->>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
   },
   {
     id: 'judge',
@@ -55,13 +45,8 @@ const roles = [
       </svg>
     ),
     color: '#f59e0b',
-<<<<<<< HEAD
-    bgLight: '#66581dff',
-    borderColor: '#fde68a',
-=======
     bgLight: 'rgba(245, 158, 11, 0.15)',
     borderColor: 'rgba(245, 158, 11, 0.3)',
->>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
   },
 ];
 
@@ -83,35 +68,6 @@ export default function RoleSelect() {
   };
 
   return (
-<<<<<<< HEAD
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, var(--hz-surface) 0%, var(--hz-primary-light) 100%)',
-      }}
-      className="px-3 py-5"
-    >
-      {/* Logo */}
-      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-        <Link to="/" style={{ textDecoration: 'none', fontWeight: 'bold', fontSize: '2rem', color: 'var(--hz-primary)', display: 'inline-block' }}>
-          HackZone
-        </Link>
-      </div>
-
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem', maxWidth: '500px' }} className="px-2">
-        <h2 className="hz-heading-2" style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>
-          Who are you?
-        </h2>
-        <p className="hz-text-muted" style={{ color: '#ffffffff', fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.6' }}>
-          Select your role to get started. This helps us personalize your experience on HackZone.
-        </p>
-      </div>
-=======
       <div
         className="px-3 py-5"
         style={{
@@ -144,7 +100,6 @@ export default function RoleSelect() {
             Select your role to get started. This helps us personalize your experience on HackZone.
           </p>
         </div>
->>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
 
       {/* Role Cards */}
       <div style={{
@@ -175,17 +130,11 @@ export default function RoleSelect() {
                 alignItems: 'center',
                 textAlign: 'center',
                 padding: '2rem 1.25rem 1.75rem',
-<<<<<<< HEAD
-                borderRadius: '16px',
-                background: isSelected ? role.bgLight : '#36314aff',
-                border: `2px solid ${isSelected ? role.color : isHovered ? role.borderColor : 'var(--hz-border)'}`,
-=======
                 borderRadius: '24px',
                 background: isSelected ? role.bgLight : 'rgba(255, 255, 255, 0.03)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 border: `1px solid ${isSelected ? role.color : isHovered ? role.color : 'rgba(255, 255, 255, 0.08)'}`,
->>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
                 boxShadow: isHovered || isSelected
                   ? `0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px ${role.color}`
                   : '0 4px 20px rgba(0,0,0,0.2)',
@@ -272,15 +221,9 @@ export default function RoleSelect() {
       </div>
 
       {/* Footer link */}
-<<<<<<< HEAD
-      <p className="hz-text-muted" style={{ color: '#100643ff', fontSize: 'var(--hz-font-size-sm)', textAlign: 'center' }}>
-        Already have an account?{' '}
-        <Link to="/login" style={{ color: '#2a09cdff', fontWeight: '600', textDecoration: 'none' }}>
-=======
       <p style={{ fontSize: 'var(--hz-font-size-sm)', textAlign: 'center', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
         Already have an account?{' '}
         <Link to="/login" style={{ color: '#8b5cf6', fontWeight: '700', textDecoration: 'none' }}>
->>>>>>> 1c360b9fc9b227910f90bd0d2eaaae114bc52ce0
           Sign in
         </Link>
       </p>

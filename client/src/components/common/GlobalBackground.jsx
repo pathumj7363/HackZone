@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const BG = '#07091a';
 
@@ -7,10 +8,27 @@ export default function GlobalBackground() {
   const mouse = useRef({ x: -9999, y: -9999 });
   const raf = useRef(null);
   const pts = useRef([]);
+  const location = useLocation();
+
+  const isDarkRoute = ['/', '/login', '/register', '/register/role-select'].includes(location.pathname);
 
   useEffect(() => {
-    // Force body background
-    document.body.style.backgroundColor = BG;
+    if (isDarkRoute) {
+      document.body.style.backgroundColor = BG;
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.body.style.backgroundColor = '';
+      document.documentElement.removeAttribute('data-theme');
+    }
+
+    return () => {
+      document.body.style.backgroundColor = '';
+      document.documentElement.removeAttribute('data-theme');
+    };
+  }, [isDarkRoute]);
+
+  useEffect(() => {
+    if (!isDarkRoute) return;
     
     const canvas = cvs.current;
     if (!canvas) return;
@@ -97,7 +115,9 @@ export default function GlobalBackground() {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('resize', onResize);
     };
-  }, []);
+  }, [isDarkRoute]);
+
+  if (!isDarkRoute) return null;
 
   return (
     <canvas
