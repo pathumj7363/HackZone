@@ -6,39 +6,23 @@ import Badge from '../ui/Badge';
 /* ─────────────────────────────────────────────
    Tilt Card (3-D hover)
 ───────────────────────────────────────────── */
-const TiltCard = ({ children, isActive, onClick, borderColor, dark }) => {
-  const cardRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-    const { left, top, width, height } = card.getBoundingClientRect();
-    const x = e.clientX - left, y = e.clientY - top;
-    const rX = ((y - height / 2) / (height / 2)) * -8;
-    const rY = ((x - width  / 2) / (width  / 2)) *  8;
-    card.style.transform = `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg) scale3d(1.02,1.02,1.02)`;
-  };
-
-  const handleMouseLeave = () => {
-    if (cardRef.current) cardRef.current.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1,1,1)';
-  };
-
-  const bg      = dark ? (isActive ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)') : undefined;
-  const border  = isActive ? `2px solid ${borderColor}` : (dark ? '2px solid rgba(255,255,255,0.08)' : '2px solid transparent');
-  const shadow  = isActive ? `0 0 24px ${borderColor}45` : undefined;
+const TiltCard = ({ children, borderColor, dark }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const bg      = dark ? 'rgba(255,255,255,0.03)' : undefined;
+  const border  = dark ? '2px solid rgba(255,255,255,0.08)' : '2px solid transparent';
 
   return (
     <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
-        cursor: 'pointer',
-        transition: 'transform 0.2s ease-out',
         height: '100%',
-        willChange: 'transform',
-        transformStyle: 'preserve-3d',
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease',
+        transform: isHovered ? 'translateY(-12px)' : 'translateY(0)',
+        boxShadow: isHovered ? `0 20px 40px rgba(0,0,0,0.3), 0 0 20px ${borderColor}40` : 'none',
+        borderRadius: '12px',
+        position: 'relative',
+        zIndex: isHovered ? 10 : 1,
       }}
     >
       <div
@@ -46,15 +30,12 @@ const TiltCard = ({ children, isActive, onClick, borderColor, dark }) => {
           background: bg,
           border,
           borderTop: `4px solid ${borderColor}`,
-          boxShadow: shadow,
           borderRadius: '12px',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '1.5rem',
-          transform: 'translateZ(30px)',
-          transition: 'all 0.3s ease',
           backdropFilter: dark ? 'blur(10px)' : undefined,
           WebkitBackdropFilter: dark ? 'blur(10px)' : undefined,
         }}
@@ -221,7 +202,6 @@ const MockJudgingSlider = ({ dark }) => {
    Main Feature Section
 ───────────────────────────────────────────── */
 export default function FeatureSection({ dark = false }) {
-  const [activeTab, setActiveTab] = useState('participant');
 
   const features = [
     {
@@ -269,7 +249,7 @@ export default function FeatureSection({ dark = false }) {
           Everything You Need
         </h2>
         <p style={{ fontSize: '1.05rem', color: subClr }}>
-          Click a card below to explore interactive previews of the platform.
+          Explore the features of our platform tailored to your role.
         </p>
       </div>
 
@@ -278,13 +258,11 @@ export default function FeatureSection({ dark = false }) {
         {features.map(f => (
           <div className="col-12 col-md-6 col-lg-4" key={f.id}>
             <TiltCard
-              isActive={activeTab === f.id}
-              onClick={() => setActiveTab(f.id)}
               borderColor={f.color}
               dark={dark}
             >
-              {/* Inner content — pointer-events: none so tilt works */}
-              <div style={{ pointerEvents: 'none' }}>
+              {/* Inner content */}
+              <div>
                 <span style={{
                   ...f.badgeStyle,
                   display: 'inline-block',
@@ -300,19 +278,20 @@ export default function FeatureSection({ dark = false }) {
                 <p style={{ fontSize: '0.875rem', color: descClr, lineHeight: 1.6, marginBottom: '1.5rem' }}>{f.desc}</p>
               </div>
               <div>
-                <Link to={f.link} style={{ textDecoration: 'none', pointerEvents: 'auto' }} onClick={e => e.stopPropagation()}>
+                <Link to={f.link} style={{ textDecoration: 'none' }}>
                   <button style={{
                     width: '100%',
-                    padding: '0.55rem 1rem',
+                    padding: '0.65rem 1rem',
                     borderRadius: '8px',
-                    fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer',
-                    background: dark ? 'rgba(255,255,255,0.06)' : 'transparent',
-                    color: dark ? 'rgba(255,255,255,0.8)' : f.color,
-                    border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : f.color}`,
+                    fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
+                    background: f.color,
+                    color: '#fff',
+                    border: 'none',
+                    boxShadow: `0 4px 12px ${f.color}50`,
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : `${f.color}18`; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : 'transparent'; }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 6px 16px ${f.color}80`; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = `0 4px 12px ${f.color}50`; }}
                   >
                     {f.btnText}
                   </button>
@@ -323,39 +302,6 @@ export default function FeatureSection({ dark = false }) {
         ))}
       </div>
 
-      {/* Interactive Preview Window */}
-      <div style={{ marginTop: '3.5rem' }}>
-        <div style={{
-          border: `1px solid ${winBord}`,
-          background: winBg,
-          borderRadius: '14px',
-          overflow: 'hidden',
-          boxShadow: dark ? '0 20px 60px rgba(0,0,0,0.5)' : '0 20px 40px rgba(0,0,0,0.15)',
-          backdropFilter: dark ? 'blur(14px)' : undefined,
-          WebkitBackdropFilter: dark ? 'blur(14px)' : undefined,
-        }}>
-          {/* Mac window chrome */}
-          <div style={{
-            padding: '0.75rem 1.5rem',
-            borderBottom: `1px solid ${winBord}`,
-            background: winHead,
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-          }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56' }} />
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e' }} />
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f' }} />
-            <span style={{ fontSize: '0.82rem', color: winTxt, marginLeft: '1rem', fontWeight: 500, letterSpacing: '0.5px' }}>
-              Interactive Preview / {features.find(f => f.id === activeTab)?.role}
-            </span>
-          </div>
-          {/* Content */}
-          <div style={{ padding: '2rem' }}>
-            {activeTab === 'participant' && <MockTeamBuilder dark={dark} />}
-            {activeTab === 'organizer'   && <MockMetricsChart dark={dark} />}
-            {activeTab === 'judge'       && <MockJudgingSlider dark={dark} />}
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
