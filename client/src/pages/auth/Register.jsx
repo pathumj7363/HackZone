@@ -149,7 +149,7 @@ export default function Register() {
         .hz-divider {
           display: flex;
           align-items: center;
-          color: var(--hz-text-muted);
+          color: #64748b;
           font-size: 0.85rem;
           font-weight: 600;
           text-transform: uppercase;
@@ -161,14 +161,10 @@ export default function Register() {
           content: "";
           flex: 1;
           height: 1px;
-          background: var(--hz-border-strong);
+          background: rgba(255, 255, 255, 0.1);
         }
-        .hz-divider::before {
-          margin-right: 1rem;
-        }
-        .hz-divider::after {
-          margin-left: 1rem;
-        }
+        .hz-divider::before { margin-right: 1rem; }
+        .hz-divider::after { margin-left: 1rem; }
 
         @media (min-width: 768px) {
           .hz-split-layout {
@@ -176,12 +172,8 @@ export default function Register() {
             align-items: center;
             gap: 0;
           }
-          .hz-col-left {
-            padding-right: 3.5rem;
-          }
-          .hz-col-right {
-            padding-left: 3.5rem;
-          }
+          .hz-col-left { padding-right: 3.5rem; }
+          .hz-col-right { padding-left: 3.5rem; }
           .hz-divider {
             flex-direction: column;
             align-items: center;
@@ -193,19 +185,15 @@ export default function Register() {
             height: auto;
             background: repeating-linear-gradient(
               to bottom,
-              var(--hz-border-strong) 0,
-              var(--hz-border-strong) 4px,
+              rgba(255, 255, 255, 0.1) 0,
+              rgba(255, 255, 255, 0.1) 4px,
               transparent 4px,
               transparent 8px
             );
             margin: 0;
           }
-          .hz-divider::before {
-            margin-bottom: 1.5rem;
-          }
-          .hz-divider::after {
-            margin-top: 1.5rem;
-          }
+          .hz-divider::before { margin-bottom: 1.5rem; }
+          .hz-divider::after { margin-top: 1.5rem; }
         }
         
         .hz-oauth-btn {
@@ -221,56 +209,75 @@ export default function Register() {
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
-          border: 1px solid var(--hz-border);
-          box-shadow: var(--hz-shadow-sm);
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #f8fafc;
         }
         .hz-oauth-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: var(--hz-shadow-md);
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 14px rgba(0,0,0,0.2);
         }
         .hz-oauth-btn:disabled {
           opacity: 0.7;
           cursor: not-allowed;
         }
-        .hz-oauth-google {
-          background: #ffffff;
-          color: var(--hz-text);
+
+        /* Override input styles for dark mode */
+        .hz-register-wrapper .hz-input {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: #f8fafc !important;
         }
-        .hz-oauth-github {
-          background: #ffffff;
-          color: var(--hz-text);
+        .hz-register-wrapper .hz-input:focus {
+          background: rgba(255, 255, 255, 0.08) !important;
+          border-color: rgba(108, 99, 255, 0.6) !important;
+          box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2) !important;
+        }
+        .hz-register-wrapper .hz-label {
+          color: #cbd5e1 !important;
+          font-weight: 500 !important;
         }
       `}</style>
 
-      <div className="hz-register-wrapper">
-        <div style={{ textAlign: 'center', marginBottom: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Link to="/" style={{ textDecoration: 'none', fontWeight: 'bold', fontSize: '2rem', color: 'var(--hz-primary)', display: 'inline-block' }}>
+      <div className="hz-register-wrapper" style={{ background: '#0f172a', position: 'relative', overflow: 'hidden' }}>
+        {/* Ambient Glow */}
+        <div style={{ position: 'absolute', top: '5%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+
+        <div style={{ textAlign: 'center', marginBottom: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+          <Link to="/" style={{ textDecoration: 'none', fontWeight: '900', fontSize: '2.8rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
             HackZone
           </Link>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.75rem',
-            marginTop: '1rem',
+            marginTop: '1.25rem',
             padding: '0.5rem 1.25rem',
-            background: '#ffffff',
+            background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: '50px',
-            boxShadow: 'var(--hz-shadow-sm)',
-            border: '1px solid var(--hz-border)'
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
           }}>
-            <span style={{ fontSize: 'var(--hz-font-size-xs)', color: 'var(--hz-text-muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Registering as</span>
+            <span style={{ fontSize: 'var(--hz-font-size-xs)', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Registering as</span>
             <span style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: '800', color: meta.color }}>{meta.label}</span>
-            <div style={{ width: '1px', height: '16px', background: 'var(--hz-border-strong)', margin: '0 0.25rem' }}></div>
-            <Link to="/register/role-select" style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'none' }}>Change</Link>
+            <div style={{ width: '1px', height: '16px', background: 'rgba(255, 255, 255, 0.1)', margin: '0 0.25rem' }}></div>
+            <Link to="/register/role-select" style={{ fontSize: 'var(--hz-font-size-sm)', color: '#8b5cf6', fontWeight: '700', textDecoration: 'none' }}>Change</Link>
           </div>
         </div>
 
         <div className="hz-register-container" style={{
+          position: 'relative', zIndex: 1,
           marginTop: '1.5rem',
-          background: '#ffffff',
-          borderRadius: '20px',
-          padding: '2rem 3rem',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '24px',
+          padding: '3rem 4rem',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
         }}>
           <div className="hz-split-layout">
 
@@ -339,14 +346,19 @@ export default function Register() {
                   />
                 </div>
 
-                <div style={{ marginTop: '0.25rem' }}>
-                  <Button type="submit" variant="primary" disabled={loading} style={{ width: '100%', padding: '0.75rem', fontWeight: 'bold' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }}>
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                      <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
-                    {loading ? 'Processing...' : 'Sign up with email'}
-                  </Button>
+                <div style={{ marginTop: '0.5rem' }}>
+                  <button type="submit" disabled={loading} style={{
+                    width: '100%', padding: '0.85rem', fontWeight: '700', fontSize: '1rem',
+                    background: '#4f46e5', color: '#fff', border: 'none', borderRadius: '10px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                  }}
+                  onMouseEnter={e => { if(!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
+                  onMouseLeave={e => { if(!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
+                    {loading ? 'Processing...' : 'Sign up'}
+                  </button>
                 </div>
               </form>
             </div>
@@ -389,8 +401,8 @@ export default function Register() {
           </div>
 
           <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-            <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', marginBottom: 0 }}>
-              Already have an account? <Link to="/login" style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'none' }}>Log in</Link>
+            <p style={{ fontSize: 'var(--hz-font-size-sm)', marginBottom: 0, color: '#94a3b8' }}>
+              Already have an account? <Link to="/login" style={{ color: '#8b5cf6', fontWeight: '700', textDecoration: 'none' }}>Log in</Link>
             </p>
           </div>
         </div>
