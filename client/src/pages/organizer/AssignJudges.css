@@ -1,0 +1,393 @@
+/* AssignJudges.css */
+
+.aj-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #0f172a;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Header Area */
+.aj-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.aj-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.aj-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.aj-stats-card {
+  display: flex;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.aj-stat-box {
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.aj-stat-box:first-child {
+  border-right: 1px solid #e2e8f0;
+}
+
+.aj-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aj-stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.aj-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.aj-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.aj-stat-value.primary {
+  color: #4f46e5;
+}
+
+/* Main Layout */
+.aj-main-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Cards */
+.aj-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.aj-card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.aj-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Search */
+.aj-search-wrap {
+  position: relative;
+}
+
+.aj-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.aj-search-input {
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  width: 200px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.aj-search-input:focus {
+  border-color: #4f46e5;
+}
+
+/* Judge List */
+.aj-judge-list {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+}
+
+.aj-judge-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.aj-judge-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.aj-judge-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.aj-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.aj-avatar.small {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+}
+
+.aj-judge-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.1rem 0;
+  color: #0f172a;
+}
+
+.aj-judge-role {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.aj-btn-outline {
+  border: 1px solid #4f46e5;
+  color: #4f46e5;
+  background: white;
+  padding: 0.35rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.aj-btn-outline:hover {
+  background: #eef2ff;
+}
+
+.aj-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.aj-tag {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Projects List */
+.aj-projects-wrap {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-height: calc(100vh - 330px);
+  overflow-y: auto;
+}
+
+.aj-project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.aj-project-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aj-project-icon {
+  color: #4f46e5;
+  display: flex;
+}
+
+.aj-project-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.aj-project-badge {
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.aj-project-badge.assigned {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.aj-project-badge.unassigned {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.aj-assigned-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.aj-assigned-judge {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+.aj-assigned-judge-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aj-assigned-judge-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.aj-remove-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 4px;
+}
+
+.aj-remove-btn:hover {
+  background: #f1f5f9;
+  color: #ef4444;
+}
+
+/* Empty Project State */
+.aj-empty-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.aj-empty-icon {
+  color: #64748b;
+}
+
+.aj-empty-text {
+  color: #475569;
+  font-size: 1rem;
+  max-width: 300px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Footer Actions */
+.aj-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.aj-btn-ghost {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.aj-btn-ghost:hover {
+  color: #0f172a;
+}
+
+.aj-btn-primary {
+  background: #3b31c6;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.aj-btn-primary:hover {
+  background: #2e269e;
+}
