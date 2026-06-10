@@ -265,7 +265,13 @@ export default function Register() {
           </div>
         </div>
 
-        <div className="hz-register-container" style={{ marginTop: '1.5rem' }}>
+        <div className="hz-register-container" style={{
+          marginTop: '1.5rem',
+          background: '#ffffff',
+          borderRadius: '20px',
+          padding: '2rem 3rem',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+        }}>
           <div className="hz-split-layout">
 
             {/* Left Side: Traditional Form */}
@@ -382,7 +388,7 @@ export default function Register() {
 
           </div>
 
-          <div style={{ marginTop: '4rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '3rem', textAlign: 'center' }}>
             <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', marginBottom: 0 }}>
               Already have an account? <Link to="/login" style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'none' }}>Log in</Link>
             </p>
