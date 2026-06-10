@@ -51,7 +51,7 @@ The Dashboard is the central hub for a participant. It should give them a quick 
 
 > [!TIP]
 > **Prompt to copy & paste for Phase 4:**
-> "Design and implement the `ParticipantDashboard.jsx` page in `client/src/pages/dashboard`. The UI should feature the modern dark glassmorphism theme we use across the app. It should display:
+> "Design and implement the `ParticipantDashboard.jsx` page in `client/src/pages/dashboard`. CRITICAL: Do NOT change `global.css` or the overall theme. Implement the UI using the existing light theme and existing components. It should display:
 > 1. A summary of hackathons the user is currently registered for.
 > 2. A section showing active team invites with 'Accept'/'Decline' buttons.
 > 3. A quick-link section to browse new, upcoming hackathons.
@@ -66,7 +66,7 @@ Participants need dedicated pages to edit their skills/links and a UI to find or
 > [!TIP]
 > **Prompt to copy & paste for Phase 5:**
 > "Build the Profile and Team Management UIs for the participant. 
-> 1. Create a `ParticipantProfile.jsx` page where users can add their skills, bio, GitHub, and LinkedIn links. Ensure the form uses our dark theme input styles. 
+> 1. Create a `ParticipantProfile.jsx` page where users can add their skills, bio, GitHub, and LinkedIn links. Ensure the form uses the existing light theme input styles. 
 > 2. Create a `TeamManager.jsx` component that lets a user view their current team members, search for other users by email to invite them, and see the status of sent invites. 
 > Connect these components to the API services we created in Phase 3."
 
@@ -90,4 +90,4 @@ Finally, participants need to be able to view a hackathon's details, click "Regi
 As we execute these phases, we will verify by:
 1. Testing the backend endpoints via Postman or terminal `curl` commands to ensure data saves correctly in MongoDB.
 2. Logging in as a test participant on the React frontend to manually test the Dashboard, Profile, Team Invites, and Submission workflows.
-3. Ensuring the UI correctly switches to the modern dark theme and matches the overall HackZone aesthetic.
+3. Ensuring the UI correctly uses the existing light theme and matches the overall HackZone aesthetic.

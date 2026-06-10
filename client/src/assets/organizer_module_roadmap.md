@@ -51,7 +51,7 @@ The Organizer Dashboard is the central command center. It should display high-le
 
 > [!TIP]
 > **Prompt to copy & paste for Phase 4:**
-> "Design and implement the `OrganizerDashboard.jsx` page in `client/src/pages/dashboard`. The UI should feature the modern dark glassmorphism theme. It should display:
+> "Design and implement the `OrganizerDashboard.jsx` page in `client/src/pages/dashboard`. CRITICAL: Do NOT change `global.css` or the overall theme. Implement the UI using the existing light theme and existing components. It should display:
 > 1. Top-level metric cards: Total Hackathons Hosted, Total Participants, Total Submissions.
 > 2. A list or grid of their 'Active Hackathons' with quick action buttons (Edit, Manage Participants, View Submissions).
 > 3. A prominent 'Create New Hackathon' Call-to-Action button.
@@ -67,7 +67,7 @@ Creating a hackathon requires a detailed, structured form. A multi-step wizard i
 > **Prompt to copy & paste for Phase 5:**
 > "Build the Hackathon Creation UI for the organizer. 
 > 1. Create a `CreateHackathon.jsx` page that uses a multi-step form (Step 1: Basic Info, Step 2: Dates & Rules, Step 3: Prizes & Sponsors). 
-> 2. Ensure all inputs utilize the custom dark theme styling. 
+> 2. Ensure all inputs utilize the existing light theme styling. 
 > 3. Add validation so organizers cannot submit past dates for deadlines. 
 > 4. Connect this form to the `createHackathon` API service we built in Phase 3. Include loading states and success/error toast notifications."
 
@@ -91,4 +91,4 @@ Once a hackathon is live, the organizer needs to manage the event, see who has r
 As we execute these phases, we will verify by:
 1. Creating an account with the `organizer` role and testing the JWT permissions to ensure they (and only they) can access the creation routes.
 2. Manually creating a test hackathon via the frontend UI and verifying all fields (dates, prizes) save correctly in the MongoDB database.
-3. Checking the UI responsiveness and ensuring the dark theme aesthetic remains perfectly consistent across all complex forms and data tables.
+3. Checking the UI responsiveness and ensuring the light theme aesthetic remains perfectly consistent across all complex forms and data tables.
