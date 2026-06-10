@@ -15,8 +15,8 @@ const roles = [
       </svg>
     ),
     color: '#3b82f6',
-    bgLight: '#eff6ff',
-    borderColor: '#bfdbfe',
+    bgLight: '#9cbdecff',
+    borderColor: '#08182dff',
   },
   {
     id: 'organizer',
@@ -31,7 +31,7 @@ const roles = [
       </svg>
     ),
     color: '#10b981',
-    bgLight: '#ecfdf5',
+    bgLight: '#0b5331ff',
     borderColor: '#a7f3d0',
   },
   {
@@ -45,7 +45,7 @@ const roles = [
       </svg>
     ),
     color: '#f59e0b',
-    bgLight: '#fffbeb',
+    bgLight: '#66581dff',
     borderColor: '#fde68a',
   },
 ];
@@ -91,7 +91,7 @@ export default function RoleSelect() {
         <h2 className="hz-heading-2" style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>
           Who are you?
         </h2>
-        <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.6' }}>
+        <p className="hz-text-muted" style={{ color: '#ffffffff', fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.6' }}>
           Select your role to get started. This helps us personalize your experience on HackZone.
         </p>
       </div>
@@ -124,7 +124,7 @@ export default function RoleSelect() {
                 textAlign: 'center',
                 padding: '2rem 1.25rem 1.75rem',
                 borderRadius: '16px',
-                background: isSelected ? role.bgLight : '#ffffff',
+                background: isSelected ? role.bgLight : '#36314aff',
                 border: `2px solid ${isSelected ? role.color : isHovered ? role.borderColor : 'var(--hz-border)'}`,
                 boxShadow: isHovered || isSelected
                   ? `0 12px 40px rgba(0,0,0,0.1), 0 0 0 3px ${role.bgLight}`
@@ -212,9 +212,9 @@ export default function RoleSelect() {
       </div>
 
       {/* Footer link */}
-      <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', textAlign: 'center' }}>
+      <p className="hz-text-muted" style={{ color: '#100643ff', fontSize: 'var(--hz-font-size-sm)', textAlign: 'center' }}>
         Already have an account?{' '}
-        <Link to="/login" style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'none' }}>
+        <Link to="/login" style={{ color: '#2a09cdff', fontWeight: '600', textDecoration: 'none' }}>
           Sign in
         </Link>
       </p>
