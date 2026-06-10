@@ -2,7 +2,8 @@ import {
   createEvaluation, 
   getEvaluationsByJudgeId, 
   updateEvaluation,
-  getEvaluationsBySubmissionId
+  getEvaluationsBySubmissionId,
+  getLeaderboardData
 } from '../models/evaluation.model.js';
 import pool from '../database/db.js';
 import crypto from 'crypto';
@@ -87,6 +88,23 @@ export const editEvaluation = async (req, res) => {
     }
   } catch (error) {
     console.error('Error updating evaluation:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getLeaderboard = async (req, res) => {
+  try {
+    const judgeId = req.user.id;
+    const { hackathonId } = req.params;
+    
+    if (!hackathonId) {
+      return res.status(400).json({ error: 'hackathonId is required' });
+    }
+
+    const leaderboard = await getLeaderboardData(hackathonId, judgeId);
+    res.status(200).json({ data: leaderboard });
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

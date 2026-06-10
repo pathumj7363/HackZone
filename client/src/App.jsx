@@ -27,6 +27,7 @@ import Announcements from './pages/organizer/Announcements'
 import JudgeDashboard from './pages/judge/JudgeDashboard'
 import AssignedProjects from './pages/judge/AssignedProjects'
 import EvaluateProject from './pages/judge/EvaluateProject'
+import JudgeLeaderboard from './pages/judge/JudgeLeaderboard'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageUsers from './pages/admin/ManageUsers'
 import NotFound from './components/common/NotFound'
@@ -69,9 +70,12 @@ export default function App() {
             <Route path="/organizer/judges" element={<ProtectedRoute allowedRoles={['organizer']}><AssignJudges /></ProtectedRoute>} />
             <Route path="/organizer/announce" element={<ProtectedRoute allowedRoles={['organizer']}><Announcements /></ProtectedRoute>} />
 
-            <Route path="/judge" element={<ProtectedRoute allowedRoles={['judge']}><JudgeDashboard /></ProtectedRoute>} />
+            <Route path="/judge" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
+            <Route path="/judge/dashboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
             <Route path="/judge/projects" element={<ProtectedRoute allowedRoles={['judge']}><AssignedProjects /></ProtectedRoute>} />
             <Route path="/judge/evaluate/:id" element={<ProtectedRoute allowedRoles={['judge']}><EvaluateProject /></ProtectedRoute>} />
+            <Route path="/judge/leaderboard/:hackathonId" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
+            <Route path="/judge/leaderboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
           </Route>
 
           <Route element={<AdminLayout />}>

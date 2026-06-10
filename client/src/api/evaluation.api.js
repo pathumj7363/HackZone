@@ -50,6 +50,21 @@ export const updateEvaluation = async (evaluationId, scores, submissionId = null
   }
 };
 
+/**
+ * Fetch the leaderboard for a given hackathon.
+ * @param {string} hackathonId
+ * @returns {Promise<Array>} Array of leaderboard data
+ */
+export const getLeaderboard = async (hackathonId) => {
+  try {
+    const response = await API.get(`/evaluations/leaderboard/${hackathonId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};
+
 // =========================================================================
 // BACKWARDS COMPATIBILITY ALIASES
 // Exporting the old function names so the existing UI doesn't crash

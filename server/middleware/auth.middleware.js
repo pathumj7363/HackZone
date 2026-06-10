@@ -23,3 +23,11 @@ export const isJudge = (req, res, next) => {
     return res.status(403).json({ error: 'Access denied. Judge role required.' });
   }
 };
+
+export const isJudgeOrOrganizer = (req, res, next) => {
+  if (req.user && (req.user.role === 'judge' || req.user.role === 'organizer')) {
+    next();
+  } else {
+    return res.status(403).json({ error: 'Access denied. Judge or Organizer role required.' });
+  }
+};
