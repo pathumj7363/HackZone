@@ -58,3 +58,23 @@ export const updateJudgeProfile = async (id, profileData) => {
   const [result] = await pool.query(query, [occupation, tagsJson, linkedInUrl, id]);
   return result.affectedRows > 0;
 };
+
+/**
+ * Update a participant's specific profile fields.
+ * @param {string} id - User ID
+ * @param {Object} profileData - Object containing skills, githubUrl, linkedInUrl, bio
+ * @returns {Promise<boolean>} True if update was successful
+ */
+export const updateParticipantProfile = async (id, profileData) => {
+  const { skills, githubUrl, linkedInUrl, bio } = profileData;
+  const skillsJson = skills ? JSON.stringify(skills) : null;
+  
+  const query = `
+    UPDATE users 
+    SET skills = ?, githubUrl = ?, linkedInUrl = ?, bio = ?
+    WHERE id = ? AND role = 'participant'
+  `;
+  
+  const [result] = await pool.query(query, [skillsJson, githubUrl, linkedInUrl, bio, id]);
+  return result.affectedRows > 0;
+};
