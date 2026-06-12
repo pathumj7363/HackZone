@@ -5,8 +5,9 @@ import FeatureSection from '../components/home/InteractiveFeatures';
 /* ─────────────────────────────────────────────
    Constants
 ───────────────────────────────────────────── */
-const TYPING_WORDS = ['Develop', 'Build', 'Create', 'Innovate', 'Launch', 'Hack'];
-const BG = '#0f172a';
+const TYPING_WORDS = [
+  'Hack', 'Develop', 'Organizers', 'Build', 'Innovate'];
+const BG = '#07091a';
 
 /* ─────────────────────────────────────────────
    SVG Icons for Floating Cards
@@ -104,8 +105,116 @@ function toRgb(hex) {
   return r ? `${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)}` : '255,255,255';
 }
 
+/* ─────────────────────────────────────────────
+   Particle Canvas (120 dots, mouse repulsion)
+───────────────────────────────────────────── */
+function ParticleCanvas() {
+  const cvs = useRef(null);
+  const mouse = useRef({ x: -9999, y: -9999 });
+  const raf = useRef(null);
+  const pts = useRef([]);
 
+  useEffect(() => {
+    const canvas = cvs.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    const init = () => {
+      pts.current = Array.from({ length: 120 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        r: Math.random() * 1.5 + 0.5,
+      }));
+    };
+
+    resize();
+    init();
+
+    const onMouseMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
+    const onResize = () => { resize(); init(); };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('resize', onResize);
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const p = pts.current;
+      const m = mouse.current;
+
+      p.forEach(pt => {
+        // repulsion
+        const dx = pt.x - m.x, dy = pt.y - m.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 110 && d > 0) {
+          const f = (110 - d) / 110;
+          pt.vx += (dx / d) * f * 0.55;
+          pt.vy += (dy / d) * f * 0.55;
+        }
+        // speed cap
+        const spd = Math.hypot(pt.vx, pt.vy);
+        if (spd > 2.5) { pt.vx = (pt.vx / spd) * 2.5; pt.vy = (pt.vy / spd) * 2.5; }
+        // damping + move
+        pt.vx *= 0.98; pt.vy *= 0.98;
+        pt.x += pt.vx; pt.y += pt.vy;
+        // bounce
+        if (pt.x < 0) { pt.x = 0; pt.vx *= -1; }
+        if (pt.x > canvas.width) { pt.x = canvas.width; pt.vx *= -1; }
+        if (pt.y < 0) { pt.y = 0; pt.vy *= -1; }
+        if (pt.y > canvas.height) { pt.y = canvas.height; pt.vy *= -1; }
+        // dot
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(148, 130, 255, 0.45)';
+        ctx.fill();
+      });
+
+      // connections
+      for (let i = 0; i < p.length; i++) {
+        for (let j = i + 1; j < p.length; j++) {
+          const d = Math.hypot(p[i].x - p[j].x, p[i].y - p[j].y);
+          if (d < 140) {
+            ctx.beginPath();
+            ctx.moveTo(p[i].x, p[i].y);
+            ctx.lineTo(p[j].x, p[j].y);
+            ctx.strokeStyle = `rgba(108, 86, 255, ${0.14 * (1 - d / 140)})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      raf.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={cvs}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
+    />
+  );
+}
 
 /* ─────────────────────────────────────────────
    Single Floating Card
@@ -166,7 +275,15 @@ export default function Home() {
   const [prizes, setPrizes] = useState(0);
   const [hacks, setHacks] = useState(0);
 
-
+  /* ── Apply dark body class ── */
+  useEffect(() => {
+    document.body.style.background = BG;
+    document.body.classList.add('hz-dark-home');
+    return () => {
+      document.body.style.background = '';
+      document.body.classList.remove('hz-dark-home');
+    };
+  }, []);
 
   /* ── Typing ── */
   useEffect(() => {
@@ -210,7 +327,7 @@ export default function Home() {
 
   /* ─────────── RENDER ─────────── */
   return (
-    <div style={{ background: 'transparent', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: BG, color: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
 
       {/* ── Global keyframes injected once ── */}
       <style>{`
@@ -231,10 +348,11 @@ export default function Home() {
           from { opacity: 0; transform: translateY(22px); }
           to   { opacity: 1; transform: translateY(0);    }
         }
-
+        body.hz-dark-home { background: ${BG} !important; }
       `}</style>
 
-
+      {/* ── Particle Network ── */}
+      <ParticleCanvas />
 
       {/* ══════════════════════════════════════
           HERO SECTION
@@ -303,7 +421,7 @@ export default function Home() {
           {/* Subtitle */}
           <p style={{
             fontSize: 'clamp(0.95rem, 2vw, 1.15rem)',
-            color: 'rgba(255,255,255,0.75)',
+            color: 'rgba(255,255,255,0.58)',
             maxWidth: '570px', margin: '0 auto 2.75rem',
             lineHeight: 1.72,
             animation: 'hz-fade-up 0.7s ease-out 0.2s both',
@@ -320,15 +438,15 @@ export default function Home() {
             <Link to="/register/role-select" style={{ textDecoration: 'none' }}>
               <button
                 style={{
-                  background: '#4f46e5',
+                  background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)',
                   color: '#fff', border: 'none',
                   padding: '0.78rem 2.1rem', borderRadius: '10px',
                   fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
                   transition: 'all 0.22s ease',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                  boxShadow: '0 4px 24px rgba(108,99,255,0.42)',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'; e.currentTarget.style.background = '#4338ca'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#4f46e5'; }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,99,255,0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(108,99,255,0.42)'; }}
               >
                 Get Started
               </button>
@@ -355,7 +473,7 @@ export default function Home() {
           {/* Stats */}
           <div style={{
             display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem',
-            color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem',
+            color: 'rgba(255,255,255,0.55)', fontSize: '0.9rem',
             animation: 'hz-fade-up 0.7s ease-out 0.45s both',
           }}>
             {[
@@ -408,21 +526,21 @@ export default function Home() {
             <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.2rem)', fontWeight: 800, color: '#fff', marginBottom: '0.85rem', position: 'relative', zIndex: 1 }}>
               Ready to start building?
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1.05rem', marginBottom: '2.25rem', position: 'relative', zIndex: 1 }}>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1.05rem', marginBottom: '2.25rem', position: 'relative', zIndex: 1 }}>
               Join thousands of developers building the next big thing.
             </p>
             <Link to="/register/role-select" style={{ textDecoration: 'none', position: 'relative', zIndex: 1 }}>
               <button
                 style={{
-                  background: '#4f46e5',
+                  background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)',
                   color: '#fff', border: 'none',
                   padding: '0.875rem 2.5rem', borderRadius: '10px',
                   fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
                   transition: 'all 0.22s ease',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                  boxShadow: '0 4px 24px rgba(108,99,255,0.4)',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'; e.currentTarget.style.background = '#4338ca'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#4f46e5'; }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 36px rgba(108,99,255,0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(108,99,255,0.4)'; }}
               >
                 Create Your Free Account
               </button>

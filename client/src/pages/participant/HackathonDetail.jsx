@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getHackathonDetailApi } from '../../api/hackathon.api';
 import Card from '../../components/ui/Card';
@@ -45,24 +45,33 @@ export default function HackathonDetail() {
     );
   }
 
+  if (!hackathon) {
+    return (
+      <div className="hz-page">
+        <div className="hz-container" style={{ padding: '4rem 0', textAlign: 'center' }}>
+          <h2 className="hz-heading-2">Hackathon not found</h2>
+        </div>
+      </div>
+    );
+  }
+
   // Use exact data from the reference image for the perfect match
   const title = "AI Innovation Challenge 2026";
   const dateRange = "Nov 15 - Nov 30, 2026";
   const organizer = "AI Frontiers";
-  const image = 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
-  
+
   const TABS = ['Overview', 'Timeline', 'Prizes', 'Sponsors', 'Participants'];
 
   return (
     <div className="hz-page" style={{ padding: 0, paddingBottom: '4rem' }}>
-      
+
       {/* ── Hero Section ──────────────────────────────────────────────────────── */}
       <div style={{
         position: 'relative',
         width: '100%',
         height: '340px',
         background: '#0f172a',
-        backgroundImage: `url("${image}")`,
+        backgroundImage: 'url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
@@ -74,7 +83,8 @@ export default function HackathonDetail() {
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(to bottom, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.9) 100%)'
-        }} />
+        }
+      } />
 
         <div className="hz-container" style={{ position: 'relative', zIndex: 1 }}>
           {/* Tags row */}
@@ -162,17 +172,16 @@ export default function HackathonDetail() {
 
       <div className="hz-container" style={{ marginTop: '2rem' }}>
         <div className="row g-4">
-          
+
           {/* ── Left Column (Main Content) ────────────────────────────────────── */}
           <div className="col-12 col-lg-8">
-            {activeTab === 'Overview' && (
-              <Card padding style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1rem' }}>
-                  Redefining Intelligence
-                </h2>
-                <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                  Welcome to the <strong>{title}</strong>. We are at a pivotal moment in history where generative models are moving beyond simple text and image synthesis into high-stakes reasoning, autonomous agentic behavior, and scientific discovery. This hackathon is designed for the visionaries who see the potential for AI to solve humanity's most complex problems.
-                </p>
+            <Card padding style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1rem' }}>
+                Redefining Intelligence
+              </h2>
+              <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
+                Welcome to the <strong>AI Innovation Challenge 2026</strong>. We are at a pivotal moment in history where generative models are moving beyond simple text and image synthesis into high-stakes reasoning, autonomous agentic behavior, and scientific discovery. This hackathon is designed for the visionaries who see the potential for AI to solve humanity's most complex problems.
+              </p>
               <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6', marginBottom: '2rem' }}>
                 Whether you are building LLM-based assistants, revolutionary multimodal interfaces, or specialized vertical AI for medicine and climate science, this stage is yours. Join over 500 developers worldwide in a 15-day sprint of pure creation.
               </p>
@@ -182,7 +191,7 @@ export default function HackathonDetail() {
               <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
                 Official Rules
               </h3>
-              
+
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
                   "Teams must consist of 1 to 4 members. Cross-disciplinary teams are highly encouraged.",
@@ -204,15 +213,13 @@ export default function HackathonDetail() {
                 ))}
               </ul>
             </Card>
-            )}
 
             {/* Prizes */}
-            {(activeTab === 'Overview' || activeTab === 'Prizes') && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
               {[
                 { place: '1st Place', amount: '$10,000', icon: '🏆', color: '#fef3c7', iconColor: '#d97706', desc: 'Plus Cloud Credits & Mentorship' },
-                { place: '2nd Place', amount: '$5,000',  icon: '🥈', color: '#f1f5f9', iconColor: '#475569', desc: 'Plus Hardware Discounts' },
-                { place: '3rd Place', amount: '$2,500',  icon: '🥉', color: '#ffedd5', iconColor: '#c2410c', desc: 'Plus Community Swag' }
+                { place: '2nd Place', amount: '$5,000', icon: '🥈', color: '#f1f5f9', iconColor: '#475569', desc: 'Plus Hardware Discounts' },
+                { place: '3rd Place', amount: '$2,500', icon: '🥉', color: '#ffedd5', iconColor: '#c2410c', desc: 'Plus Community Swag' }
               ].map((prize, i) => (
                 <Card key={i} padding style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div style={{
@@ -235,15 +242,13 @@ export default function HackathonDetail() {
                 </Card>
               ))}
             </div>
-            )}
 
             {/* Key Milestones */}
-            {(activeTab === 'Overview' || activeTab === 'Timeline') && (
-              <Card padding>
+            <Card padding>
               <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.5rem' }}>
                 Key Milestones
               </h3>
-              
+
               <div style={{ position: 'relative', paddingLeft: '1rem' }}>
                 {/* Vertical Line */}
                 <div style={{ position: 'absolute', left: '16px', top: '8px', bottom: '8px', width: '2px', background: 'var(--hz-border)' }} />
@@ -272,34 +277,11 @@ export default function HackathonDetail() {
                 </div>
               </div>
             </Card>
-            )}
-
-            {activeTab === 'Sponsors' && (
-              <Card padding>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.5rem' }}>
-                  Sponsors
-                </h3>
-                <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6' }}>
-                  Sponsor information will be updated soon.
-                </p>
-              </Card>
-            )}
-
-            {activeTab === 'Participants' && (
-              <Card padding>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.5rem' }}>
-                  Participants
-                </h3>
-                <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6' }}>
-                  Join 428 hackers already registered!
-                </p>
-              </Card>
-            )}
           </div>
 
           {/* ── Right Column (Sidebar) ────────────────────────────────────────── */}
           <div className="col-12 col-lg-4 d-flex flex-column gap-4">
-            
+
             {/* Registration Action Card */}
             <Card padding style={{ textAlign: 'center' }}>
               <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '0.75rem' }}>
@@ -307,7 +289,7 @@ export default function HackathonDetail() {
                   Register Now
                 </Button>
               </Link>
-              
+
               <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '1.25rem' }}>
                 <Button variant="outline" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -319,7 +301,7 @@ export default function HackathonDetail() {
                   Create a Team
                 </Button>
               </Link>
-              
+
               <p style={{ fontSize: '11px', color: 'var(--hz-text-muted)', margin: 0 }}>
                 Join 428 hackers already registered
               </p>
@@ -333,7 +315,7 @@ export default function HackathonDetail() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
                   { label: 'Join Discord', status: 'Done', done: true },
-                  { label: 'Team Formation', status: '2 days left', color: '#ea580c', icon: 'clock' },
+                  { label: 'Team Formation', status: '2 days left', color: '#ef4444' },
                   { label: 'Project Draft', status: 'Nov 22' },
                   { label: 'Final Video Pitch', status: 'Nov 30' }
                 ].map((item, i) => (
@@ -343,11 +325,6 @@ export default function HackathonDetail() {
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                           <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                      ) : item.icon === 'clock' ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                       ) : (
                         <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid var(--hz-border)' }} />
@@ -366,7 +343,7 @@ export default function HackathonDetail() {
 
             {/* Organizer Info */}
             <div style={{ background: '#f8fafc', borderRadius: 'var(--hz-radius)', padding: '1.25rem', border: '1px solid var(--hz-border)' }}>
-              <div style={{ fontSize: '10px', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 1rem' }}>
+              <div style={{ fontSize: '10px', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
                 ORGANIZED BY
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
@@ -385,7 +362,7 @@ export default function HackathonDetail() {
                 </div>
                 <div>
                   <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>
-                    {organizer}
+                    AI Frontiers
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--hz-text-muted)' }}>
                     San Francisco, CA
@@ -396,7 +373,7 @@ export default function HackathonDetail() {
                 AI Frontiers is a global collective dedicated to democratizing access to high-performance compute and neural research.
               </p>
             </div>
-            
+
           </div>
         </div>
       </div>
