@@ -1,4 +1,5 @@
 // Mocked Hackathon API
+import api from './axios';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const mockHackathons = [
@@ -79,4 +80,10 @@ export const getHackathonDetailApi = async (id) => {
 export const createHackathonApi = async (data) => {
   await delay(400);
   return { id: Date.now().toString(), ...data, status: 'Upcoming', participants: 0 };
+};
+
+export const registerHackathonApi = async (data) => {
+  // data should contain { hackathonId, teamId (optional) }
+  const response = await api.post('/hackathons/register', data);
+  return response.data;
 };

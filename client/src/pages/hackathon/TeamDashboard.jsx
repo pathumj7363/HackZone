@@ -3,6 +3,7 @@ import { getMyTeamApi } from '../../api/team.api';
 import { Link } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import TeamManager from '../../components/team/TeamManager';
 
 // Avatar color palette for generated avatars
 const AVATAR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b', '#ec4899'];
@@ -408,86 +409,10 @@ export default function TeamDashboard() {
           </div>
         </div>
 
-        {/* ── Team Members ─────────────────────────────────────────────── */}
-        <Card padding style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <h2 style={{
-              fontSize: 'var(--hz-font-size-lg)',
-              fontWeight: 'var(--hz-font-weight-bold)',
-              color: 'var(--hz-text)',
-              margin: 0
-            }}>
-              Team Members
-            </h2>
-            <span style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-muted)', fontWeight: 'var(--hz-font-weight-medium)' }}>
-              {members.length} Total Member{members.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {members.length === 0 ? (
-            <p className="hz-text-muted" style={{ textAlign: 'center', padding: '1.5rem 0', margin: 0, fontSize: 'var(--hz-font-size-sm)' }}>
-              No members yet. Share your join code to invite teammates!
-            </p>
-          ) : (
-            <div className="row g-3">
-              {members.map((m, i) => {
-                const name = getMemberName(m, i);
-                const role = getMemberRole(m, i);
-                const isLead = i === 0;
-                return (
-                  <div key={i} className="col-12 col-sm-6 col-lg-3">
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.875rem',
-                      borderRadius: 'var(--hz-radius-sm)',
-                      border: '1px solid var(--hz-border)',
-                      background: 'var(--hz-surface)'
-                    }}>
-                      <Avatar name={name} size={44} index={i} />
-                      <div style={{ minWidth: 0 }}>
-                        <p style={{
-                          margin: '0 0 0.15rem',
-                          fontSize: 'var(--hz-font-size-sm)',
-                          fontWeight: 'var(--hz-font-weight-semibold)',
-                          color: 'var(--hz-text)',
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                        }}>
-                          {name}
-                        </p>
-                        <p style={{
-                          margin: '0 0 0.3rem',
-                          fontSize: 'var(--hz-font-size-xs)',
-                          fontWeight: isLead ? 'var(--hz-font-weight-bold)' : 'var(--hz-font-weight-medium)',
-                          color: isLead ? 'var(--hz-primary)' : 'var(--hz-text-secondary)'
-                        }}>
-                          {role}
-                        </p>
-                        {/* ACTIVE badge */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                          <div style={{
-                            width: '7px', height: '7px', borderRadius: '50%',
-                            background: '#10b981', flexShrink: 0
-                          }} />
-                          <span style={{
-                            fontSize: '10px',
-                            fontWeight: 'var(--hz-font-weight-bold)',
-                            color: '#10b981',
-                            letterSpacing: '0.05em',
-                            textTransform: 'uppercase'
-                          }}>
-                            ACTIVE
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
+        {/* ── Team Manager Component ───────────────────────────────────── */}
+        <div className="hz-mb-6">
+          <TeamManager />
+        </div>
 
         {/* ── Team Discussion ───────────────────────────────────────────── */}
         <div style={{

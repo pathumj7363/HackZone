@@ -9,14 +9,14 @@ import Home from './pages/Home'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import RoleSelect from './pages/auth/RoleSelect'
-import ParticipantDashboard from './pages/participant/Dashboard'
+import ParticipantDashboard from './pages/dashboard/ParticipantDashboard'
 import Profile from './pages/participant/Profile'
 import HackathonList from './pages/participant/HackathonList'
 import HackathonDetail from './pages/participant/HackathonDetail'
 import TeamCreate from './pages/hackathon/TeamCreate'
 import TeamJoin from './pages/hackathon/TeamJoin'
 import TeamDashboard from './pages/hackathon/TeamDashboard'
-import SubmitProject from './pages/submission/SubmitProject'
+import ProjectSubmission from './pages/submission/ProjectSubmission'
 import MySubmissions from './pages/submission/MySubmissions'
 import EvaluationResults from './pages/submission/EvaluationResults'
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard'
@@ -60,7 +60,7 @@ export default function App() {
             <Route path="/teams/join" element={<ProtectedRoute allowedRoles={['participant']}><TeamJoin /></ProtectedRoute>} />
             <Route path="/teams/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><TeamDashboard /></ProtectedRoute>} />
 
-            <Route path="/submit" element={<ProtectedRoute allowedRoles={['participant']}><SubmitProject /></ProtectedRoute>} />
+            <Route path="/submit" element={<ProtectedRoute allowedRoles={['participant']}><ProjectSubmission /></ProtectedRoute>} />
             <Route path="/submissions" element={<ProtectedRoute allowedRoles={['participant']}><MySubmissions /></ProtectedRoute>} />
             <Route path="/results" element={<ProtectedRoute allowedRoles={['participant']}><EvaluationResults /></ProtectedRoute>} />
 

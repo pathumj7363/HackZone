@@ -8,7 +8,7 @@ import Button from '../../components/ui/Button';
 
 const STEPS = ['Project Info', 'Links & Files', 'Review & Submit'];
 
-export default function SubmitProject() {
+export default function ProjectSubmission() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
