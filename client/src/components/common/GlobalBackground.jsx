@@ -29,23 +29,23 @@ export default function GlobalBackground() {
 
   useEffect(() => {
     if (!isDarkRoute) return;
-    
+
     const canvas = cvs.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
     const resize = () => {
-      canvas.width  = window.innerWidth;
+      canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
     const init = () => {
       pts.current = Array.from({ length: 120 }, () => ({
-        x:  Math.random() * canvas.width,
-        y:  Math.random() * canvas.height,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
-        r:  Math.random() * 1.5 + 0.5,
+        r: Math.random() * 1.5 + 0.5,
       }));
     };
 
@@ -53,7 +53,7 @@ export default function GlobalBackground() {
     init();
 
     const onMouseMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
-    const onResize    = () => { resize(); init(); };
+    const onResize = () => { resize(); init(); };
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('resize', onResize);
@@ -66,7 +66,7 @@ export default function GlobalBackground() {
       p.forEach(pt => {
         // repulsion
         const dx = pt.x - m.x, dy = pt.y - m.y;
-        const d  = Math.hypot(dx, dy);
+        const d = Math.hypot(dx, dy);
         if (d < 110 && d > 0) {
           const f = (110 - d) / 110;
           pt.vx += (dx / d) * f * 0.55;
@@ -77,10 +77,10 @@ export default function GlobalBackground() {
         if (spd > 2.5) { pt.vx = (pt.vx / spd) * 2.5; pt.vy = (pt.vy / spd) * 2.5; }
         // damping + move
         pt.vx *= 0.98; pt.vy *= 0.98;
-        pt.x  += pt.vx; pt.y  += pt.vy;
+        pt.x += pt.vx; pt.y += pt.vy;
         // bounce
         if (pt.x < 0) { pt.x = 0; pt.vx *= -1; }
-        if (pt.x > canvas.width)  { pt.x = canvas.width;  pt.vx *= -1; }
+        if (pt.x > canvas.width) { pt.x = canvas.width; pt.vx *= -1; }
         if (pt.y < 0) { pt.y = 0; pt.vy *= -1; }
         if (pt.y > canvas.height) { pt.y = canvas.height; pt.vy *= -1; }
         // dot
