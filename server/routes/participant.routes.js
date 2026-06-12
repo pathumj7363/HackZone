@@ -1,9 +1,9 @@
 import express from 'express';
-import { submitProject } from '../controllers/submission.controller.js';
+import { updateProfile } from '../controllers/participant.controller.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/', verifyToken, submitProject);
+router.put('/profile', verifyToken, updateProfile);
 
 export default router;
