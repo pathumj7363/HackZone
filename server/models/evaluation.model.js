@@ -87,3 +87,29 @@ export const updateEvaluation = async (id, scores) => {
   
   return result.affectedRows > 0;
 };
+
+/**
+ * Fetch leaderboard data for a hackathon
+ * @param {string} hackathonId 
+ * @param {string} judgeId 
+ * @returns {Promise<Array>} Array of leaderboard entries
+ */
+export const getLeaderboardData = async (hackathonId, judgeId) => {
+  const query = `
+    SELECT 
+      s.id, s.title, s.githubRepo, s.demoVideoUrl, s.averageScore,
+      (SELECT COUNT(*) FROM evaluations e WHERE e.submissionId = s.id AND e.judgeId = ?) as hasEvaluated
+    FROM submissions s
+    WHERE s.hackathonId = ?
+    ORDER BY s.averageScore DESC
+  `;
+  try {
+    const [rows] = await pool.query(query, [judgeId, hackathonId]);
+    return rows.map(r => ({ ...r, hasEvaluated: r.hasEvaluated > 0 }));
+  } catch (err) {
+    if (err.code === 'ER_NO_SUCH_TABLE') {
+      return [];
+    }
+    throw err;
+  }
+};
