@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getHackathonDetailApi } from '../../api/hackathon.api';
+import { getHackathonDetailApi, registerHackathonApi } from '../../api/hackathon.api';
+import { getMyTeamApi } from '../../api/team.api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import { toast } from 'react-toastify';
 
 // Utility for timeline dots
 const TimelineDot = ({ color }) => (
@@ -18,6 +20,10 @@ export default function HackathonDetail() {
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Overview');
+  const [showModal, setShowModal] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [myTeam, setMyTeam] = useState(null);
+  const [regType, setRegType] = useState('solo'); // 'solo' or 'team'
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -30,10 +36,29 @@ export default function HackathonDetail() {
       setLoading(false);
     }).catch(() => {
       // Fallback
-      setHackathon({ title: 'AI Innovation Challenge 2026' });
+      setHackathon({ id, title: 'AI Innovation Challenge 2026' });
       setLoading(false);
     });
+    
+    getMyTeamApi().then(data => setMyTeam(data)).catch(() => setMyTeam(null));
   }, [id]);
+
+  const handleRegister = async () => {
+    setRegistering(true);
+    try {
+      const payload = { hackathonId: id };
+      if (regType === 'team' && myTeam) {
+        payload.teamId = myTeam.id;
+      }
+      await registerHackathonApi(payload);
+      toast.success('Successfully registered for the hackathon!');
+      setShowModal(false);
+    } catch (err) {
+      toast.error('Failed to register. Please try again.');
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -284,11 +309,9 @@ export default function HackathonDetail() {
 
             {/* Registration Action Card */}
             <Card padding style={{ textAlign: 'center' }}>
-              <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '0.75rem' }}>
-                <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)' }}>
-                  Register Now
-                </Button>
-              </Link>
+              <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => setShowModal(true)}>
+                Register for Hackathon
+              </Button>
 
               <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '1.25rem' }}>
                 <Button variant="outline" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
@@ -377,6 +400,64 @@ export default function HackathonDetail() {
           </div>
         </div>
       </div>
+
+      {/* Registration Modal */}
+      {showModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(15, 23, 42, 0.7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'var(--hz-bg)', borderRadius: 'var(--hz-radius)',
+            width: '100%', maxWidth: '500px', padding: '2rem',
+            boxShadow: 'var(--hz-shadow-lg)', position: 'relative'
+          }}>
+            <h2 className="hz-heading-3 hz-mb-4">Register for Hackathon</h2>
+            
+            <div className="hz-mb-4">
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>
+                Registration Type
+              </label>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input type="radio" name="regType" value="solo" checked={regType === 'solo'} onChange={() => setRegType('solo')} />
+                  Solo Participant
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input type="radio" name="regType" value="team" checked={regType === 'team'} onChange={() => setRegType('team')} />
+                  Register as Team
+                </label>
+              </div>
+            </div>
+
+            {regType === 'team' && (
+              <div className="hz-mb-6">
+                {myTeam ? (
+                  <div style={{ padding: '1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
+                    <p style={{ margin: 0, fontWeight: 'var(--hz-font-weight-bold)' }}>{myTeam.name}</p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--hz-text-muted)' }}>{myTeam.members?.length || 0} Members</p>
+                  </div>
+                ) : (
+                  <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: 'var(--hz-radius-sm)' }}>
+                    You are not in a team. Please create or join a team first, or register as a solo participant.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
+              <Button variant="outline" onClick={() => setShowModal(false)} disabled={registering}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleRegister} disabled={registering || (regType === 'team' && !myTeam)}>
+                {registering ? 'Registering...' : 'Confirm Registration'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
