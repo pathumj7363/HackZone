@@ -120,7 +120,9 @@ export default function EvaluationResults() {
           <h3 className="hz-heading-3" style={{ marginBottom: '1.5rem' }}>Criteria Breakdown</h3>
           
           <div>
-            {criteria.map((c, idx) => (
+
+            {criteria.map((c, idx) => 
+            (
               <div key={c.label} style={{ marginBottom: idx === criteria.length - 1 ? 0 : '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
                   <span style={{ color: 'var(--hz-text-secondary)', fontWeight: '500' }}>{c.label}</span>
@@ -138,7 +140,9 @@ export default function EvaluationResults() {
                   ></div>
                 </div>
               </div>
-            ))}
+            )
+            )
+            }
           </div>
         </div>
 
