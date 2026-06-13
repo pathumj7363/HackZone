@@ -78,3 +78,22 @@ export const updateParticipantProfile = async (id, profileData) => {
   const [result] = await pool.query(query, [skillsJson, githubUrl, linkedInUrl, bio, id]);
   return result.affectedRows > 0;
 };
+
+/**
+ * Update an organizer's specific profile fields.
+ * @param {string} id - User ID
+ * @param {Object} profileData - Object containing organizationName, websiteUrl, isVerified
+ * @returns {Promise<boolean>} True if update was successful
+ */
+export const updateOrganizerProfile = async (id, profileData) => {
+  const { organizationName, websiteUrl, isVerified } = profileData;
+  
+  const query = `
+    UPDATE users 
+    SET organizationName = ?, websiteUrl = ?, isVerified = ?
+    WHERE id = ? AND role = 'organizer'
+  `;
+  
+  const [result] = await pool.query(query, [organizationName, websiteUrl, isVerified, id]);
+  return result.affectedRows > 0;
+};
