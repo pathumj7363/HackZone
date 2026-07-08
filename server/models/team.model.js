@@ -95,3 +95,20 @@ export const joinTeam = async (code, userId) => {
   await addTeamMember(rows[0].id, userId, 'member');
   return true;
 };
+
+export const getTeamByUserId = async (userId) => {
+  const query = `
+    SELECT t.* FROM teams t
+    JOIN team_members tm ON t.id = tm.teamId
+    WHERE tm.userId = ?
+    LIMIT 1
+  `;
+  const [rows] = await pool.query(query, [userId]);
+  return rows.length ? rows[0] : null;
+};
+
+export const getPendingInvitesByEmail = async (email) => {
+  const query = `SELECT * FROM team_invites WHERE email = ? AND status = 'pending'`;
+  const [rows] = await pool.query(query, [email]);
+  return rows;
+};
