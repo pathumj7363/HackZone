@@ -612,3 +612,24 @@ img {
   font-size: var(--hz-font-size-sm);
   color: var(--hz-text-muted);
 }
+
+height: 2.25rem;
+border-width: 3px;
+}
+
+.hz-spinner-label {
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text-muted);
+}
+
+color: var(--hz-text-muted);
+}
+
+height: 2.25rem;
+border-width: 3px;
+}
+
+.hz-spinner-label {
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text-muted);
+}

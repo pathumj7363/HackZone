@@ -6,7 +6,7 @@ import { getHackathonsApi } from '../../api/hackathon.api';
 const STATUS_CONFIG = {
   'REGISTERING': { label: 'REGISTERING', bg: '#10b981', color: '#fff' },
   'IN PROGRESS': { label: 'IN PROGRESS', bg: 'var(--hz-primary)', color: '#fff' },
-  'ENDED':       { label: 'ENDED',       bg: '#ef4444', color: '#fff' },
+  'ENDED': { label: 'ENDED', bg: '#ef4444', color: '#fff' },
   'COMING SOON': { label: 'COMING SOON', bg: '#1f2937', color: '#fff' },
 };
 
@@ -59,11 +59,11 @@ function AvatarStack({ index, extraLabel }) {
 const FILTERS = ['All', 'Upcoming', 'Active', 'Ended'];
 
 export default function HackathonList() {
-  const [hackathons, setHackathons]   = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [activeFilter, setFilter]     = useState('All');
-  const [search, setSearch]           = useState('');
-  const [imgErrors, setImgErrors]     = useState({});
+  const [hackathons, setHackathons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeFilter, setFilter] = useState('All');
+  const [search, setSearch] = useState('');
+  const [imgErrors, setImgErrors] = useState({});
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -81,10 +81,10 @@ export default function HackathonList() {
       (h.location || '').toLowerCase().includes(search.toLowerCase());
     const s = (h.status || '').toUpperCase();
     const matchFilter =
-      activeFilter === 'All'      ? true :
-      activeFilter === 'Upcoming' ? s === 'COMING SOON' || s === 'REGISTERING' :
-      activeFilter === 'Active'   ? s === 'IN PROGRESS' :
-      activeFilter === 'Ended'    ? s === 'ENDED' : true;
+      activeFilter === 'All' ? true :
+        activeFilter === 'Upcoming' ? s === 'COMING SOON' || s === 'REGISTERING' :
+          activeFilter === 'Active' ? s === 'IN PROGRESS' :
+            activeFilter === 'Ended' ? s === 'ENDED' : true;
     return matchSearch && matchFilter;
   });
 
