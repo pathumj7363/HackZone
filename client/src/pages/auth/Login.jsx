@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { ThemeContext } from '../../context/ThemeContext';
 import { loginApi } from '../../api/auth.api';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -12,6 +13,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { setIsDark } = React.useContext(ThemeContext);
   const navigate = useNavigate();
 
   // Reset scroll to top upon page navigation
@@ -26,6 +28,7 @@ export default function Login() {
     try {
       const { user, token } = await loginApi(email, password);
       login(user, token);
+      setIsDark(true); // Default to dark mode on login
 
       if (user.role === 'participant') navigate('/dashboard');
       else if (user.role === 'organizer') navigate('/organizer');
@@ -129,8 +132,8 @@ export default function Login() {
                   boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-                onMouseEnter={e => { if(!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
-                onMouseLeave={e => { if(!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
+                  onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
+                  onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
                   {loading ? 'Signing In...' : 'Sign In'}
                 </button>
               </div>

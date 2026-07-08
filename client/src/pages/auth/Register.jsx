@@ -355,8 +355,8 @@ export default function Register() {
                     boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
                   }}
-                  onMouseEnter={e => { if(!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
-                  onMouseLeave={e => { if(!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
+                    onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
+                    onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
                     {loading ? 'Processing...' : 'Sign up'}
                   </button>
                 </div>

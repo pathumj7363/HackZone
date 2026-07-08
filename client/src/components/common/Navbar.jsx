@@ -1,12 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { ThemeContext } from '../../context/ThemeContext';
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const isDark = true;
+  const { isDark, toggleTheme } = useContext(ThemeContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => { logout(); navigate('/login'); };
@@ -125,43 +126,64 @@ export default function Navbar() {
 
         <div style={{ width: '1px', height: '22px', background: divClr }} />
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <div 
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button 
+            onClick={toggleTheme}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: metaClr, padding: '0.4rem', borderRadius: '50%',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
           >
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' }}>
-              {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+            {isDark ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            )}
+          </button>
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div 
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+            >
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' }}>
+                {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={metaClr} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={metaClr} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            
+            {dropdownOpen && (
+              <div style={{ 
+                position: 'absolute', top: '120%', right: 0, 
+                background: isDark ? '#1e293b' : '#fff',
+                border: `1px solid ${border}`,
+                borderRadius: '8px',
+                padding: '0.5rem',
+                minWidth: '150px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                display: 'flex', flexDirection: 'column', gap: '0.25rem',
+                zIndex: 100
+              }}>
+                <Link to="/profile" style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>
+                  Profile
+                </Link>
+                <Link to="/settings" style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>
+                  Settings
+                </Link>
+                <div style={{ height: '1px', background: border, margin: '0.25rem 0' }} />
+                <button onClick={() => { setDropdownOpen(false); handleLogout(); }} style={{ padding: '0.5rem', background: 'none', border: 'none', color: '#ef4444', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.875rem', width: '100%' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
-          
-          {dropdownOpen && (
-            <div style={{ 
-              position: 'absolute', top: '120%', right: 0, 
-              background: isDark ? '#1e293b' : '#fff',
-              border: `1px solid ${border}`,
-              borderRadius: '8px',
-              padding: '0.5rem',
-              minWidth: '150px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              display: 'flex', flexDirection: 'column', gap: '0.25rem',
-              zIndex: 100
-            }}>
-              <Link to="/profile" style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>
-                Profile
-              </Link>
-              <Link to="/settings" style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>
-                Settings
-              </Link>
-              <div style={{ height: '1px', background: border, margin: '0.25rem 0' }} />
-              <button onClick={() => { setDropdownOpen(false); handleLogout(); }} style={{ padding: '0.5rem', background: 'none', border: 'none', color: '#ef4444', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.875rem', width: '100%' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                Logout
-              </button>
-            </div>
-          )}
         </div>
       </div>
     );
