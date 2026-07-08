@@ -4,9 +4,9 @@ import { AuthContext } from '../../context/AuthContext';
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const isDark    = true;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isDark = true;
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -18,14 +18,14 @@ export default function Navbar() {
   };
 
   /* ── colour tokens ── */
-  const bg         = isDark ? 'rgba(7,9,26,0.82)'         : 'var(--hz-surface-raised)';
-  const border     = isDark ? 'rgba(255,255,255,0.08)'     : 'var(--hz-border)';
-  const logoClr    = isDark ? '#a5b4fc'                    : 'var(--hz-primary)';
-  const linkClr    = isDark ? 'rgba(255,255,255,0.6)'      : 'var(--hz-text-secondary)';
-  const linkActive = isDark ? '#c4b5fd'                    : 'var(--hz-primary)';
-  const metaClr    = isDark ? '#e2e8f0'                    : 'var(--hz-text)';
-  const roleClr    = isDark ? 'rgba(255,255,255,0.45)'     : 'var(--hz-text-muted)';
-  const divClr     = isDark ? 'rgba(255,255,255,0.12)'     : 'var(--hz-border)';
+  const bg = isDark ? 'rgba(7,9,26,0.82)' : 'var(--hz-surface-raised)';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'var(--hz-border)';
+  const logoClr = isDark ? '#a5b4fc' : 'var(--hz-primary)';
+  const linkClr = isDark ? 'rgba(255,255,255,0.6)' : 'var(--hz-text-secondary)';
+  const linkActive = isDark ? '#c4b5fd' : 'var(--hz-primary)';
+  const metaClr = isDark ? '#e2e8f0' : 'var(--hz-text)';
+  const roleClr = isDark ? 'rgba(255,255,255,0.45)' : 'var(--hz-text-muted)';
+  const divClr = isDark ? 'rgba(255,255,255,0.12)' : 'var(--hz-border)';
 
   /* ── inline NavLink ── */
   const NavLink = ({ to, children }) => {
@@ -89,24 +89,24 @@ export default function Navbar() {
     switch (user.role) {
       case 'participant':
         links = [
-          { to: '/dashboard',       label: 'Dashboard'   },
-          { to: '/hackathons',      label: 'Hackathons'  },
-          { to: '/teams/dashboard', label: 'My Team'     },
-          { to: '/submissions',     label: 'Submissions' },
+          { to: '/dashboard', label: 'Dashboard' },
+          { to: '/hackathons', label: 'Hackathons' },
+          { to: '/teams/dashboard', label: 'My Team' },
+          { to: '/submissions', label: 'Submissions' },
         ];
         break;
       case 'organizer':
         links = [
-          { to: '/organizer',          label: 'Dashboard'     },
-          { to: '/organizer/hackathon', label: 'Hackathons'   },
-          { to: '/organizer/teams',    label: 'Teams'         },
-          { to: '/organizer/judges',   label: 'Judges'        },
+          { to: '/organizer', label: 'Dashboard' },
+          { to: '/organizer/hackathon', label: 'Hackathons' },
+          { to: '/organizer/teams', label: 'Teams' },
+          { to: '/organizer/judges', label: 'Judges' },
           { to: '/organizer/announce', label: 'Announcements' },
         ];
         break;
       case 'judge':
         links = [
-          { to: '/judge',          label: 'Dashboard'         },
+          { to: '/judge', label: 'Dashboard' },
           { to: '/judge/projects', label: 'Assigned Projects' },
         ];
         break;
@@ -137,8 +137,8 @@ export default function Navbar() {
             onClick={handleLogout}
             style={{
               background: isDark ? 'rgba(255,255,255,0.07)' : 'transparent',
-              color:      isDark ? 'rgba(255,255,255,0.8)' : 'var(--hz-primary)',
-              border:     isDark ? '1px solid rgba(255,255,255,0.15)' : '1.5px solid var(--hz-primary)',
+              color: isDark ? 'rgba(255,255,255,0.8)' : 'var(--hz-primary)',
+              border: isDark ? '1px solid rgba(255,255,255,0.15)' : '1.5px solid var(--hz-primary)',
               padding: '0.42rem 0.95rem',
               borderRadius: '8px',
               fontWeight: 600,

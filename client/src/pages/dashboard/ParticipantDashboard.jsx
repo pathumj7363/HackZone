@@ -49,7 +49,7 @@ export default function ParticipantDashboard() {
   return (
     <div className="hz-page">
       <div className="hz-container">
-        <PageHeader 
+        <PageHeader
           title={`Participant Dashboard`}
           subtitle={`Welcome back, ${user?.name || 'Participant'}! Here is a quick overview of your hackathons and teams.`}
         />
