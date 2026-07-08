@@ -245,10 +245,20 @@ export default function Register() {
         {/* Ambient Glow */}
         <div style={{ position: 'absolute', top: '5%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
-        <div style={{ textAlign: 'center', marginBottom: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-          <Link to="/" style={{ textDecoration: 'none', fontWeight: '900', fontSize: '2.8rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
-            HackZone
-          </Link>
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '860px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{ position: 'absolute', left: '1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s', padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+              title="Go back"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div style={{ fontWeight: '900', fontSize: '2.8rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
+              HackZone
+            </div>
+          </div>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -279,6 +289,8 @@ export default function Register() {
           padding: '3rem 4rem',
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
         }}>
+
+
           <div className="hz-split-layout">
 
             {/* Left Side: Traditional Form */}
