@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { ThemeContext } from '../../context/ThemeContext';
 import { loginApi } from '../../api/auth.api';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -12,6 +13,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { setIsDark } = React.useContext(ThemeContext);
   const navigate = useNavigate();
 
   // Reset scroll to top upon page navigation
@@ -26,6 +28,7 @@ export default function Login() {
     try {
       const { user, token } = await loginApi(email, password);
       login(user, token);
+      setIsDark(true); // Default to dark mode on login
 
       if (user.role === 'participant') navigate('/dashboard');
       else if (user.role === 'organizer') navigate('/organizer');
@@ -74,11 +77,21 @@ export default function Login() {
         <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
         <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <Link to="/" style={{ textDecoration: 'none', fontWeight: '900', fontSize: '2.5rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
+          {/* Header with Back Button and Logo */}
+          <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '1.5rem' }}>
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{ position: 'absolute', left: 0, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s', padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+              title="Go back"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div style={{ fontWeight: '900', fontSize: '2.5rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
               HackZone
-            </Link>
+            </div>
           </div>
+
 
           <div style={{
             background: 'rgba(255, 255, 255, 0.03)',
@@ -88,7 +101,10 @@ export default function Login() {
             borderRadius: '24px',
             padding: '3rem 2.5rem',
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+            position: 'relative'
           }}>
+
+
             <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
               <h2 className="hz-heading-2 hz-mb-2" style={{ fontSize: '1.75rem', color: '#f8fafc' }}>Welcome Back</h2>
               <p style={{ fontSize: 'var(--hz-font-size-sm)', color: '#94a3b8' }}>
@@ -129,8 +145,8 @@ export default function Login() {
                   boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-                onMouseEnter={e => { if(!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
-                onMouseLeave={e => { if(!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
+                  onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#4338ca'; } }}
+                  onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#4f46e5'; } }}>
                   {loading ? 'Signing In...' : 'Sign In'}
                 </button>
               </div>
