@@ -16,10 +16,10 @@ export const createSubmission = async (id, teamId, hackathonId, title, descripti
 /**
  * Get submission by team ID
  */
-export const getSubmissionByTeam = async (teamId) => {
+export const getSubmissionsByTeamId = async (teamId) => {
   const query = `SELECT * FROM submissions WHERE teamId = ?`;
   const [rows] = await pool.query(query, [teamId]);
-  return rows.length ? rows[0] : null;
+  return rows;
 };
 
 export const getMySubmissions = async (userId) => {
