@@ -21,3 +21,24 @@ export const getSubmissionByTeam = async (teamId) => {
   const [rows] = await pool.query(query, [teamId]);
   return rows.length ? rows[0] : null;
 };
+
+export const getMySubmissions = async (userId) => {
+  const query = `
+    SELECT s.*, t.name as teamName FROM submissions s
+    JOIN team_members tm ON s.teamId = tm.teamId
+    JOIN teams t ON t.id = s.teamId
+    WHERE tm.userId = ?
+  `;
+  const [rows] = await pool.query(query, [userId]);
+  return rows;
+};
+
+export const getAllSubmissions = async () => {
+  const query = `
+    SELECT s.*, t.name as teamName FROM submissions s
+    JOIN teams t ON s.teamId = t.id
+    ORDER BY s.created_at DESC
+  `;
+  const [rows] = await pool.query(query);
+  return rows;
+};
