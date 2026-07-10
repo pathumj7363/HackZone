@@ -11,11 +11,11 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(models): implement getAllHackathons query`
 - [x] **Task 2:** Implement `getHackathonById` query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement getHackathonById query`
-- [ ] **Task 3:** Write unit tests for hackathon model participant queries.
+- [x] **Task 3:** Write unit tests for hackathon model participant queries.
   - **Commit:** `test(models): verify hackathon participant queries`
-- [ ] **Task 4:** Implement `getTeamByUserId` query in `team.model.js` joining `teams` and `team_members`.
+- [x] **Task 4:** Implement `getTeamByUserId` query in `team.model.js` joining `teams` and `team_members`.
   - **Commit:** `feat(models): implement getTeamByUserId query`
-- [ ] **Task 5:** Implement `getPendingInvitesByEmail` query in `team.model.js`.
+- [x] **Task 5:** Implement `getPendingInvitesByEmail` query in `team.model.js`.
   - **Commit:** `feat(models): implement getPendingInvitesByEmail query`
 
 ## Day 2: Submission Model & Controllers (Part 1)
