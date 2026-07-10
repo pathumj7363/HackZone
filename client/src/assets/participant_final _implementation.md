@@ -1,89 +1,108 @@
-# Complete the Participant Role Implementation
+# Complete the Participant Role Implementation (8-Day Plan)
 
 This implementation plan outlines the steps required to fully integrate the Participant role end-to-end, based on the following finalized requirements:
-1. **No Mock Data**: All hardcoded mocks will be completely removed. The participant UI will strictly display data (Hackathons, Teams, Submissions) pulled directly from the database. This means hackathons will only appear if an organizer has actually created them.
+1. **No Mock Data**: All hardcoded mocks will be completely removed. The participant UI will strictly display data (Hackathons, Teams, Submissions) pulled directly from the database.
 2. **Email-Based Invites**: Team joining will be strictly handled via email invitations. Participants will fetch their pending invites and accept/reject them, rather than joining via a team code.
 
+After checking the current repository state, none of these participant-specific integrations have been implemented yet. The following 40 tasks are designed to be completed at a pace of 5 tasks per day over 8 days.
+
+## Day 1: Hackathon & Team Models
+- [ ] **Task 1:** Implement `getAllHackathons` query in `hackathon.model.js`.
+  - **Commit:** `feat(models): implement getAllHackathons query`
+- [ ] **Task 2:** Implement `getHackathonById` query in `hackathon.model.js`.
+  - **Commit:** `feat(models): implement getHackathonById query`
+- [ ] **Task 3:** Write unit tests for hackathon model participant queries.
+  - **Commit:** `test(models): verify hackathon participant queries`
+- [ ] **Task 4:** Implement `getTeamByUserId` query in `team.model.js` joining `teams` and `team_members`.
+  - **Commit:** `feat(models): implement getTeamByUserId query`
+- [ ] **Task 5:** Implement `getPendingInvitesByEmail` query in `team.model.js`.
+  - **Commit:** `feat(models): implement getPendingInvitesByEmail query`
+
+## Day 2: Submission Model & Controllers (Part 1)
+- [ ] **Task 6:** Write unit tests for team model participant queries.
+  - **Commit:** `test(models): verify team participant queries`
+- [ ] **Task 7:** Implement `getSubmissionsByTeamId` query in `submission.model.js`.
+  - **Commit:** `feat(models): implement getSubmissionsByTeamId query`
+- [ ] **Task 8:** Write unit tests for submission model participant queries.
+  - **Commit:** `test(models): verify submission participant queries`
+- [ ] **Task 9:** Implement `getHackathons` controller in `hackathon.controller.js`.
+  - **Commit:** `feat(controllers): add getHackathons controller logic`
+- [ ] **Task 10:** Implement `getHackathonDetail` controller in `hackathon.controller.js`.
+  - **Commit:** `feat(controllers): add getHackathonDetail controller logic`
+
+## Day 3: Controllers (Part 2) & Hackathon Routes
+- [ ] **Task 11:** Implement `getMyTeam` controller in `team.controller.js`.
+  - **Commit:** `feat(controllers): add getMyTeam controller logic`
+- [ ] **Task 12:** Implement `getMyInvites` controller in `team.controller.js`.
+  - **Commit:** `feat(controllers): add getMyInvites controller logic`
+- [ ] **Task 13:** Implement `getMySubmissions` controller in `submission.controller.js`.
+  - **Commit:** `feat(controllers): add getMySubmissions controller logic`
+- [ ] **Task 14:** Add standard error handling to all new participant controllers.
+  - **Commit:** `fix(controllers): add error handling for participant controllers`
+- [ ] **Task 15:** Register `GET /` route in `hackathon.routes.js`.
+  - **Commit:** `feat(routes): register get all hackathons endpoint`
+
+## Day 4: Team & Submission Routes & API Tests
+- [ ] **Task 16:** Register `GET /:id` route in `hackathon.routes.js`.
+  - **Commit:** `feat(routes): register get hackathon detail endpoint`
+- [ ] **Task 17:** Register `GET /my-team` route in `team.routes.js`.
+  - **Commit:** `feat(routes): register get my team endpoint`
+- [ ] **Task 18:** Register `GET /my-invites` route in `team.routes.js`.
+  - **Commit:** `feat(routes): register get my invites endpoint`
+- [ ] **Task 19:** Register `GET /my-submissions` route in `submission.routes.js`.
+  - **Commit:** `feat(routes): register get my submissions endpoint`
+- [ ] **Task 20:** Test all new participant backend endpoints via Postman or automated API tests.
+  - **Commit:** `test(api): verify participant endpoints end-to-end`
+
+## Day 5: Frontend API Setup (Part 1)
+- [ ] **Task 21:** Remove `mockHackathons` array and mock delay in `client/src/api/hackathon.api.js`.
+  - **Commit:** `refactor(api): remove hackathon mock data`
+- [ ] **Task 22:** Connect `getHackathonsApi` to `API.get('/hackathons')`.
+  - **Commit:** `feat(api): connect getHackathons to real endpoint`
+- [ ] **Task 23:** Connect `getHackathonDetailApi` to `API.get('/hackathons/${id}')`.
+  - **Commit:** `feat(api): connect getHackathonDetail to real endpoint`
+- [ ] **Task 24:** Remove mock delay and logic in `getMyTeamApi` in `team.api.js`.
+  - **Commit:** `refactor(api): clean up team API mocks`
+- [ ] **Task 25:** Connect `getMyTeamApi` to `API.get('/teams/my-team')`.
+  - **Commit:** `feat(api): connect getMyTeam to real endpoint`
+
+## Day 6: Frontend API Setup (Part 2) & Participant UI Setup
+- [ ] **Task 26:** Create `getMyInvitesApi` connecting to `API.get('/teams/my-invites')`.
+  - **Commit:** `feat(api): add getMyInvites API method`
+- [ ] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
+  - **Commit:** `refactor(api): remove submission mock data`
+- [ ] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
+  - **Commit:** `feat(api): connect getMySubmissions to real endpoint`
+- [ ] **Task 29:** Update Hackathon Dashboard UI to handle real data structure (e.g., missing image URLs).
+  - **Commit:** `feat(pages): integrate real data in Hackathon Dashboard`
+- [ ] **Task 30:** Add loading states/spinners to Hackathon Dashboard while fetching data.
+  - **Commit:** `feat(ui): add loading states for hackathon fetching`
+
+## Day 7: Team Management UI
+- [ ] **Task 31:** Remove old "Enter Team Code" UI from team management page.
+  - **Commit:** `refactor(pages): remove team code join UI`
+- [ ] **Task 32:** Fetch and display pending email invites using `getMyInvitesApi`.
+  - **Commit:** `feat(pages): fetch and display pending team invites`
+- [ ] **Task 33:** Wire "Accept" and "Reject" buttons for invites to `respondToInviteApi`.
+  - **Commit:** `feat(pages): implement invite accept and reject logic`
+- [ ] **Task 34:** Refresh team details and invite list automatically after responding to an invite.
+  - **Commit:** `feat(pages): refresh team state after invite response`
+- [ ] **Task 35:** Handle errors and display toast notifications for invite actions.
+  - **Commit:** `feat(ui): add notifications for team invite actions`
+
+## Day 8: Submissions UI & Final Polish
+- [ ] **Task 36:** Update Participant Dashboard to fetch and display past submissions using `getMySubmissionsApi`.
+  - **Commit:** `feat(pages): fetch real submissions in participant dashboard`
+- [ ] **Task 37:** Implement an empty state UI if the user has no submissions.
+  - **Commit:** `feat(ui): add empty state for missing submissions`
+- [ ] **Task 38:** Handle any database schema edge cases (e.g., null values, date formatting on frontend).
+  - **Commit:** `fix(pages): handle data formatting and null values`
+- [ ] **Task 39:** Perform full end-to-end test (Login -> See Hackathons -> Check Invites -> View Submissions).
+  - **Commit:** `test(e2e): verify complete participant workflow`
+- [ ] **Task 40:** Final code review, cleanup console logs, and polish the participant module.
+  - **Commit:** `chore: cleanup logs and polish participant module`
+
 ---
-
-## Proposed Changes
-
-### 1. Backend Models (Database Layer)
-
-We need to add the SQL queries to interact with the database tables.
-
-#### [MODIFY] server/models/hackathon.model.js
-- Implement `getAllHackathons`: Selects all hackathons from the `hackathons` table.
-- Implement `getHackathonById(id)`: Selects a specific hackathon by its ID.
-
-#### [MODIFY] server/models/team.model.js
-- Implement `getTeamByUserId(userId)`: Joins `teams` and `team_members` to fetch a user's active team.
-- Implement `getPendingInvitesByEmail(email)`: Fetches all pending invites for a specific user's email from the `team_invites` table.
-- *(Note: `addTeamMember`, `createTeamInvite`, and `updateTeamInviteStatus` already exist in this file).*
-
-#### [MODIFY] server/models/submission.model.js
-- Implement `getSubmissionsByTeamId(teamId)`: Selects submissions for a specific team.
-
----
-
-### 2. Backend Controllers
-
-Map the incoming requests to the model functions and return standard JSON responses.
-
-#### [MODIFY] server/controllers/hackathon.controller.js
-- Add `getHackathons`: Calls `getAllHackathons()` and returns `res.status(200).json({ data: hackathons })`.
-- Add `getHackathonDetail`: Extracts `req.params.id`, calls `getHackathonById(id)`.
-
-#### [MODIFY] server/controllers/team.controller.js
-- Add `getMyTeam`: Uses `req.user.id` to call `getTeamByUserId()`.
-- Add `getMyInvites`: Uses `req.user.email` (from auth token/session) to call `getPendingInvitesByEmail()`.
-
-#### [MODIFY] server/controllers/submission.controller.js
-- Add `getMySubmissions`: Uses `req.user.id` to determine the user's team via `getTeamByUserId`, then calls `getSubmissionsByTeamId()`.
-
----
-
-### 3. Backend Routes
-
-Expose the new controller methods via standard HTTP verbs.
-
-#### [MODIFY] server/routes/hackathon.routes.js
-- Add `router.get('/', verifyToken, getHackathons);`
-- Add `router.get('/:id', verifyToken, getHackathonDetail);`
-
-#### [MODIFY] server/routes/team.routes.js
-- Add `router.get('/my-team', verifyToken, getMyTeam);`
-- Add `router.get('/my-invites', verifyToken, getMyInvites);`
-
-#### [MODIFY] server/routes/submission.routes.js
-- Add `router.get('/my-submissions', verifyToken, getMySubmissions);`
-
----
-
-### 4. Frontend API Integration
-
-Remove **all** mock data and wire the Axios calls directly to the new backend endpoints. Ensure that the returned data structures match what the React components expect.
-
-#### [MODIFY] client/src/api/hackathon.api.js
-- Remove the `mockHackathons` array entirely.
-- Replace `getHackathonsApi` with `API.get('/hackathons')`.
-- Replace `getHackathonDetailApi` with `API.get('/hackathons/${id}')`.
-
-#### [MODIFY] client/src/api/team.api.js
-- Remove the mocked `getMyTeamApi` delay and return logic.
-- Replace `getMyTeamApi` with `API.get('/teams/my-team')`.
-- Replace the mock `joinTeamApi` (which assumed a code) with a new `getMyInvitesApi` that calls `API.get('/teams/my-invites')`. We already have `respondToInviteApi` which calls `POST /teams/invite/respond`.
-
-#### [MODIFY] client/src/api/submission.api.js
-- Remove the mocked arrays.
-- Replace `getMySubmissionsApi` with `API.get('/submissions/my-submissions')`.
-
-#### [MODIFY] client/src/pages/participant/*.jsx
-- Ensure the React components in the participant folder correctly read the real data structure returned by the API (e.g., handling missing image URLs for hackathons, since our real DB doesn't have the Unsplash mock images).
-- Update the team management UI to show pending email invites (fetched from `getMyInvitesApi`) and allow the user to accept/reject them via `respondToInviteApi`, removing the old "Enter Team Code" UI if it exists.
-
----
-
 ## Verification Plan
 1. Sign in as an Organizer, create a Hackathon (to populate the database).
 2. Sign in as a Participant.
