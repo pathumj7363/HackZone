@@ -30,7 +30,7 @@ export default function GlobalBackground() {
         filter: 'blur(80px)',
         animation: 'float 22s infinite ease-in-out alternate',
       }} />
-      
+
       {/* Animated Glowing Orb 2: Bright Blue */}
       <div style={{
         position: 'absolute',
@@ -43,7 +43,7 @@ export default function GlobalBackground() {
         filter: 'blur(100px)',
         animation: 'float 28s infinite ease-in-out alternate-reverse',
       }} />
-      
+
       {/* Animated Glowing Orb 3: Pink Accent */}
       <div style={{
         position: 'absolute',
@@ -57,7 +57,7 @@ export default function GlobalBackground() {
         animation: 'float 20s infinite ease-in-out alternate',
         transform: 'translate(-50%, -50%)'
       }} />
-      
+
       {/* Subtle Cyber Grid Overlay */}
       <div style={{
         position: 'absolute',
