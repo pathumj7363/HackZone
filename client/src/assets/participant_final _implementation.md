@@ -7,9 +7,9 @@ This implementation plan outlines the steps required to fully integrate the Part
 After checking the current repository state, none of these participant-specific integrations have been implemented yet. The following 40 tasks are designed to be completed at a pace of 5 tasks per day over 8 days.
 
 ## Day 1: Hackathon & Team Models
-- [ ] **Task 1:** Implement `getAllHackathons` query in `hackathon.model.js`.
+- [x] **Task 1:** Implement `getAllHackathons` query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement getAllHackathons query`
-- [ ] **Task 2:** Implement `getHackathonById` query in `hackathon.model.js`.
+- [x] **Task 2:** Implement `getHackathonById` query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement getHackathonById query`
 - [ ] **Task 3:** Write unit tests for hackathon model participant queries.
   - **Commit:** `test(models): verify hackathon participant queries`

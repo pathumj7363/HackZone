@@ -1,4 +1,4 @@
-import { createTeam, getTeamById, addTeamMember, createTeamInvite, updateTeamInviteStatus, getMyTeam, getAllTeams, joinTeam } from '../models/team.model.js';
+import { createTeam, getTeamById, addTeamMember, createTeamInvite, updateTeamInviteStatus, getMyTeam as getMyTeamOld, getAllTeams, joinTeam, getTeamByUserId, getPendingInvitesByEmail } from '../models/team.model.js';
 import crypto from 'crypto';
 
 export const createNewTeam = async (req, res) => {
@@ -65,9 +65,28 @@ export const respondToInvite = async (req, res) => {
 
 export const fetchMyTeam = async (req, res) => {
   try {
-    const team = await getMyTeam(req.user.id);
+    const team = await getMyTeamOld(req.user.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
     res.status(200).json(team);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getMyTeam = async (req, res) => {
+  try {
+    const team = await getTeamByUserId(req.user.id);
+    if (!team) return res.status(404).json({ error: 'Team not found' });
+    res.status(200).json({ data: team });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getMyInvites = async (req, res) => {
+  try {
+    const invites = await getPendingInvitesByEmail(req.user.email);
+    res.status(200).json({ data: invites });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
