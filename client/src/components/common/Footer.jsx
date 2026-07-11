@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ThemeContext } from '../../context/ThemeContext';
 
 export default function Footer() {
+  const { isDark } = useContext(ThemeContext);
   const location = useLocation();
-  const isDark   = true;
 
   const bg      = isDark ? '#04060f'                  : 'var(--hz-surface)';
   const border  = isDark ? 'rgba(255,255,255,0.07)'   : 'var(--hz-border)';

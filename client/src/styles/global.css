@@ -91,14 +91,14 @@
 }
 
 [data-theme='dark'] {
-  --hz-bg: #07091a;
-  --hz-surface: rgba(255, 255, 255, 0.03);
-  --hz-surface-raised: rgba(255, 255, 255, 0.05);
-  --hz-border: rgba(255, 255, 255, 0.08);
-  --hz-border-strong: rgba(255, 255, 255, 0.18);
-  --hz-text: #f8fafc;
-  --hz-text-secondary: #cbd5e1;
-  --hz-text-muted: #94a3b8;
+  --hz-bg: transparent;
+  --hz-surface: #111827;
+  --hz-surface-raised: #1f2937;
+  --hz-border: #374151;
+  --hz-border-strong: #4b5563;
+  --hz-text: #f9fafb;
+  --hz-text-secondary: #e5e7eb;
+  --hz-text-muted: #9ca3af;
   --hz-text-inverse: #ffffff;
 }
 
@@ -606,6 +606,27 @@ img {
   width: 2.25rem;
   height: 2.25rem;
   border-width: 3px;
+}
+
+.hz-spinner-label {
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text-muted);
+}
+
+height: 2.25rem;
+border-width: 3px;
+}
+
+.hz-spinner-label {
+  font-size: var(--hz-font-size-sm);
+  color: var(--hz-text-muted);
+}
+
+color: var(--hz-text-muted);
+}
+
+height: 2.25rem;
+border-width: 3px;
 }
 
 .hz-spinner-label {

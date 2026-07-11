@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import GlobalBackground from './components/common/GlobalBackground'
 
@@ -38,54 +39,56 @@ import AdminLayout from './components/layout/AdminLayout'
 export default function App() {
   return (
     <BrowserRouter>
-      <GlobalBackground />
-      <AuthProvider>
-        <ToastContainer position="top-right" autoClose={3000} />
-        <Routes>
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Home />} />
-          </Route>
+      <ThemeProvider>
+        <GlobalBackground />
+        <AuthProvider>
+          <ToastContainer position="top-right" autoClose={3000} />
+          <Routes>
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Home />} />
+            </Route>
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register/role-select" element={<RoleSelect />} />
-          <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register/role-select" element={<RoleSelect />} />
+            <Route path="/register" element={<Register />} />
 
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><ParticipantDashboard /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute allowedRoles={['participant']}><Profile /></ProtectedRoute>} />
-            <Route path="/hackathons" element={<ProtectedRoute allowedRoles={['participant']}><HackathonList /></ProtectedRoute>} />
-            <Route path="/hackathons/:id" element={<ProtectedRoute allowedRoles={['participant']}><HackathonDetail /></ProtectedRoute>} />
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><ParticipantDashboard /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute allowedRoles={['participant']}><Profile /></ProtectedRoute>} />
+              <Route path="/hackathons" element={<ProtectedRoute allowedRoles={['participant']}><HackathonList /></ProtectedRoute>} />
+              <Route path="/hackathons/:id" element={<ProtectedRoute allowedRoles={['participant']}><HackathonDetail /></ProtectedRoute>} />
 
-            <Route path="/teams/create" element={<ProtectedRoute allowedRoles={['participant']}><TeamCreate /></ProtectedRoute>} />
-            <Route path="/teams/join" element={<ProtectedRoute allowedRoles={['participant']}><TeamJoin /></ProtectedRoute>} />
-            <Route path="/teams/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><TeamDashboard /></ProtectedRoute>} />
+              <Route path="/teams/create" element={<ProtectedRoute allowedRoles={['participant']}><TeamCreate /></ProtectedRoute>} />
+              <Route path="/teams/join" element={<ProtectedRoute allowedRoles={['participant']}><TeamJoin /></ProtectedRoute>} />
+              <Route path="/teams/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><TeamDashboard /></ProtectedRoute>} />
 
-            <Route path="/submit" element={<ProtectedRoute allowedRoles={['participant']}><ProjectSubmission /></ProtectedRoute>} />
-            <Route path="/submissions" element={<ProtectedRoute allowedRoles={['participant']}><MySubmissions /></ProtectedRoute>} />
-            <Route path="/results" element={<ProtectedRoute allowedRoles={['participant']}><EvaluationResults /></ProtectedRoute>} />
+              <Route path="/submit" element={<ProtectedRoute allowedRoles={['participant']}><ProjectSubmission /></ProtectedRoute>} />
+              <Route path="/submissions" element={<ProtectedRoute allowedRoles={['participant']}><MySubmissions /></ProtectedRoute>} />
+              <Route path="/results" element={<ProtectedRoute allowedRoles={['participant']}><EvaluationResults /></ProtectedRoute>} />
 
-            <Route path="/organizer" element={<ProtectedRoute allowedRoles={['organizer']}><OrganizerDashboard /></ProtectedRoute>} />
-            <Route path="/organizer/hackathon" element={<ProtectedRoute allowedRoles={['organizer']}><ManageHackathon /></ProtectedRoute>} />
-            <Route path="/organizer/teams" element={<ProtectedRoute allowedRoles={['organizer']}><ManageTeams /></ProtectedRoute>} />
-            <Route path="/organizer/judges" element={<ProtectedRoute allowedRoles={['organizer']}><AssignJudges /></ProtectedRoute>} />
-            <Route path="/organizer/announce" element={<ProtectedRoute allowedRoles={['organizer']}><Announcements /></ProtectedRoute>} />
+              <Route path="/organizer" element={<ProtectedRoute allowedRoles={['organizer']}><OrganizerDashboard /></ProtectedRoute>} />
+              <Route path="/organizer/hackathon" element={<ProtectedRoute allowedRoles={['organizer']}><ManageHackathon /></ProtectedRoute>} />
+              <Route path="/organizer/teams" element={<ProtectedRoute allowedRoles={['organizer']}><ManageTeams /></ProtectedRoute>} />
+              <Route path="/organizer/judges" element={<ProtectedRoute allowedRoles={['organizer']}><AssignJudges /></ProtectedRoute>} />
+              <Route path="/organizer/announce" element={<ProtectedRoute allowedRoles={['organizer']}><Announcements /></ProtectedRoute>} />
 
-            <Route path="/judge" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
-            <Route path="/judge/dashboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
-            <Route path="/judge/projects" element={<ProtectedRoute allowedRoles={['judge']}><AssignedProjects /></ProtectedRoute>} />
-            <Route path="/judge/evaluate/:id" element={<ProtectedRoute allowedRoles={['judge']}><EvaluateProject /></ProtectedRoute>} />
-            <Route path="/judge/leaderboard/:hackathonId" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
-            <Route path="/judge/leaderboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
-          </Route>
+              <Route path="/judge" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
+              <Route path="/judge/dashboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
+              <Route path="/judge/projects" element={<ProtectedRoute allowedRoles={['judge']}><AssignedProjects /></ProtectedRoute>} />
+              <Route path="/judge/evaluate/:id" element={<ProtectedRoute allowedRoles={['judge']}><EvaluateProject /></ProtectedRoute>} />
+              <Route path="/judge/leaderboard/:hackathonId" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
+              <Route path="/judge/leaderboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
+            </Route>
 
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><ManageUsers /></ProtectedRoute>} />
-          </Route>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><ManageUsers /></ProtectedRoute>} />
+            </Route>
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AuthProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }
