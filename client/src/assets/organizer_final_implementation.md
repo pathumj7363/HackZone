@@ -9,7 +9,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(db): add organizerId column to hackathons table`
 - [x] **Task 2:** Implement `createHackathon(data)` SQL query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement createHackathon query`
-- [ ] **Task 3:** Write unit tests or manual verification scripts for `createHackathon` query.
+- [x] **Task 3:** Write unit tests or manual verification scripts for `createHackathon` query.
   - **Commit:** `test(models): verify createHackathon query functionality`
 - [ ] **Task 4:** Implement `updateHackathon(id, data)` SQL query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement updateHackathon query`
