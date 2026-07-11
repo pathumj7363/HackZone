@@ -33,6 +33,7 @@ const migrateParticipantPhase = async () => {
         startDate DATETIME,
         endDate DATETIME,
         status VARCHAR(50) DEFAULT 'draft',
+        organizerId VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
