@@ -13,7 +13,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `test(models): verify createHackathon query functionality`
 - [x] **Task 4:** Implement `updateHackathon(id, data)` SQL query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement updateHackathon query`
-- [ ] **Task 5:** Write unit tests or manual verification scripts for `updateHackathon` query.
+- [x] **Task 5:** Write unit tests or manual verification scripts for `updateHackathon` query.
   - **Commit:** `test(models): verify updateHackathon query functionality`
 
 ## Day 2: Hackathon Model (Part 2) & User Model
