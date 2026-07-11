@@ -77,26 +77,24 @@ export const getHackathonsByOrganizer = async (organizerId) => {
  * @returns {Promise<boolean>}
  */
 export const updateHackathon = async (id, updateData) => {
-  const {
-    title, description, startDate, endDate, rules, 
-    prizes, sponsors, judges
-  } = updateData;
+  const fields = [];
+  const values = [];
 
-  const prizesJson = prizes ? JSON.stringify(prizes) : null;
-  const sponsorsJson = sponsors ? JSON.stringify(sponsors) : null;
-  const judgesJson = judges ? JSON.stringify(judges) : null;
+  if (updateData.title !== undefined) { fields.push('title = ?'); values.push(updateData.title); }
+  if (updateData.description !== undefined) { fields.push('description = ?'); values.push(updateData.description); }
+  if (updateData.startDate !== undefined) { fields.push('startDate = ?'); values.push(updateData.startDate); }
+  if (updateData.endDate !== undefined) { fields.push('endDate = ?'); values.push(updateData.endDate); }
+  if (updateData.status !== undefined) { fields.push('status = ?'); values.push(updateData.status); }
+  if (updateData.rules !== undefined) { fields.push('rules = ?'); values.push(updateData.rules); }
+  if (updateData.prizes !== undefined) { fields.push('prizes = ?'); values.push(JSON.stringify(updateData.prizes)); }
+  if (updateData.sponsors !== undefined) { fields.push('sponsors = ?'); values.push(JSON.stringify(updateData.sponsors)); }
+  if (updateData.judges !== undefined) { fields.push('judges = ?'); values.push(JSON.stringify(updateData.judges)); }
 
-  const query = `
-    UPDATE hackathons 
-    SET title = ?, description = ?, startDate = ?, endDate = ?, rules = ?, 
-        prizes = ?, sponsors = ?, judges = ?
-    WHERE id = ?
-  `;
+  if (fields.length === 0) return true;
 
-  const [result] = await pool.query(query, [
-    title, description, startDate, endDate, rules, 
-    prizesJson, sponsorsJson, judgesJson, id
-  ]);
+  const query = `UPDATE hackathons SET ${fields.join(', ')} WHERE id = ?`;
+  values.push(id);
 
+  const [result] = await pool.query(query, values);
   return result.affectedRows > 0;
 };
