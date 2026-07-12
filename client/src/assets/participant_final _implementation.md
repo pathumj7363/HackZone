@@ -25,7 +25,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(models): implement getSubmissionsByTeamId query`
 - [x] **Task 8:** Write unit tests for submission model participant queries.
   - **Commit:** `test(models): verify submission participant queries`
-- [ ] **Task 9:** Implement `getHackathons` controller in `hackathon.controller.js`.
+- [x] **Task 9:** Implement `getHackathons` controller in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getHackathons controller logic`
 - [ ] **Task 10:** Implement `getHackathonDetail` controller in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getHackathonDetail controller logic`
