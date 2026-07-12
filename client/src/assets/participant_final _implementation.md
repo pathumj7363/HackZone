@@ -19,7 +19,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(models): implement getPendingInvitesByEmail query`
 
 ## Day 2: Submission Model & Controllers (Part 1)
-- [ ] **Task 6:** Write unit tests for team model participant queries.
+- [x] **Task 6:** Write unit tests for team model participant queries.
   - **Commit:** `test(models): verify team participant queries`
 - [ ] **Task 7:** Implement `getSubmissionsByTeamId` query in `submission.model.js`.
   - **Commit:** `feat(models): implement getSubmissionsByTeamId query`
