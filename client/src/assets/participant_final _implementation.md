@@ -27,7 +27,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `test(models): verify submission participant queries`
 - [x] **Task 9:** Implement `getHackathons` controller in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getHackathons controller logic`
-- [ ] **Task 10:** Implement `getHackathonDetail` controller in `hackathon.controller.js`.
+- [x] **Task 10:** Implement `getHackathonDetail` controller in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getHackathonDetail controller logic`
 
 ## Day 3: Controllers (Part 2) & Hackathon Routes
