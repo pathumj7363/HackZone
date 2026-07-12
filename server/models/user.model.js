@@ -97,3 +97,20 @@ export const updateOrganizerProfile = async (id, profileData) => {
   const [result] = await pool.query(query, [organizationName, websiteUrl, isVerified, id]);
   return result.affectedRows > 0;
 };
+
+/**
+ * Fetch users by their role.
+ * @param {string} role 
+ * @returns {Promise<Array>} List of users with the specified role
+ */
+export const getUsersByRole = async (role) => {
+  try {
+    if (!role) throw new Error('Role is required');
+    const query = `SELECT * FROM users WHERE role = ?`;
+    const [rows] = await pool.query(query, [role]);
+    return rows;
+  } catch (error) {
+    console.error('Error fetching users by role:', error);
+    throw error;
+  }
+};
