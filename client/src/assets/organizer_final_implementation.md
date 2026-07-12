@@ -17,7 +17,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `test(models): verify updateHackathon query functionality`
 
 ## Day 2: Hackathon Model (Part 2) & User Model
-- [ ] **Task 6:** Implement `getHackathonsByOrganizerId(organizerId)` query in `hackathon.model.js`.
+- [x] **Task 6:** Implement `getHackathonsByOrganizerId(organizerId)` query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement getHackathonsByOrganizerId query`
 - [ ] **Task 7:** Implement error handling and edge cases for hackathon model queries.
   - **Commit:** `fix(models): enhance error handling for hackathon queries`

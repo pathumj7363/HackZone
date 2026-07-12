@@ -7,7 +7,7 @@ import pool from '../database/db.js';
  */
 export const createHackathon = async (hackathonData) => {
   const {
-    id, title, description, startDate, endDate, rules, 
+    id, title, description, startDate, endDate, rules,
     prizes, sponsors, judges, organizerId
   } = hackathonData;
 
@@ -23,7 +23,7 @@ export const createHackathon = async (hackathonData) => {
   `;
 
   await pool.query(query, [
-    id, title, description, startDate, endDate, rules, 
+    id, title, description, startDate, endDate, rules,
     prizesJson, sponsorsJson, judgesJson, organizerId
   ]);
 
@@ -44,7 +44,7 @@ export const getHackathonById = async (id) => {
   }
 
   const hackathon = rows[0];
-  
+
   // Parse JSON fields back to objects/arrays
   if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
   if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
@@ -58,7 +58,7 @@ export const getHackathonById = async (id) => {
  * @param {string} organizerId 
  * @returns {Promise<Array>}
  */
-export const getHackathonsByOrganizer = async (organizerId) => {
+export const getHackathonsByOrganizerId = async (organizerId) => {
   const query = `SELECT * FROM hackathons WHERE organizerId = ?`;
   const [rows] = await pool.query(query, [organizerId]);
 
