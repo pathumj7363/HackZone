@@ -23,7 +23,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `fix(models): enhance error handling for hackathon queries`
 - [x] **Task 8:** Implement `getUsersByRole(role)` SQL query in `user.model.js`.
   - **Commit:** `feat(models): implement getUsersByRole query for judges`
-- [ ] **Task 9:** Write unit tests for `getUsersByRole` query.
+- [x] **Task 9:** Write unit tests for `getUsersByRole` query.
   - **Commit:** `test(models): verify getUsersByRole query`
 - [ ] **Task 10:** Optimize database indexes for user roles and hackathon organizer ID.
   - **Commit:** `chore(db): add indexes for organizer_id and user roles`
