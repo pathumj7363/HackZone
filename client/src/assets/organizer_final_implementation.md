@@ -25,7 +25,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(models): implement getUsersByRole query for judges`
 - [x] **Task 9:** Write unit tests for `getUsersByRole` query.
   - **Commit:** `test(models): verify getUsersByRole query`
-- [ ] **Task 10:** Optimize database indexes for user roles and hackathon organizer ID.
+- [x] **Task 10:** Optimize database indexes for user roles and hackathon organizer ID.
   - **Commit:** `chore(db): add indexes for organizer_id and user roles`
 
 ## Day 3: Evaluation Model
