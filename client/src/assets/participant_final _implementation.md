@@ -21,7 +21,7 @@ After checking the current repository state, none of these participant-specific 
 ## Day 2: Submission Model & Controllers (Part 1)
 - [x] **Task 6:** Write unit tests for team model participant queries.
   - **Commit:** `test(models): verify team participant queries`
-- [ ] **Task 7:** Implement `getSubmissionsByTeamId` query in `submission.model.js`.
+- [x] **Task 7:** Implement `getSubmissionsByTeamId` query in `submission.model.js`.
   - **Commit:** `feat(models): implement getSubmissionsByTeamId query`
 - [ ] **Task 8:** Write unit tests for submission model participant queries.
   - **Commit:** `test(models): verify submission participant queries`
