@@ -41,6 +41,12 @@ export const createHackathon = async (hackathonData) => {
   }
 };
 
+export const getAllHackathons = async () => {
+  const query = `SELECT * FROM hackathons ORDER BY created_at DESC`;
+  const [rows] = await pool.query(query);
+  return rows;
+};
+
 /**
  * Get a hackathon by ID.
  * @param {string} id 

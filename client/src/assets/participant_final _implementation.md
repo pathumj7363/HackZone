@@ -7,27 +7,27 @@ This implementation plan outlines the steps required to fully integrate the Part
 After checking the current repository state, none of these participant-specific integrations have been implemented yet. The following 40 tasks are designed to be completed at a pace of 5 tasks per day over 8 days.
 
 ## Day 1: Hackathon & Team Models
-- [ ] **Task 1:** Implement `getAllHackathons` query in `hackathon.model.js`.
+- [x] **Task 1:** Implement `getAllHackathons` query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement getAllHackathons query`
-- [ ] **Task 2:** Implement `getHackathonById` query in `hackathon.model.js`.
+- [x] **Task 2:** Implement `getHackathonById` query in `hackathon.model.js`.
   - **Commit:** `feat(models): implement getHackathonById query`
-- [ ] **Task 3:** Write unit tests for hackathon model participant queries.
+- [x] **Task 3:** Write unit tests for hackathon model participant queries.
   - **Commit:** `test(models): verify hackathon participant queries`
-- [ ] **Task 4:** Implement `getTeamByUserId` query in `team.model.js` joining `teams` and `team_members`.
+- [x] **Task 4:** Implement `getTeamByUserId` query in `team.model.js` joining `teams` and `team_members`.
   - **Commit:** `feat(models): implement getTeamByUserId query`
-- [ ] **Task 5:** Implement `getPendingInvitesByEmail` query in `team.model.js`.
+- [x] **Task 5:** Implement `getPendingInvitesByEmail` query in `team.model.js`.
   - **Commit:** `feat(models): implement getPendingInvitesByEmail query`
 
 ## Day 2: Submission Model & Controllers (Part 1)
-- [ ] **Task 6:** Write unit tests for team model participant queries.
+- [x] **Task 6:** Write unit tests for team model participant queries.
   - **Commit:** `test(models): verify team participant queries`
-- [ ] **Task 7:** Implement `getSubmissionsByTeamId` query in `submission.model.js`.
+- [x] **Task 7:** Implement `getSubmissionsByTeamId` query in `submission.model.js`.
   - **Commit:** `feat(models): implement getSubmissionsByTeamId query`
-- [ ] **Task 8:** Write unit tests for submission model participant queries.
+- [x] **Task 8:** Write unit tests for submission model participant queries.
   - **Commit:** `test(models): verify submission participant queries`
-- [ ] **Task 9:** Implement `getHackathons` controller in `hackathon.controller.js`.
+- [x] **Task 9:** Implement `getHackathons` controller in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getHackathons controller logic`
-- [ ] **Task 10:** Implement `getHackathonDetail` controller in `hackathon.controller.js`.
+- [x] **Task 10:** Implement `getHackathonDetail` controller in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getHackathonDetail controller logic`
 
 ## Day 3: Controllers (Part 2) & Hackathon Routes

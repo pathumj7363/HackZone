@@ -14,10 +14,50 @@ export const createSubmission = async (id, teamId, hackathonId, title, descripti
 };
 
 /**
- * Get submission by team ID
+ * Get all submissions for a given team, enriched with hackathon details.
+ * @param {string} teamId - The team's UUID
+ * @returns {Promise<Array>} Array of submission objects with hackathon info
  */
-export const getSubmissionByTeam = async (teamId) => {
-  const query = `SELECT * FROM submissions WHERE teamId = ?`;
+export const getSubmissionsByTeamId = async (teamId) => {
+  const query = `
+    SELECT 
+      s.id,
+      s.teamId,
+      s.hackathonId,
+      s.title,
+      s.description,
+      s.githubRepo,
+      s.demoVideoUrl,
+      s.created_at,
+      h.title AS hackathonTitle,
+      h.status AS hackathonStatus,
+      h.endDate AS hackathonEndDate
+    FROM submissions s
+    JOIN hackathons h ON s.hackathonId = h.id
+    WHERE s.teamId = ?
+    ORDER BY s.created_at DESC
+  `;
   const [rows] = await pool.query(query, [teamId]);
-  return rows.length ? rows[0] : null;
+  return rows;
+};
+
+export const getMySubmissions = async (userId) => {
+  const query = `
+    SELECT s.*, t.name as teamName FROM submissions s
+    JOIN team_members tm ON s.teamId = tm.teamId
+    JOIN teams t ON t.id = s.teamId
+    WHERE tm.userId = ?
+  `;
+  const [rows] = await pool.query(query, [userId]);
+  return rows;
+};
+
+export const getAllSubmissions = async () => {
+  const query = `
+    SELECT s.*, t.name as teamName FROM submissions s
+    JOIN teams t ON s.teamId = t.id
+    ORDER BY s.created_at DESC
+  `;
+  const [rows] = await pool.query(query);
+  return rows;
 };

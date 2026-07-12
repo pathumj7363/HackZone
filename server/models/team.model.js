@@ -59,3 +59,56 @@ export const updateTeamInviteStatus = async (id, status) => {
   const [result] = await pool.query(query, [status, id]);
   return result.affectedRows > 0;
 };
+
+export const getMyTeam = async (userId) => {
+  const query = `
+    SELECT t.* FROM teams t
+    JOIN team_members tm ON t.id = tm.teamId
+    WHERE tm.userId = ?
+    LIMIT 1
+  `;
+  const [rows] = await pool.query(query, [userId]);
+  if (!rows.length) return null;
+  const team = rows[0];
+
+  const memberQuery = `
+    SELECT u.name, u.email, tm.role 
+    FROM team_members tm
+    JOIN users u ON tm.userId = u.id
+    WHERE tm.teamId = ?
+  `;
+  const [memberRows] = await pool.query(memberQuery, [team.id]);
+  team.members = memberRows.map(m => m.name || m.email); 
+  return team;
+};
+
+export const getAllTeams = async () => {
+  const query = `SELECT * FROM teams ORDER BY created_at DESC`;
+  const [rows] = await pool.query(query);
+  return rows;
+};
+
+export const joinTeam = async (code, userId) => {
+  const query = `SELECT id FROM teams WHERE name = ? OR id = ? LIMIT 1`;
+  const [rows] = await pool.query(query, [code, code]);
+  if (!rows.length) throw new Error('Invalid team code');
+  await addTeamMember(rows[0].id, userId, 'member');
+  return true;
+};
+
+export const getTeamByUserId = async (userId) => {
+  const query = `
+    SELECT t.* FROM teams t
+    JOIN team_members tm ON t.id = tm.teamId
+    WHERE tm.userId = ?
+    LIMIT 1
+  `;
+  const [rows] = await pool.query(query, [userId]);
+  return rows.length ? rows[0] : null;
+};
+
+export const getPendingInvitesByEmail = async (email) => {
+  const query = `SELECT * FROM team_invites WHERE email = ? AND status = 'pending'`;
+  const [rows] = await pool.query(query, [email]);
+  return rows;
+};
