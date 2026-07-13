@@ -35,7 +35,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(controllers): add getMyTeam controller logic`
 - [x] **Task 12:** Implement `getMyInvites` controller in `team.controller.js`.
   - **Commit:** `feat(controllers): add getMyInvites controller logic`
-- [ ] **Task 13:** Implement `getMySubmissions` controller in `submission.controller.js`.
+- [x] **Task 13:** Implement `getMySubmissions` controller in `submission.controller.js`.
   - **Commit:** `feat(controllers): add getMySubmissions controller logic`
 - [ ] **Task 14:** Add standard error handling to all new participant controllers.
   - **Commit:** `fix(controllers): add error handling for participant controllers`
