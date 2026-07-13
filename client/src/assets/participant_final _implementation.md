@@ -33,7 +33,7 @@ After checking the current repository state, none of these participant-specific 
 ## Day 3: Controllers (Part 2) & Hackathon Routes
 - [x] **Task 11:** Implement `getMyTeam` controller in `team.controller.js`.
   - **Commit:** `feat(controllers): add getMyTeam controller logic`
-- [ ] **Task 12:** Implement `getMyInvites` controller in `team.controller.js`.
+- [x] **Task 12:** Implement `getMyInvites` controller in `team.controller.js`.
   - **Commit:** `feat(controllers): add getMyInvites controller logic`
 - [ ] **Task 13:** Implement `getMySubmissions` controller in `submission.controller.js`.
   - **Commit:** `feat(controllers): add getMySubmissions controller logic`

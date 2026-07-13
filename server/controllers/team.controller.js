@@ -99,12 +99,26 @@ export const getMyTeam = async (req, res) => {
   }
 };
 
+/**
+ * GET /teams/my-invites
+ * Returns all pending team invites sent to the authenticated user's email address.
+ * Returns an empty array (not 404) when the user has no pending invites — that is
+ * the normal state and should not be treated as an error by the client.
+ */
 export const getMyInvites = async (req, res) => {
   try {
-    const invites = await getPendingInvitesByEmail(req.user.email);
-    res.status(200).json({ data: invites });
+    const email = req.user.email;
+
+    if (!email) {
+      return res.status(401).json({ error: 'Unauthorized: user email missing' });
+    }
+
+    const invites = await getPendingInvitesByEmail(email);
+
+    return res.status(200).json({ data: invites });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[getMyInvites] Error fetching invites:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
