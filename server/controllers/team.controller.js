@@ -73,13 +73,29 @@ export const fetchMyTeam = async (req, res) => {
   }
 };
 
+/**
+ * GET /teams/my-team
+ * Returns the authenticated participant's team, including all member details.
+ * Uses the model's getMyTeam query which JOINs team_members and users tables.
+ */
 export const getMyTeam = async (req, res) => {
   try {
-    const team = await getTeamByUserId(req.user.id);
-    if (!team) return res.status(404).json({ error: 'Team not found' });
-    res.status(200).json({ data: team });
+    const userId = req.user.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: user ID missing' });
+    }
+
+    const team = await getMyTeamOld(userId);
+
+    if (!team) {
+      return res.status(404).json({ error: 'No team found for this user' });
+    }
+
+    return res.status(200).json({ data: team });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[getMyTeam] Error fetching team:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
