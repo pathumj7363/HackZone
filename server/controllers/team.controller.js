@@ -12,11 +12,11 @@ export const createNewTeam = async (req, res) => {
 
     const teamId = crypto.randomUUID();
     const team = await createTeam(teamId, name, leaderId, hackathonId, maxCapacity);
-    
-    res.status(201).json({ message: 'Team created successfully', data: team });
+
+    return res.status(201).json({ message: 'Team created successfully', data: team });
   } catch (error) {
-    console.error('Error creating team:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[createNewTeam] Error creating team:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -30,10 +30,10 @@ export const inviteUser = async (req, res) => {
     const inviteId = crypto.randomUUID();
     const invite = await createTeamInvite(inviteId, teamId, email);
 
-    res.status(201).json({ message: 'Invite sent successfully', data: invite });
+    return res.status(201).json({ message: 'Invite sent successfully', data: invite });
   } catch (error) {
-    console.error('Error inviting user:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[inviteUser] Error inviting user:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -53,13 +53,13 @@ export const respondToInvite = async (req, res) => {
           await addTeamMember(teamId, userId, 'member');
         }
       }
-      res.status(200).json({ message: `Invite ${status}` });
+      return res.status(200).json({ message: `Invite ${status}` });
     } else {
-      res.status(404).json({ error: 'Invite not found' });
+      return res.status(404).json({ error: 'Invite not found' });
     }
   } catch (error) {
-    console.error('Error responding to invite:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[respondToInvite] Error responding to invite:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -67,9 +67,10 @@ export const fetchMyTeam = async (req, res) => {
   try {
     const team = await getMyTeamOld(req.user.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
-    res.status(200).json(team);
+    return res.status(200).json(team);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[fetchMyTeam] Error fetching team:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -125,9 +126,10 @@ export const getMyInvites = async (req, res) => {
 export const fetchAllTeams = async (req, res) => {
   try {
     const teams = await getAllTeams();
-    res.status(200).json(teams);
+    return res.status(200).json(teams);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[fetchAllTeams] Error fetching teams:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -135,8 +137,9 @@ export const joinExistingTeam = async (req, res) => {
   try {
     const { code } = req.body;
     await joinTeam(code, req.user.id);
-    res.status(200).json({ success: true, message: 'Joined team!' });
+    return res.status(200).json({ success: true, message: 'Joined team!' });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('[joinExistingTeam] Error joining team:', error);
+    return res.status(400).json({ error: error.message });
   }
 };

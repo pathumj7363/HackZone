@@ -22,9 +22,10 @@ export const submitProject = async (req, res) => {
 export const fetchMySubmissions = async (req, res) => {
   try {
     const submissions = await getMySubmissionsModel(req.user.id);
-    res.status(200).json(submissions);
+    return res.status(200).json(submissions);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[fetchMySubmissions] Error fetching submissions:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -55,8 +56,9 @@ export const getMySubmissions = async (req, res) => {
 export const fetchAllSubmissions = async (req, res) => {
   try {
     const submissions = await getAllSubmissions();
-    res.status(200).json(submissions);
+    return res.status(200).json(submissions);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[fetchAllSubmissions] Error fetching submissions:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
