@@ -31,15 +31,15 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(controllers): add getHackathonDetail controller logic`
 
 ## Day 3: Controllers (Part 2) & Hackathon Routes
-- [ ] **Task 11:** Implement `getMyTeam` controller in `team.controller.js`.
+- [x] **Task 11:** Implement `getMyTeam` controller in `team.controller.js`.
   - **Commit:** `feat(controllers): add getMyTeam controller logic`
-- [ ] **Task 12:** Implement `getMyInvites` controller in `team.controller.js`.
+- [x] **Task 12:** Implement `getMyInvites` controller in `team.controller.js`.
   - **Commit:** `feat(controllers): add getMyInvites controller logic`
-- [ ] **Task 13:** Implement `getMySubmissions` controller in `submission.controller.js`.
+- [x] **Task 13:** Implement `getMySubmissions` controller in `submission.controller.js`.
   - **Commit:** `feat(controllers): add getMySubmissions controller logic`
-- [ ] **Task 14:** Add standard error handling to all new participant controllers.
+- [x] **Task 14:** Add standard error handling to all new participant controllers.
   - **Commit:** `fix(controllers): add error handling for participant controllers`
-- [ ] **Task 15:** Register `GET /` route in `hackathon.routes.js`.
+- [x] **Task 15:** Register `GET /` route in `hackathon.routes.js`.
   - **Commit:** `feat(routes): register get all hackathons endpoint`
 
 ## Day 4: Team & Submission Routes & API Tests
