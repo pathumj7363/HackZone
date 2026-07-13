@@ -39,7 +39,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(controllers): add getMySubmissions controller logic`
 - [x] **Task 14:** Add standard error handling to all new participant controllers.
   - **Commit:** `fix(controllers): add error handling for participant controllers`
-- [ ] **Task 15:** Register `GET /` route in `hackathon.routes.js`.
+- [x] **Task 15:** Register `GET /` route in `hackathon.routes.js`.
   - **Commit:** `feat(routes): register get all hackathons endpoint`
 
 ## Day 4: Team & Submission Routes & API Tests
