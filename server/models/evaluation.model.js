@@ -1,6 +1,21 @@
 import pool from '../database/db.js';
 
 /**
+ * Custom error thrown when a judge is assigned to a submission that already
+ * has an assignment for that judge. Callers can use `instanceof` to detect
+ * this specific condition and respond with HTTP 409 Conflict.
+ */
+export class DuplicateAssignmentError extends Error {
+  constructor(judgeId, submissionId) {
+    super(`Judge '${judgeId}' is already assigned to submission '${submissionId}'`);
+    this.name = 'DuplicateAssignmentError';
+    this.judgeId = judgeId;
+    this.submissionId = submissionId;
+    this.statusCode = 409;
+  }
+}
+
+/**
  * Submit a new evaluation for a project
  * @param {string} id - Unique identifier for the evaluation
  * @param {string} submissionId - ID of the submission being evaluated
@@ -29,25 +44,28 @@ export const createEvaluation = async (id, submissionId, judgeId, hackathonId, s
 };
 
 /**
- * Assign a judge to a submission by creating a placeholder evaluation row
- * with NULL scores. This establishes the judge-submission relationship before
+ * Assign a judge to a submission by inserting a placeholder evaluation row
+ * with NULL scores. This establishes the judge–submission relationship before
  * any actual scoring takes place.
  *
- * Uses INSERT IGNORE so the operation is idempotent — calling it again for
- * the same (submissionId, judgeId) pair is a no-op, relying on the
- * UNIQUE KEY unique_evaluation (submissionId, judgeId) defined on the table.
+ * Constraint checks (in order):
+ *   1. Submission must exist and belong to the given hackathon.
+ *   2. User must exist with role = 'judge'.
+ *   3. No existing assignment for this (judgeId, submissionId) pair
+ *      → throws DuplicateAssignmentError (HTTP 409) if one is found.
+ *   4. DB-level safety net: catches ER_DUP_ENTRY from the UNIQUE KEY
+ *      unique_evaluation (submissionId, judgeId) for concurrent requests
+ *      that bypass check 3, and re-throws as DuplicateAssignmentError.
  *
  * @param {string} judgeId      - ID of the judge to assign
  * @param {string} submissionId - ID of the submission to assign the judge to
  * @param {string} hackathonId  - ID of the hackathon the submission belongs to
- * @returns {Promise<{assigned: boolean, judgeId: string, submissionId: string, hackathonId: string}>}
- *   assigned = true  → new row inserted (fresh assignment)
- *   assigned = false → row already existed (duplicate, silently ignored)
- * @throws {Error} If the submission does not belong to the given hackathon,
- *                 or if the judge does not exist with role 'judge'
+ * @returns {Promise<{judgeId: string, submissionId: string, hackathonId: string}>}
+ * @throws {Error}                   If submission not found or user is not a judge
+ * @throws {DuplicateAssignmentError} If the judge is already assigned to the submission
  */
 export const assignJudgeToSubmission = async (judgeId, submissionId, hackathonId) => {
-  // 1. Validate that the submission exists and belongs to the given hackathon
+  // 1. Validate the submission exists and belongs to the given hackathon
   const [submissionRows] = await pool.query(
     `SELECT id FROM submissions WHERE id = ? AND hackathonId = ?`,
     [submissionId, hackathonId]
@@ -58,7 +76,7 @@ export const assignJudgeToSubmission = async (judgeId, submissionId, hackathonId
     );
   }
 
-  // 2. Validate that the judge exists and has the 'judge' role
+  // 2. Validate the judge exists and holds the 'judge' role
   const [judgeRows] = await pool.query(
     `SELECT id FROM users WHERE id = ? AND role = 'judge'`,
     [judgeId]
@@ -67,26 +85,37 @@ export const assignJudgeToSubmission = async (judgeId, submissionId, hackathonId
     throw new Error(`User '${judgeId}' is not a valid judge`);
   }
 
-  // 3. Generate a deterministic-style ID for the placeholder row
-  const id = `${judgeId}_${submissionId}`;
-
-  // 4. Insert a placeholder row (NULL scores = not yet evaluated).
-  //    INSERT IGNORE silently skips if the UNIQUE KEY (submissionId, judgeId)
-  //    already exists, making this operation safely idempotent.
-  const [result] = await pool.query(
-    `INSERT IGNORE INTO evaluations
-       (id, submissionId, judgeId, hackathonId,
-        innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback)
-     VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)`,
-    [id, submissionId, judgeId, hackathonId]
+  // 3. Explicit duplicate-assignment check (application-layer constraint)
+  //    This gives a clear, typed error rather than a silent DB-level ignore.
+  const [existing] = await pool.query(
+    `SELECT id FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
+    [judgeId, submissionId]
   );
+  if (existing.length > 0) {
+    throw new DuplicateAssignmentError(judgeId, submissionId);
+  }
 
-  return {
-    assigned: result.affectedRows > 0, // false means already existed
-    judgeId,
-    submissionId,
-    hackathonId,
-  };
+  // 4. Insert a placeholder row (all scores NULL = assigned but not yet scored).
+  //    A DB-level safety net catches ER_DUP_ENTRY for rare concurrent requests
+  //    that slip past check 3 and hits the UNIQUE KEY (submissionId, judgeId).
+  const id = `${judgeId}_${submissionId}`;
+  try {
+    await pool.query(
+      `INSERT INTO evaluations
+         (id, submissionId, judgeId, hackathonId,
+          innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback)
+       VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)`,
+      [id, submissionId, judgeId, hackathonId]
+    );
+  } catch (err) {
+    // Re-wrap DB duplicate-key violation as the typed application error
+    if (err.code === 'ER_DUP_ENTRY') {
+      throw new DuplicateAssignmentError(judgeId, submissionId);
+    }
+    throw err;
+  }
+
+  return { judgeId, submissionId, hackathonId };
 };
 
 /**
