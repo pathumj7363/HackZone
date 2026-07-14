@@ -29,6 +29,67 @@ export const createEvaluation = async (id, submissionId, judgeId, hackathonId, s
 };
 
 /**
+ * Assign a judge to a submission by creating a placeholder evaluation row
+ * with NULL scores. This establishes the judge-submission relationship before
+ * any actual scoring takes place.
+ *
+ * Uses INSERT IGNORE so the operation is idempotent — calling it again for
+ * the same (submissionId, judgeId) pair is a no-op, relying on the
+ * UNIQUE KEY unique_evaluation (submissionId, judgeId) defined on the table.
+ *
+ * @param {string} judgeId      - ID of the judge to assign
+ * @param {string} submissionId - ID of the submission to assign the judge to
+ * @param {string} hackathonId  - ID of the hackathon the submission belongs to
+ * @returns {Promise<{assigned: boolean, judgeId: string, submissionId: string, hackathonId: string}>}
+ *   assigned = true  → new row inserted (fresh assignment)
+ *   assigned = false → row already existed (duplicate, silently ignored)
+ * @throws {Error} If the submission does not belong to the given hackathon,
+ *                 or if the judge does not exist with role 'judge'
+ */
+export const assignJudgeToSubmission = async (judgeId, submissionId, hackathonId) => {
+  // 1. Validate that the submission exists and belongs to the given hackathon
+  const [submissionRows] = await pool.query(
+    `SELECT id FROM submissions WHERE id = ? AND hackathonId = ?`,
+    [submissionId, hackathonId]
+  );
+  if (submissionRows.length === 0) {
+    throw new Error(
+      `Submission '${submissionId}' not found in hackathon '${hackathonId}'`
+    );
+  }
+
+  // 2. Validate that the judge exists and has the 'judge' role
+  const [judgeRows] = await pool.query(
+    `SELECT id FROM users WHERE id = ? AND role = 'judge'`,
+    [judgeId]
+  );
+  if (judgeRows.length === 0) {
+    throw new Error(`User '${judgeId}' is not a valid judge`);
+  }
+
+  // 3. Generate a deterministic-style ID for the placeholder row
+  const id = `${judgeId}_${submissionId}`;
+
+  // 4. Insert a placeholder row (NULL scores = not yet evaluated).
+  //    INSERT IGNORE silently skips if the UNIQUE KEY (submissionId, judgeId)
+  //    already exists, making this operation safely idempotent.
+  const [result] = await pool.query(
+    `INSERT IGNORE INTO evaluations
+       (id, submissionId, judgeId, hackathonId,
+        innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback)
+     VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)`,
+    [id, submissionId, judgeId, hackathonId]
+  );
+
+  return {
+    assigned: result.affectedRows > 0, // false means already existed
+    judgeId,
+    submissionId,
+    hackathonId,
+  };
+};
+
+/**
  * Fetch evaluations for a specific submission
  * @param {string} submissionId 
  * @returns {Promise<Array>} Array of evaluations
