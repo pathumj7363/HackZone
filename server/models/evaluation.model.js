@@ -1,6 +1,21 @@
 import pool from '../database/db.js';
 
 /**
+ * Custom error thrown when a judge is assigned to a submission that already
+ * has an assignment for that judge. Callers can use `instanceof` to detect
+ * this specific condition and respond with HTTP 409 Conflict.
+ */
+export class DuplicateAssignmentError extends Error {
+  constructor(judgeId, submissionId) {
+    super(`Judge '${judgeId}' is already assigned to submission '${submissionId}'`);
+    this.name = 'DuplicateAssignmentError';
+    this.judgeId = judgeId;
+    this.submissionId = submissionId;
+    this.statusCode = 409;
+  }
+}
+
+/**
  * Submit a new evaluation for a project
  * @param {string} id - Unique identifier for the evaluation
  * @param {string} submissionId - ID of the submission being evaluated
@@ -26,6 +41,172 @@ export const createEvaluation = async (id, submissionId, judgeId, hackathonId, s
   ]);
   
   return { id, submissionId, judgeId, hackathonId, ...scores };
+};
+
+/**
+ * Assign a judge to a submission by inserting a placeholder evaluation row
+ * with NULL scores. This establishes the judge–submission relationship before
+ * any actual scoring takes place.
+ *
+ * Constraint checks (in order):
+ *   1. Submission must exist and belong to the given hackathon.
+ *   2. User must exist with role = 'judge'.
+ *   3. No existing assignment for this (judgeId, submissionId) pair
+ *      → throws DuplicateAssignmentError (HTTP 409) if one is found.
+ *   4. DB-level safety net: catches ER_DUP_ENTRY from the UNIQUE KEY
+ *      unique_evaluation (submissionId, judgeId) for concurrent requests
+ *      that bypass check 3, and re-throws as DuplicateAssignmentError.
+ *
+ * @param {string} judgeId      - ID of the judge to assign
+ * @param {string} submissionId - ID of the submission to assign the judge to
+ * @param {string} hackathonId  - ID of the hackathon the submission belongs to
+ * @returns {Promise<{judgeId: string, submissionId: string, hackathonId: string}>}
+ * @throws {Error}                   If submission not found or user is not a judge
+ * @throws {DuplicateAssignmentError} If the judge is already assigned to the submission
+ */
+export const assignJudgeToSubmission = async (judgeId, submissionId, hackathonId) => {
+  // 1. Validate the submission exists and belongs to the given hackathon
+  const [submissionRows] = await pool.query(
+    `SELECT id FROM submissions WHERE id = ? AND hackathonId = ?`,
+    [submissionId, hackathonId]
+  );
+  if (submissionRows.length === 0) {
+    throw new Error(
+      `Submission '${submissionId}' not found in hackathon '${hackathonId}'`
+    );
+  }
+
+  // 2. Validate the judge exists and holds the 'judge' role
+  const [judgeRows] = await pool.query(
+    `SELECT id FROM users WHERE id = ? AND role = 'judge'`,
+    [judgeId]
+  );
+  if (judgeRows.length === 0) {
+    throw new Error(`User '${judgeId}' is not a valid judge`);
+  }
+
+  // 3. Explicit duplicate-assignment check (application-layer constraint)
+  //    This gives a clear, typed error rather than a silent DB-level ignore.
+  const [existing] = await pool.query(
+    `SELECT id FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
+    [judgeId, submissionId]
+  );
+  if (existing.length > 0) {
+    throw new DuplicateAssignmentError(judgeId, submissionId);
+  }
+
+  // 4. Insert a placeholder row (all scores NULL = assigned but not yet scored).
+  //    A DB-level safety net catches ER_DUP_ENTRY for rare concurrent requests
+  //    that slip past check 3 and hits the UNIQUE KEY (submissionId, judgeId).
+  const id = `${judgeId}_${submissionId}`;
+  try {
+    await pool.query(
+      `INSERT INTO evaluations
+         (id, submissionId, judgeId, hackathonId,
+          innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback)
+       VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)`,
+      [id, submissionId, judgeId, hackathonId]
+    );
+  } catch (err) {
+    // Re-wrap DB duplicate-key violation as the typed application error
+    if (err.code === 'ER_DUP_ENTRY') {
+      throw new DuplicateAssignmentError(judgeId, submissionId);
+    }
+    throw err;
+  }
+
+  return { judgeId, submissionId, hackathonId };
+};
+
+/**
+ * Custom error thrown when attempting to remove a judge assignment that does
+ * not exist. Callers can use `instanceof` to respond with HTTP 404 Not Found.
+ */
+export class AssignmentNotFoundError extends Error {
+  constructor(judgeId, submissionId) {
+    super(`No assignment found for judge '${judgeId}' on submission '${submissionId}'`);
+    this.name = 'AssignmentNotFoundError';
+    this.judgeId = judgeId;
+    this.submissionId = submissionId;
+    this.statusCode = 404;
+  }
+}
+
+/**
+ * Custom error thrown when trying to remove a judge assignment that already
+ * has scores recorded. Scores must be cleared (set to NULL) first.
+ * Callers can use `instanceof` to respond with HTTP 422 Unprocessable Entity.
+ */
+export class ScoredAssignmentError extends Error {
+  constructor(judgeId, submissionId, filledScores) {
+    super(
+      `Cannot remove assignment: judge '${judgeId}' has already scored submission '${submissionId}'. ` +
+      `Scores present: ${filledScores.join(', ')}. Clear scores before removing the assignment.`
+    );
+    this.name = 'ScoredAssignmentError';
+    this.judgeId = judgeId;
+    this.submissionId = submissionId;
+    this.filledScores = filledScores; // e.g. ['innovationScore', 'designScore']
+    this.statusCode = 422;
+  }
+}
+
+/**
+ * Remove a judge's assignment from a submission by deleting the evaluation row.
+ *
+ * Constraint checks (in order):
+ *   1. Assignment must exist (judgeId + submissionId in evaluations)
+ *      → throws AssignmentNotFoundError (HTTP 404) if not found.
+ *   2. All four score columns (innovationScore, technicalComplexityScore,
+ *      designScore, usabilityScore) must be NULL — i.e. the judge has not
+ *      yet submitted any scores for this submission.
+ *      → throws ScoredAssignmentError (HTTP 422) listing which scores are
+ *        already filled, preventing accidental data loss.
+ *   3. DELETE is keyed on both judgeId AND submissionId so only the targeted
+ *      row is removed; other judges' records are never touched.
+ *
+ * @param {string} judgeId      - ID of the judge to unassign
+ * @param {string} submissionId - ID of the submission to remove the judge from
+ * @returns {Promise<{removed: true, judgeId: string, submissionId: string}>}
+ * @throws {AssignmentNotFoundError} If no assignment exists for this pair
+ * @throws {ScoredAssignmentError}   If any score column is already non-NULL
+ */
+export const removeJudgeFromSubmission = async (judgeId, submissionId) => {
+  // 1. Verify the assignment exists and fetch score columns in one query
+  const [rows] = await pool.query(
+    `SELECT id,
+            innovationScore,
+            technicalComplexityScore,
+            designScore,
+            usabilityScore
+     FROM evaluations
+     WHERE judgeId = ? AND submissionId = ?`,
+    [judgeId, submissionId]
+  );
+  if (rows.length === 0) {
+    throw new AssignmentNotFoundError(judgeId, submissionId);
+  }
+
+  // 2. Score-nullity validation — block removal if any score has been recorded
+  const row = rows[0];
+  const SCORE_COLUMNS = [
+    'innovationScore',
+    'technicalComplexityScore',
+    'designScore',
+    'usabilityScore',
+  ];
+  const filledScores = SCORE_COLUMNS.filter(col => row[col] !== null);
+  if (filledScores.length > 0) {
+    throw new ScoredAssignmentError(judgeId, submissionId, filledScores);
+  }
+
+  // 3. Safe to delete — scores are all NULL (judge assigned but not yet scored)
+  await pool.query(
+    `DELETE FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
+    [judgeId, submissionId]
+  );
+
+  return { removed: true, judgeId, submissionId };
 };
 
 /**
