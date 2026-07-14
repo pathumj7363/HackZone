@@ -68,10 +68,17 @@ export default function HackathonList() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
-    getHackathonsApi().then(data => {
-      setHackathons(data);
-      setLoading(false);
-    });
+    getHackathonsApi()
+      .then(data => {
+        // Guard: ensure we always store an array even if the response shape is unexpected
+        setHackathons(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('[HackathonList] Failed to fetch hackathons:', err);
+        setHackathons([]);
+        setLoading(false);
+      });
   }, []);
 
   // Filter logic
