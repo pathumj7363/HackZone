@@ -119,6 +119,57 @@ export const assignJudgeToSubmission = async (judgeId, submissionId, hackathonId
 };
 
 /**
+ * Custom error thrown when attempting to remove a judge assignment that does
+ * not exist. Callers can use `instanceof` to respond with HTTP 404 Not Found.
+ */
+export class AssignmentNotFoundError extends Error {
+  constructor(judgeId, submissionId) {
+    super(`No assignment found for judge '${judgeId}' on submission '${submissionId}'`);
+    this.name = 'AssignmentNotFoundError';
+    this.judgeId = judgeId;
+    this.submissionId = submissionId;
+    this.statusCode = 404;
+  }
+}
+
+/**
+ * Remove a judge's assignment from a submission by deleting the evaluation row.
+ *
+ * This only removes the assignment record; any scores stored in that row are
+ * also permanently deleted. Task 14 adds a guard that blocks removal when
+ * scores are already filled in.
+ *
+ * Constraint checks (in order):
+ *   1. An assignment (judgeId + submissionId) must exist in the evaluations
+ *      table → throws AssignmentNotFoundError (HTTP 404) if not found.
+ *   2. DELETE targets the exact (judgeId, submissionId) pair so no other
+ *      judge's records are accidentally affected.
+ *
+ * @param {string} judgeId      - ID of the judge to unassign
+ * @param {string} submissionId - ID of the submission to remove the judge from
+ * @returns {Promise<{removed: true, judgeId: string, submissionId: string}>}
+ * @throws {AssignmentNotFoundError} If no assignment exists for this pair
+ */
+export const removeJudgeFromSubmission = async (judgeId, submissionId) => {
+  // 1. Verify the assignment exists before attempting deletion
+  const [rows] = await pool.query(
+    `SELECT id FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
+    [judgeId, submissionId]
+  );
+  if (rows.length === 0) {
+    throw new AssignmentNotFoundError(judgeId, submissionId);
+  }
+
+  // 2. Delete the specific assignment row
+  await pool.query(
+    `DELETE FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
+    [judgeId, submissionId]
+  );
+
+  return { removed: true, judgeId, submissionId };
+};
+
+/**
  * Fetch evaluations for a specific submission
  * @param {string} submissionId 
  * @returns {Promise<Array>} Array of evaluations
