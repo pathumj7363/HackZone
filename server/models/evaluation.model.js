@@ -133,34 +133,74 @@ export class AssignmentNotFoundError extends Error {
 }
 
 /**
+ * Custom error thrown when trying to remove a judge assignment that already
+ * has scores recorded. Scores must be cleared (set to NULL) first.
+ * Callers can use `instanceof` to respond with HTTP 422 Unprocessable Entity.
+ */
+export class ScoredAssignmentError extends Error {
+  constructor(judgeId, submissionId, filledScores) {
+    super(
+      `Cannot remove assignment: judge '${judgeId}' has already scored submission '${submissionId}'. ` +
+      `Scores present: ${filledScores.join(', ')}. Clear scores before removing the assignment.`
+    );
+    this.name = 'ScoredAssignmentError';
+    this.judgeId = judgeId;
+    this.submissionId = submissionId;
+    this.filledScores = filledScores; // e.g. ['innovationScore', 'designScore']
+    this.statusCode = 422;
+  }
+}
+
+/**
  * Remove a judge's assignment from a submission by deleting the evaluation row.
  *
- * This only removes the assignment record; any scores stored in that row are
- * also permanently deleted. Task 14 adds a guard that blocks removal when
- * scores are already filled in.
- *
  * Constraint checks (in order):
- *   1. An assignment (judgeId + submissionId) must exist in the evaluations
- *      table → throws AssignmentNotFoundError (HTTP 404) if not found.
- *   2. DELETE targets the exact (judgeId, submissionId) pair so no other
- *      judge's records are accidentally affected.
+ *   1. Assignment must exist (judgeId + submissionId in evaluations)
+ *      → throws AssignmentNotFoundError (HTTP 404) if not found.
+ *   2. All four score columns (innovationScore, technicalComplexityScore,
+ *      designScore, usabilityScore) must be NULL — i.e. the judge has not
+ *      yet submitted any scores for this submission.
+ *      → throws ScoredAssignmentError (HTTP 422) listing which scores are
+ *        already filled, preventing accidental data loss.
+ *   3. DELETE is keyed on both judgeId AND submissionId so only the targeted
+ *      row is removed; other judges' records are never touched.
  *
  * @param {string} judgeId      - ID of the judge to unassign
  * @param {string} submissionId - ID of the submission to remove the judge from
  * @returns {Promise<{removed: true, judgeId: string, submissionId: string}>}
  * @throws {AssignmentNotFoundError} If no assignment exists for this pair
+ * @throws {ScoredAssignmentError}   If any score column is already non-NULL
  */
 export const removeJudgeFromSubmission = async (judgeId, submissionId) => {
-  // 1. Verify the assignment exists before attempting deletion
+  // 1. Verify the assignment exists and fetch score columns in one query
   const [rows] = await pool.query(
-    `SELECT id FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
+    `SELECT id,
+            innovationScore,
+            technicalComplexityScore,
+            designScore,
+            usabilityScore
+     FROM evaluations
+     WHERE judgeId = ? AND submissionId = ?`,
     [judgeId, submissionId]
   );
   if (rows.length === 0) {
     throw new AssignmentNotFoundError(judgeId, submissionId);
   }
 
-  // 2. Delete the specific assignment row
+  // 2. Score-nullity validation — block removal if any score has been recorded
+  const row = rows[0];
+  const SCORE_COLUMNS = [
+    'innovationScore',
+    'technicalComplexityScore',
+    'designScore',
+    'usabilityScore',
+  ];
+  const filledScores = SCORE_COLUMNS.filter(col => row[col] !== null);
+  if (filledScores.length > 0) {
+    throw new ScoredAssignmentError(judgeId, submissionId, filledScores);
+  }
+
+  // 3. Safe to delete — scores are all NULL (judge assigned but not yet scored)
   await pool.query(
     `DELETE FROM evaluations WHERE judgeId = ? AND submissionId = ?`,
     [judgeId, submissionId]
