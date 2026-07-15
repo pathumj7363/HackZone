@@ -2,6 +2,7 @@ import {
   createHackathon as createHackathonModel,
   getAllHackathons as getAllHackathonsModel,
   getHackathonById,
+  updateHackathon as updateHackathonModel,
 } from '../models/hackathon.model.js';
 import crypto from 'crypto';
 
@@ -129,6 +130,36 @@ export const createHackathon = async (req, res) => {
     return res.status(201).json({ message: 'Hackathon created', data: hackathon });
   } catch (error) {
     console.error('[createHackathon] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /hackathons/:id
+ * Update an existing hackathon.
+ */
+export const updateHackathon = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Hackathon ID is required' });
+    }
+
+    if (!updateData || Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'Update data is required' });
+    }
+
+    const success = await updateHackathonModel(id, updateData);
+
+    if (!success) {
+      return res.status(404).json({ error: 'Hackathon not found or no changes made' });
+    }
+
+    return res.status(200).json({ message: 'Hackathon updated successfully' });
+  } catch (error) {
+    console.error('[updateHackathon] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
