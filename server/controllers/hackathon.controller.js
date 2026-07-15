@@ -1,5 +1,5 @@
 import {
-  createHackathon,
+  createHackathon as createHackathonModel,
   getAllHackathons as getAllHackathonsModel,
   getHackathonById,
 } from '../models/hackathon.model.js';
@@ -81,7 +81,7 @@ export const registerHackathon = async (req, res) => {
  * POST /hackathons
  * Create a new hackathon (organizer only).
  */
-export const createNewHackathon = async (req, res) => {
+export const createHackathon = async (req, res) => {
   try {
     const { title, description, startDate, endDate, rules, prizes, sponsors, judges } = req.body;
 
@@ -92,7 +92,7 @@ export const createNewHackathon = async (req, res) => {
     const id = crypto.randomUUID();
     const organizerId = req.user?.id;
 
-    const hackathon = await createHackathon({
+    const hackathon = await createHackathonModel({
       id,
       title,
       description,
@@ -107,7 +107,7 @@ export const createNewHackathon = async (req, res) => {
 
     return res.status(201).json({ message: 'Hackathon created', data: hackathon });
   } catch (error) {
-    console.error('[createNewHackathon] Error:', error);
+    console.error('[createHackathon] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
