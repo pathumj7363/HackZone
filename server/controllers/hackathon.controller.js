@@ -151,6 +151,15 @@ export const updateHackathon = async (req, res) => {
       return res.status(400).json({ error: 'Update data is required' });
     }
 
+    const hackathon = await getHackathonById(id);
+    if (!hackathon) {
+      return res.status(404).json({ error: 'Hackathon not found' });
+    }
+
+    if (hackathon.organizerId !== req.user?.id) {
+      return res.status(403).json({ error: 'You do not have permission to update this hackathon' });
+    }
+
     const success = await updateHackathonModel(id, updateData);
 
     if (!success) {
