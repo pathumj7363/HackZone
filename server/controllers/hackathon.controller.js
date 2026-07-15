@@ -3,6 +3,7 @@ import {
   getAllHackathons as getAllHackathonsModel,
   getHackathonById,
   updateHackathon as updateHackathonModel,
+  getHackathonsByOrganizerId,
 } from '../models/hackathon.model.js';
 import crypto from 'crypto';
 
@@ -169,6 +170,26 @@ export const updateHackathon = async (req, res) => {
     return res.status(200).json({ message: 'Hackathon updated successfully' });
   } catch (error) {
     console.error('[updateHackathon] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /hackathons/my
+ * Get all hackathons created by the logged-in organizer.
+ */
+export const getMyHackathons = async (req, res) => {
+  try {
+    const organizerId = req.user?.id;
+    if (!organizerId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const hackathons = await getHackathonsByOrganizerId(organizerId);
+
+    return res.status(200).json({ data: hackathons });
+  } catch (error) {
+    console.error('[getMyHackathons] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -49,7 +49,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(controllers): add updateHackathon controller logic`
 - [x] **Task 19:** Add authorization check in `updateHackathon` to ensure organizer owns the hackathon.
   - **Commit:** `fix(controllers): secure updateHackathon to owner organizer`
-- [ ] **Task 20:** Implement `getMyHackathons` controller method in `hackathon.controller.js`.
+- [x] **Task 20:** Implement `getMyHackathons` controller method in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getMyHackathons controller logic`
 
 ## Day 5: User & Evaluation Controllers
