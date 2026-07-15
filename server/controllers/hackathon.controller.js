@@ -85,8 +85,29 @@ export const createHackathon = async (req, res) => {
   try {
     const { title, description, startDate, endDate, rules, prizes, sponsors, judges } = req.body;
 
-    if (!title) {
-      return res.status(400).json({ error: 'Title is required' });
+    if (!title || typeof title !== 'string' || title.trim() === '') {
+      return res.status(400).json({ error: 'Valid title is required' });
+    }
+    if (!description || typeof description !== 'string' || description.trim() === '') {
+      return res.status(400).json({ error: 'Valid description is required' });
+    }
+    if (!startDate || isNaN(Date.parse(startDate))) {
+      return res.status(400).json({ error: 'Valid startDate is required' });
+    }
+    if (!endDate || isNaN(Date.parse(endDate))) {
+      return res.status(400).json({ error: 'Valid endDate is required' });
+    }
+    if (new Date(startDate) >= new Date(endDate)) {
+      return res.status(400).json({ error: 'endDate must be after startDate' });
+    }
+    if (prizes && !Array.isArray(prizes)) {
+      return res.status(400).json({ error: 'prizes must be an array' });
+    }
+    if (sponsors && !Array.isArray(sponsors)) {
+      return res.status(400).json({ error: 'sponsors must be an array' });
+    }
+    if (judges && !Array.isArray(judges)) {
+      return res.status(400).json({ error: 'judges must be an array' });
     }
 
     const id = crypto.randomUUID();

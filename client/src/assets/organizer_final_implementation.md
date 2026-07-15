@@ -43,7 +43,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
 ## Day 4: Hackathon Controllers (Part 1)
 - [x] **Task 16:** Implement `createHackathon` controller method in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add createHackathon controller logic`
-- [ ] **Task 17:** Add request body validation for `createHackathon` controller.
+- [x] **Task 17:** Add request body validation for `createHackathon` controller.
   - **Commit:** `feat(controllers): validate createHackathon request payload`
 - [ ] **Task 18:** Implement `updateHackathon` controller method in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add updateHackathon controller logic`
