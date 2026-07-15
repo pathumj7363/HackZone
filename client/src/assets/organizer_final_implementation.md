@@ -41,15 +41,15 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `test(models): verify judge assignment database operations`
 
 ## Day 4: Hackathon Controllers (Part 1)
-- [ ] **Task 16:** Implement `createHackathon` controller method in `hackathon.controller.js`.
+- [x] **Task 16:** Implement `createHackathon` controller method in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add createHackathon controller logic`
-- [ ] **Task 17:** Add request body validation for `createHackathon` controller.
+- [x] **Task 17:** Add request body validation for `createHackathon` controller.
   - **Commit:** `feat(controllers): validate createHackathon request payload`
-- [ ] **Task 18:** Implement `updateHackathon` controller method in `hackathon.controller.js`.
+- [x] **Task 18:** Implement `updateHackathon` controller method in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add updateHackathon controller logic`
-- [ ] **Task 19:** Add authorization check in `updateHackathon` to ensure organizer owns the hackathon.
+- [x] **Task 19:** Add authorization check in `updateHackathon` to ensure organizer owns the hackathon.
   - **Commit:** `fix(controllers): secure updateHackathon to owner organizer`
-- [ ] **Task 20:** Implement `getMyHackathons` controller method in `hackathon.controller.js`.
+- [x] **Task 20:** Implement `getMyHackathons` controller method in `hackathon.controller.js`.
   - **Commit:** `feat(controllers): add getMyHackathons controller logic`
 
 ## Day 5: User & Evaluation Controllers
