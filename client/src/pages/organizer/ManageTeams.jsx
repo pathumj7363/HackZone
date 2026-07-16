@@ -223,7 +223,7 @@ export default function ManageTeams() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredTeams.map(team => (
             <Card key={team.id} style={{ borderRadius: '12px', border: '1px solid var(--hz-border)', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s', cursor: 'pointer', ':hover': { borderColor: 'var(--hz-primary)' } }} onClick={() => openDetails(team)}>
-              <div style={{ padding: '1.25rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1.5rem', backgroundColor: team.status === 'disqualified' ? '#fafafa' : 'white' }}>
+              <div style={{ padding: '1.25rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1.5rem', backgroundColor: team.status === 'disqualified' ? 'var(--hz-bg)' : 'transparent' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: '1 1 300px' }}>
                   <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: team.avatarBg, color: team.avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 'bold' }}>
                     {team.name.charAt(0).toUpperCase()}
@@ -343,12 +343,12 @@ export default function ManageTeams() {
   );
 
   return (
-    <div className="hz-page" style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '3rem' }}>
+    <div className="hz-page" style={{ minHeight: '100vh', paddingBottom: '3rem' }}>
       <div className="hz-container">
         {/* Page Header */}
         {view === 'list' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-            <button type="button" onClick={() => navigate('/organizer')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <button type="button" onClick={() => navigate('/organizer')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'var(--hz-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </button>
             <div>

@@ -12,7 +12,7 @@ export default function OrganizerDashboard() {
   }, []);
 
   return (
-    <div className="hz-page" style={{ backgroundColor: '#f8fafc' }}>
+    <div className="hz-page">
       <div className="hz-container">
         
         {/* Page Header */}
@@ -52,7 +52,7 @@ export default function OrganizerDashboard() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
                 <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>124</span>
-                <span style={{ backgroundColor: '#dcfce7', color: '#166534', fontSize: '0.75rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px' }}>+12%</span>
+                <span className="hz-badge hz-badge--success">+12%</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Active this week</div>
             </Card>
@@ -73,7 +73,7 @@ export default function OrganizerDashboard() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
                 <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>86</span>
-                <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', fontSize: '0.75rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px' }}>42 today</span>
+                <span className="hz-badge hz-badge--primary">42 today</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Growth last 24h</div>
             </Card>
@@ -109,7 +109,7 @@ export default function OrganizerDashboard() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
                 <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: '#ef4444' }}>14</span>
-                <span style={{ backgroundColor: '#fee2e2', color: '#b91c1c', fontSize: '0.75rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px' }}>Critical</span>
+                <span className="hz-badge hz-badge--danger">Critical</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Action required</div>
             </Card>
@@ -162,7 +162,7 @@ export default function OrganizerDashboard() {
                 
                 {/* Item 1 */}
                 <div style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--hz-border)', marginBottom: '1.25rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-primary)' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-primary)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
@@ -183,7 +183,7 @@ export default function OrganizerDashboard() {
 
                 {/* Item 2 */}
                 <div style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--hz-border)', marginBottom: '1.25rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ffedd5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#f97316' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-warning-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-warning)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                       <circle cx="9" cy="7" r="4"></circle>
@@ -203,7 +203,7 @@ export default function OrganizerDashboard() {
 
                 {/* Item 3 */}
                 <div style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--hz-border)' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f3e8ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#9333ea' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-primary-active)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                       <circle cx="9" cy="7" r="4"></circle>

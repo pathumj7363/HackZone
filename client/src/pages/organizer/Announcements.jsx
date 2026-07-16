@@ -240,7 +240,7 @@ export default function Announcements() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredAnnouncements.map(announcement => (
             <Card key={announcement.id} style={{ borderRadius: '12px', border: '1px solid var(--hz-border)', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s', ':hover': { borderColor: 'var(--hz-primary)' } }}>
-              <div style={{ padding: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '1.5rem', backgroundColor: announcement.status === 'draft' ? '#fafafa' : 'white' }}>
+              <div style={{ padding: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '1.5rem', backgroundColor: announcement.status === 'draft' ? 'var(--hz-bg)' : 'transparent' }}>
                 
                 {/* Content Section */}
                 <div style={{ flex: '1 1 400px' }}>
@@ -354,12 +354,12 @@ export default function Announcements() {
   );
 
   return (
-    <div className="hz-page" style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '3rem' }}>
+    <div className="hz-page" style={{ minHeight: '100vh', paddingBottom: '3rem' }}>
       <div className="hz-container">
         {/* Page Header */}
         {view === 'list' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-            <button type="button" onClick={() => navigate('/organizer')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <button type="button" onClick={() => navigate('/organizer')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'var(--hz-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </button>
             <div>
