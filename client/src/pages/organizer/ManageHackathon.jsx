@@ -258,7 +258,7 @@ export default function ManageHackathon() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
           <button 
             type="button"
-            onClick={() => navigate('/organizer')} 
+            onClick={() => navigate(-1)} 
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'var(--hz-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', transition: 'background-color 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--hz-surface-raised)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--hz-surface)'}

@@ -58,7 +58,7 @@ export default function TeamCreate() {
   };
 
   return (
-    <div className="hz-page" style={{ background: '#f8fafc', minHeight: 'calc(100vh - 64px - 64px)' }}>
+    <div className="hz-page" style={{ minHeight: 'calc(100vh - 64px - 64px)' }}>
       <div className="hz-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 1rem' }}>
         
         {/* Header */}
@@ -141,7 +141,7 @@ export default function TeamCreate() {
 
               {/* Public Team Toggle Section */}
               <div style={{
-                background: '#f8fafc',
+                background: 'var(--hz-surface)',
                 borderRadius: '8px',
                 padding: '1.25rem',
               }}>
