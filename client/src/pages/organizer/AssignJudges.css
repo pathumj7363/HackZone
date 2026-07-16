@@ -4,9 +4,9 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  font-family: var(--hz-font-family, 'Inter', system-ui, sans-serif);
+  color: var(--hz-text);
+  background-color: var(--hz-bg);
   min-height: 100vh;
 }
 
@@ -22,22 +22,22 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: #0f172a;
+  color: var(--hz-text);
 }
 
 .aj-subtitle {
   font-size: 1rem;
-  color: #64748b;
+  color: var(--hz-text-muted);
   margin: 0;
 }
 
 .aj-stats-card {
   display: flex;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--hz-surface-raised);
+  border: 1px solid var(--hz-border);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: var(--hz-shadow-sm);
 }
 
 .aj-stat-box {
@@ -48,7 +48,7 @@
 }
 
 .aj-stat-box:first-child {
-  border-right: 1px solid #e2e8f0;
+  border-right: 1px solid var(--hz-border);
 }
 
 .aj-stat-icon {
@@ -65,7 +65,7 @@
 .aj-stat-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--hz-text-muted);
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
 }
@@ -74,10 +74,11 @@
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1;
+  color: var(--hz-text);
 }
 
 .aj-stat-value.primary {
-  color: #4f46e5;
+  color: var(--hz-primary);
 }
 
 /* Main Layout */
@@ -90,16 +91,16 @@
 
 /* Cards */
 .aj-card {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--hz-surface-raised);
+  border: 1px solid var(--hz-border);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: var(--hz-shadow-sm);
 }
 
 .aj-card-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--hz-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -109,6 +110,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
+  color: var(--hz-text);
 }
 
 /* Search */
@@ -121,12 +123,14 @@
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--hz-text-muted);
 }
 
 .aj-search-input {
   padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--hz-border);
+  background-color: var(--hz-bg);
+  color: var(--hz-text);
   border-radius: 6px;
   font-size: 0.875rem;
   width: 200px;
@@ -135,7 +139,7 @@
 }
 
 .aj-search-input:focus {
-  border-color: #4f46e5;
+  border-color: var(--hz-primary);
 }
 
 /* Judge List */
@@ -149,7 +153,7 @@
 }
 
 .aj-judge-item {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--hz-border);
   border-radius: 10px;
   padding: 1rem;
   display: flex;
@@ -174,12 +178,12 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  background-color: #e2e8f0;
+  background-color: var(--hz-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: #4f46e5;
+  color: var(--hz-primary);
 }
 
 .aj-avatar.small {
@@ -192,19 +196,19 @@
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 0.1rem 0;
-  color: #0f172a;
+  color: var(--hz-text);
 }
 
 .aj-judge-role {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--hz-text-muted);
   margin: 0;
 }
 
 .aj-btn-outline {
-  border: 1px solid #4f46e5;
-  color: #4f46e5;
-  background: white;
+  border: 1px solid var(--hz-primary);
+  color: var(--hz-primary);
+  background: transparent;
   padding: 0.35rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -214,7 +218,7 @@
 }
 
 .aj-btn-outline:hover {
-  background: #eef2ff;
+  background: var(--hz-primary-light);
 }
 
 .aj-tags {
@@ -224,8 +228,8 @@
 }
 
 .aj-tag {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: var(--hz-primary-light);
+  color: var(--hz-primary-active);
   padding: 0.2rem 0.6rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -256,7 +260,7 @@
 }
 
 .aj-project-icon {
-  color: #4f46e5;
+  color: var(--hz-primary);
   display: flex;
 }
 
@@ -264,6 +268,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
+  color: var(--hz-text);
 }
 
 .aj-project-badge {
@@ -274,13 +279,13 @@
 }
 
 .aj-project-badge.assigned {
-  background: #e0e7ff;
-  color: #4f46e5;
+  background: var(--hz-primary-light);
+  color: var(--hz-primary);
 }
 
 .aj-project-badge.unassigned {
-  background: #e2e8f0;
-  color: #64748b;
+  background: var(--hz-border);
+  color: var(--hz-text-muted);
 }
 
 .aj-assigned-grid {
@@ -290,13 +295,13 @@
 }
 
 .aj-assigned-judge {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--hz-border);
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: var(--hz-surface-raised);
 }
 
 .aj-assigned-judge-info {
@@ -308,12 +313,13 @@
 .aj-assigned-judge-name {
   font-size: 0.9rem;
   font-weight: 500;
+  color: var(--hz-text);
 }
 
 .aj-remove-btn {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--hz-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -323,15 +329,15 @@
 }
 
 .aj-remove-btn:hover {
-  background: #f1f5f9;
-  color: #ef4444;
+  background: var(--hz-bg);
+  color: var(--hz-danger);
 }
 
 /* Empty Project State */
 .aj-empty-dropzone {
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--hz-border-strong);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--hz-bg);
   padding: 2.5rem 2rem;
   text-align: center;
   display: flex;
@@ -341,11 +347,11 @@
 }
 
 .aj-empty-icon {
-  color: #64748b;
+  color: var(--hz-text-muted);
 }
 
 .aj-empty-text {
-  color: #475569;
+  color: var(--hz-text-secondary);
   font-size: 1rem;
   max-width: 300px;
   margin: 0;
@@ -355,8 +361,8 @@
 /* Footer Actions */
 .aj-footer {
   padding: 1.25rem 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-top: 1px solid var(--hz-border);
+  background: var(--hz-bg);
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -366,19 +372,19 @@
 .aj-btn-ghost {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--hz-text-muted);
   font-weight: 500;
   cursor: pointer;
   font-size: 0.95rem;
 }
 
 .aj-btn-ghost:hover {
-  color: #0f172a;
+  color: var(--hz-text);
 }
 
 .aj-btn-primary {
-  background: #3b31c6;
-  color: white;
+  background: var(--hz-primary);
+  color: var(--hz-text-inverse);
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
@@ -389,5 +395,5 @@
 }
 
 .aj-btn-primary:hover {
-  background: #2e269e;
+  background: var(--hz-primary-hover);
 }

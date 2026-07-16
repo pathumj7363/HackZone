@@ -119,7 +119,7 @@ export default function ManageHackathon() {
                 <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: 0, color: 'var(--hz-text)' }}>{hack.title}</h3>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px', backgroundColor: hack.status === 'ENDED' ? '#fee2e2' : '#dcfce7', color: hack.status === 'ENDED' ? '#991b1b' : '#166534' }}>
+                    <span className={hack.status === 'ENDED' ? 'hz-badge hz-badge--danger' : 'hz-badge hz-badge--success'}>
                       {hack.status}
                     </span>
                   </div>
@@ -164,7 +164,7 @@ export default function ManageHackathon() {
           
           <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--hz-text)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#e0e7ff', color: 'var(--hz-primary)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--hz-primary-light)', color: 'var(--hz-primary)' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
               </span>
               Basic Details
@@ -180,7 +180,7 @@ export default function ManageHackathon() {
 
           <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--hz-text)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#f3e8ff', color: '#9333ea' }}>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--hz-primary-light)', color: 'var(--hz-primary-active)' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               </span>
               Schedule
@@ -205,7 +205,7 @@ export default function ManageHackathon() {
             
             <div style={{ marginBottom: '1.5rem' }}>
               <label className="hz-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
-              <select name="status" value={formData.status} onChange={handleChange} className="hz-input" style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'white', color: 'var(--hz-text)' }}>
+              <select name="status" value={formData.status} onChange={handleChange} className="hz-input" style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }}>
                 <option value="draft">Draft (Private)</option>
                 <option value="published">Published (Public)</option>
                 <option value="completed">Completed</option>
@@ -230,9 +230,9 @@ export default function ManageHackathon() {
             </div>
           </Card>
 
-          <Card padding style={{ borderRadius: '12px', border: '2px dashed var(--hz-border)', backgroundColor: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
+          <Card padding style={{ borderRadius: '12px', border: '2px dashed var(--hz-border)', backgroundColor: 'var(--hz-bg)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', padding: '2rem 1rem', textAlign: 'center' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#e0e7ff', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--hz-primary-light)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
               </div>
               <div>
@@ -251,7 +251,7 @@ export default function ManageHackathon() {
   );
 
   return (
-    <div className="hz-page" style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '3rem' }}>
+    <div className="hz-page" style={{ minHeight: '100vh', paddingBottom: '3rem' }}>
       <div className="hz-container">
         
         {/* Header */}
@@ -259,9 +259,9 @@ export default function ManageHackathon() {
           <button 
             type="button"
             onClick={() => navigate('/organizer')} 
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', transition: 'background-color 0.2s' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'var(--hz-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', transition: 'background-color 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--hz-surface-raised)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--hz-surface)'}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -279,7 +279,7 @@ export default function ManageHackathon() {
         </div>
 
         {message && (
-          <div style={{ padding: '1rem', marginBottom: '1.5rem', backgroundColor: message.includes('Error') ? '#fee2e2' : '#dcfce7', color: message.includes('Error') ? '#b91c1c' : '#166534', borderRadius: '8px', border: `1px solid ${message.includes('Error') ? '#f87171' : '#86efac'}`, fontWeight: '500' }}>
+          <div className={message.includes('Error') ? 'hz-alert hz-alert--error hz-mb-6' : 'hz-alert hz-alert--success hz-mb-6'}>
             {message}
           </div>
         )}
