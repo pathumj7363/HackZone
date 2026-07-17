@@ -77,9 +77,9 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(routes): register get judges endpoint`
 
 ## Day 7: Evaluation Routes & Frontend API (Part 1)
-- [ ] **Task 31:** Register `POST /assign` route in `evaluation.routes.js`.
+- [x] **Task 31:** Register `POST /assign` route in `evaluation.routes.js`.
   - **Commit:** `feat(routes): register assign judge endpoint`
-- [ ] **Task 32:** Register `DELETE /assign` route in `evaluation.routes.js`.
+- [x] **Task 32:** Register `DELETE /assign` route in `evaluation.routes.js`.
   - **Commit:** `feat(routes): register unassign judge endpoint`
 - [ ] **Task 33:** Test all new backend endpoints via Postman or automated API tests.
   - **Commit:** `test(api): verify organizer endpoints end-to-end`
