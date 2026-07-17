@@ -3,7 +3,9 @@ import {
   getEvaluationsByJudgeId, 
   updateEvaluation,
   getEvaluationsBySubmissionId,
-  getLeaderboardData
+  getLeaderboardData,
+  assignJudgeToSubmission,
+  removeJudgeFromSubmission
 } from '../models/evaluation.model.js';
 import pool from '../database/db.js';
 import crypto from 'crypto';
@@ -106,5 +108,46 @@ export const getLeaderboard = async (req, res) => {
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const assignJudge = async (req, res) => {
+  try {
+    const { judgeId, submissionId, hackathonId } = req.body;
+    
+    if (!judgeId || !submissionId || !hackathonId) {
+      return res.status(400).json({ error: 'judgeId, submissionId, and hackathonId are required' });
+    }
+    
+    const result = await assignJudgeToSubmission(judgeId, submissionId, hackathonId);
+    return res.status(201).json({ message: 'Judge assigned successfully', data: result });
+  } catch (error) {
+    if (error.name === 'DuplicateAssignmentError') {
+      return res.status(409).json({ error: error.message });
+    }
+    console.error('[assignJudge] Error:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+export const unassignJudge = async (req, res) => {
+  try {
+    const { judgeId, submissionId } = req.body;
+    
+    if (!judgeId || !submissionId) {
+      return res.status(400).json({ error: 'judgeId and submissionId are required' });
+    }
+
+    const result = await removeJudgeFromSubmission(judgeId, submissionId);
+    return res.status(200).json({ message: 'Judge unassigned successfully', data: result });
+  } catch (error) {
+    if (error.name === 'AssignmentNotFoundError') {
+      return res.status(404).json({ error: error.message });
+    }
+    if (error.name === 'ScoredAssignmentError') {
+      return res.status(422).json({ error: error.message });
+    }
+    console.error('[unassignJudge] Error:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
