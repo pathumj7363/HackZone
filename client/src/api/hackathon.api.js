@@ -11,6 +11,12 @@ export const getHackathonDetailApi = async (id) => {
   return response.data?.data ?? response.data;
 };
 
+// Organizer-only: fetch hackathons created by the logged-in organizer
+export const getMyHackathonsApi = async () => {
+  const response = await api.get('/hackathons/my-hackathons');
+  return response.data?.data ?? response.data;
+};
+
 export const createHackathonApi = async (data) => {
   const response = await api.post('/hackathons', data);
   return response.data?.data ?? response.data;

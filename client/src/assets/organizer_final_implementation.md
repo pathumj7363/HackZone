@@ -89,7 +89,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(api): connect createHackathon to real endpoint`
 
 ## Day 8: Frontend API (Part 2) & ManageHackathon Page
-- [ ] **Task 36:** Connect `getHackathonsApi` to `API.get('/hackathons/my-hackathons')`.
+- [x] **Task 36:** Connect `getHackathonsApi` to `API.get('/hackathons/my-hackathons')`.
   - **Commit:** `feat(api): connect getHackathons to real endpoint`
 - [ ] **Task 37:** Create `judge.api.js` and add `getAvailableJudgesApi`.
   - **Commit:** `feat(api): create judge API service with getAvailableJudges`
