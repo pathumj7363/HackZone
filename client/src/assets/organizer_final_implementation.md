@@ -29,15 +29,15 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `chore(db): add indexes for organizer_id and user roles`
 
 ## Day 3: Evaluation Model
-- [ ] **Task 11:** Implement `assignJudgeToSubmission(judgeId, submissionId, hackathonId)` query in `evaluation.model.js`.
+- [x] **Task 11:** Implement `assignJudgeToSubmission(judgeId, submissionId, hackathonId)` query in `evaluation.model.js`.
   - **Commit:** `feat(models): implement assignJudgeToSubmission query`
-- [ ] **Task 12:** Add constraint checks in `evaluation.model.js` to prevent duplicate assignments.
+- [x] **Task 12:** Add constraint checks in `evaluation.model.js` to prevent duplicate assignments.
   - **Commit:** `fix(models): prevent duplicate judge assignments in db`
-- [ ] **Task 13:** Implement `removeJudgeFromSubmission(judgeId, submissionId)` query in `evaluation.model.js`.
+- [x] **Task 13:** Implement `removeJudgeFromSubmission(judgeId, submissionId)` query in `evaluation.model.js`.
   - **Commit:** `feat(models): implement removeJudgeFromSubmission query`
-- [ ] **Task 14:** Add validation to ensure scores are NULL before removing assignment.
+- [x] **Task 14:** Add validation to ensure scores are NULL before removing assignment.
   - **Commit:** `fix(models): validate scores before removing judge assignment`
-- [ ] **Task 15:** Write comprehensive tests for evaluation model assignment queries.
+- [x] **Task 15:** Write comprehensive tests for evaluation model assignment queries.
   - **Commit:** `test(models): verify judge assignment database operations`
 
 ## Day 4: Hackathon Controllers (Part 1)
@@ -57,11 +57,11 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(controllers): add getJudges controller logic`
 - [x] **Task 22:** Add pagination and search filtering to `getJudges` controller.
   - **Commit:** `feat(controllers): support pagination for getJudges`
-- [ ] **Task 23:** Implement `assignJudge` controller method in `evaluation.controller.js`.
+- [x] **Task 23:** Implement `assignJudge` controller method in `evaluation.controller.js`.
   - **Commit:** `feat(controllers): add assignJudge controller logic`
-- [ ] **Task 24:** Implement `unassignJudge` controller method in `evaluation.controller.js`.
+- [x] **Task 24:** Implement `unassignJudge` controller method in `evaluation.controller.js`.
   - **Commit:** `feat(controllers): add unassignJudge controller logic`
-- [ ] **Task 25:** Add error handling and response formatting for evaluation controllers.
+- [x] **Task 25:** Add error handling and response formatting for evaluation controllers.
   - **Commit:** `fix(controllers): standardize evaluation controller responses`
 
 ## Day 6: Backend Routes Integration
