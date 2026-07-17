@@ -100,7 +100,7 @@ export default function ProjectSubmission() {
               <Button variant="primary" onClick={() => navigate('/submissions')}>
                 View My Submissions
               </Button>
-              <Button variant="outline" onClick={() => navigate('/teams/dashboard')}>
+              <Button variant="outline" onClick={() => navigate(-1)}>
                 Back to Team
               </Button>
             </div>
