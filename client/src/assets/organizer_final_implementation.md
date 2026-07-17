@@ -67,13 +67,13 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
 ## Day 6: Backend Routes Integration
 - [ ] **Task 26:** Add `isOrganizer` middleware if not already present.
   - **Commit:** `feat(middleware): implement isOrganizer authorization middleware`
-- [ ] **Task 27:** Register `POST /` route in `hackathon.routes.js`.
+- [x] **Task 27:** Register `POST /` route in `hackathon.routes.js`.
   - **Commit:** `feat(routes): register create hackathon endpoint`
-- [ ] **Task 28:** Register `PUT /:id` route in `hackathon.routes.js`.
+- [x] **Task 28:** Register `PUT /:id` route in `hackathon.routes.js`.
   - **Commit:** `feat(routes): register update hackathon endpoint`
-- [ ] **Task 29:** Register `GET /my-hackathons` route in `hackathon.routes.js`.
+- [x] **Task 29:** Register `GET /my-hackathons` route in `hackathon.routes.js`.
   - **Commit:** `feat(routes): register get my hackathons endpoint`
-- [ ] **Task 30:** Register `GET /judges` in `user.routes.js`.
+- [x] **Task 30:** Register `GET /judges` in `user.routes.js`.
   - **Commit:** `feat(routes): register get judges endpoint`
 
 ## Day 7: Evaluation Routes & Frontend API (Part 1)
