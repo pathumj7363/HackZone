@@ -53,9 +53,9 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(controllers): add getMyHackathons controller logic`
 
 ## Day 5: User & Evaluation Controllers
-- [ ] **Task 21:** Implement `getJudges` controller method in `user.controller.js`.
+- [x] **Task 21:** Implement `getJudges` controller method in `user.controller.js`.
   - **Commit:** `feat(controllers): add getJudges controller logic`
-- [ ] **Task 22:** Add pagination and search filtering to `getJudges` controller.
+- [x] **Task 22:** Add pagination and search filtering to `getJudges` controller.
   - **Commit:** `feat(controllers): support pagination for getJudges`
 - [ ] **Task 23:** Implement `assignJudge` controller method in `evaluation.controller.js`.
   - **Commit:** `feat(controllers): add assignJudge controller logic`
