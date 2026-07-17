@@ -24,6 +24,14 @@ export const isJudge = (req, res, next) => {
   }
 };
 
+export const isOrganizer = (req, res, next) => {
+  if (req.user && req.user.role === 'organizer') {
+    next();
+  } else {
+    return res.status(403).json({ error: 'Access denied. Organizer role required.' });
+  }
+};
+
 export const isJudgeOrOrganizer = (req, res, next) => {
   if (req.user && (req.user.role === 'judge' || req.user.role === 'organizer')) {
     next();

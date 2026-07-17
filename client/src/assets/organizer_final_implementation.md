@@ -56,7 +56,7 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
 - [x] **Task 21:** Implement `getJudges` controller method in `user.controller.js`.
   - **Commit:** `feat(controllers): add getJudges controller logic`
 - [x] **Task 22:** Add pagination and search filtering to `getJudges` controller.
-  - **Commit:** `feat(controllers): support pagination for getJudges`
+  - **Commit:** `feat(controllers): `support pagination for getJudges
 - [x] **Task 23:** Implement `assignJudge` controller method in `evaluation.controller.js`.
   - **Commit:** `feat(controllers): add assignJudge controller logic`
 - [x] **Task 24:** Implement `unassignJudge` controller method in `evaluation.controller.js`.
