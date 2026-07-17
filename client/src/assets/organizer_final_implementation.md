@@ -83,9 +83,9 @@ The following 50 tasks are designed to be completed at a pace of 5 tasks per day
   - **Commit:** `feat(routes): register unassign judge endpoint`
 - [ ] **Task 33:** Test all new backend endpoints via Postman or automated API tests.
   - **Commit:** `test(api): verify organizer endpoints end-to-end`
-- [ ] **Task 34:** Remove `createHackathonApi` mock delay in `client/src/api/hackathon.api.js`.
+- [x] **Task 34:** Remove `createHackathonApi` mock delay in `client/src/api/hackathon.api.js`.
   - **Commit:** `refactor(api): remove createHackathon mock delay`
-- [ ] **Task 35:** Connect `createHackathonApi` to `API.post('/hackathons')`.
+- [x] **Task 35:** Connect `createHackathonApi` to `API.post('/hackathons')`.
   - **Commit:** `feat(api): connect createHackathon to real endpoint`
 
 ## Day 8: Frontend API (Part 2) & ManageHackathon Page
