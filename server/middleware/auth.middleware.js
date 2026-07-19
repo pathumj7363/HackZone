@@ -8,7 +8,7 @@ export const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hackzone_super_secret_key');
     req.user = decoded;
     next();
   } catch (err) {

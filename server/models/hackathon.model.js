@@ -1,5 +1,46 @@
 import pool from '../database/db.js';
 
+// Auto-migrate new columns and ensure table exists
+(async () => {
+  try {
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS hackathons (
+        id VARCHAR(255) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        startDate DATETIME,
+        endDate DATETIME,
+        rules TEXT,
+        prizes JSON,
+        sponsors JSON,
+        judges JSON,
+        organizerId VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    await pool.query(createTableQuery);
+  } catch (err) {
+    console.error("Error creating hackathons table:", err);
+  }
+
+  const queries = [
+    "ALTER TABLE hackathons ADD COLUMN location VARCHAR(255);",
+    "ALTER TABLE hackathons ADD COLUMN theme VARCHAR(255);",
+    "ALTER TABLE hackathons ADD COLUMN maxTeamSize INT DEFAULT 4;",
+    "ALTER TABLE hackathons ADD COLUMN prizePool VARCHAR(255);",
+    "ALTER TABLE hackathons ADD COLUMN image TEXT;"
+  ];
+  for (let q of queries) {
+    try {
+      await pool.query(q);
+    } catch (e) {
+      // Ignore if column already exists
+    }
+  }
+  console.log("✅ Verified hackathon table and metadata columns");
+})();
+
 /**
  * Create a new hackathon.
  * @param {Object} hackathonData - The hackathon details
@@ -11,7 +52,8 @@ export const createHackathon = async (hackathonData) => {
     
     const {
       id, title, description, startDate, endDate, rules,
-      prizes, sponsors, judges, organizerId, status
+      prizes, sponsors, judges, organizerId, status,
+      location, theme, maxTeamSize, prizePool, image
     } = hackathonData;
 
     if (!id || !title || !organizerId) {
@@ -26,8 +68,9 @@ export const createHackathon = async (hackathonData) => {
     const query = `
       INSERT INTO hackathons (
         id, title, description, startDate, endDate, rules, 
-        prizes, sponsors, judges, organizerId, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        prizes, sponsors, judges, organizerId, status,
+        location, theme, maxTeamSize, prizePool, image
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.query(query, [
@@ -41,7 +84,12 @@ export const createHackathon = async (hackathonData) => {
       sponsorsJson, 
       judgesJson, 
       organizerId,
-      hackathonStatus
+      hackathonStatus,
+      location || null,
+      theme || null,
+      maxTeamSize || 4,
+      prizePool || null,
+      image || null
     ]);
 
     return hackathonData;
@@ -136,6 +184,11 @@ export const updateHackathon = async (id, updateData) => {
     if (updateData.prizes !== undefined) { fields.push('prizes = ?'); values.push(JSON.stringify(updateData.prizes)); }
     if (updateData.sponsors !== undefined) { fields.push('sponsors = ?'); values.push(JSON.stringify(updateData.sponsors)); }
     if (updateData.judges !== undefined) { fields.push('judges = ?'); values.push(JSON.stringify(updateData.judges)); }
+    if (updateData.location !== undefined) { fields.push('location = ?'); values.push(updateData.location); }
+    if (updateData.theme !== undefined) { fields.push('theme = ?'); values.push(updateData.theme); }
+    if (updateData.maxTeamSize !== undefined) { fields.push('maxTeamSize = ?'); values.push(updateData.maxTeamSize); }
+    if (updateData.prizePool !== undefined) { fields.push('prizePool = ?'); values.push(updateData.prizePool); }
+    if (updateData.image !== undefined) { fields.push('image = ?'); values.push(updateData.image); }
 
     if (fields.length === 0) return true;
 

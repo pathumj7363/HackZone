@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createHackathonApi, getHackathonsApi } from '../../api/hackathon.api';
+import { createHackathonApi, getMyHackathonsApi } from '../../api/hackathon.api';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import TextArea from '../../components/ui/TextArea';
@@ -37,8 +37,8 @@ export default function ManageHackathon() {
   const fetchHackathons = async () => {
     setFetchLoading(true);
     try {
-      if (typeof getHackathonsApi === 'function') {
-        const data = await getHackathonsApi();
+      if (typeof getMyHackathonsApi === 'function') {
+        const data = await getMyHackathonsApi();
         setHackathons(data || []);
       }
     } catch (err) {
@@ -133,7 +133,7 @@ export default function ManageHackathon() {
                     {hack.dateRange} • {hack.location}
                   </p>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
-                    <Button variant="outline" size="sm" style={{ flex: 1 }} onClick={() => { setFormData({ ...initialForm, title: hack.title, location: hack.location }); setView('form'); }}>
+                    <Button variant="outline" size="sm" style={{ flex: 1 }} onClick={() => { setFormData({ ...initialForm, id: hack.id, title: hack.title, description: hack.description, location: hack.location, startDate: hack.startDate, endDate: hack.endDate, status: hack.dbStatus || hack.status }); setView('form'); }}>
                       Edit
                     </Button>
                     <Button variant="ghost" size="sm" style={{ padding: '0.5rem' }}>
