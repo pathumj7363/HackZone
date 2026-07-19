@@ -55,11 +55,11 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `test(api): verify participant endpoints end-to-end`
 
 ## Day 5: Frontend API Setup (Part 1)
-- [ ] **Task 21:** Remove `mockHackathons` array and mock delay in `client/src/api/hackathon.api.js`.
+- [x] **Task 21:** Remove `mockHackathons` array and mock delay in `client/src/api/hackathon.api.js`.
   - **Commit:** `refactor(api): remove hackathon mock data`
-- [ ] **Task 22:** Connect `getHackathonsApi` to `API.get('/hackathons')`.
+- [x] **Task 22:** Connect `getHackathonsApi` to `API.get('/hackathons')`.
   - **Commit:** `feat(api): connect getHackathons to real endpoint`
-- [ ] **Task 23:** Connect `getHackathonDetailApi` to `API.get('/hackathons/${id}')`.
+- [x] **Task 23:** Connect `getHackathonDetailApi` to `API.get('/hackathons/${id}')`.
   - **Commit:** `feat(api): connect getHackathonDetail to real endpoint`
 - [ ] **Task 24:** Remove mock delay and logic in `getMyTeamApi` in `team.api.js`.
   - **Commit:** `refactor(api): clean up team API mocks`
