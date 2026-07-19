@@ -5,7 +5,9 @@ import {
   updateHackathon as updateHackathonModel,
   getHackathonsByOrganizerId,
   registerForHackathon,
-  getRegisteredHackathonsByUserId
+  getRegisteredHackathonsByUserId,
+  getRegistrationsByHackathonId,
+  updateRegistrationStatus
 } from '../models/hackathon.model.js';
 import crypto from 'crypto';
 
@@ -97,7 +99,12 @@ export const getHackathonDetail = async (req, res) => {
 export const registerHackathon = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { hackathonId, teamId, regType, role, experienceLevel, githubUrl } = req.body;
+    const { hackathonId, teamId, regType, role, experienceLevel, githubUrl, idea } = req.body;
+
+    let proposalUrl = null;
+    if (req.file) {
+      proposalUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    }
 
     if (!hackathonId) {
       return res.status(400).json({ error: 'hackathonId is required' });
@@ -117,7 +124,9 @@ export const registerHackathon = async (req, res) => {
       regType,
       role,
       experienceLevel,
-      githubUrl
+      githubUrl,
+      idea,
+      proposalUrl
     );
 
     return res.status(200).json({ message: 'Successfully registered for hackathon', data: { id: registrationId } });
@@ -139,6 +148,63 @@ export const getMyRegisteredHackathons = async (req, res) => {
     return res.status(200).json({ data: formatted });
   } catch (error) {
     console.error('[getMyRegisteredHackathons] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /hackathons/:id/registrations
+ * Get all registrations for a given hackathon (organizer only).
+ */
+export const getHackathonRegistrations = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const hackathon = await getHackathonById(id);
+    if (!hackathon) {
+      return res.status(404).json({ error: 'Hackathon not found' });
+    }
+    
+    if (hackathon.organizerId !== req.user?.id) {
+      return res.status(403).json({ error: 'Unauthorized: You are not the organizer of this hackathon' });
+    }
+    
+    const registrations = await getRegistrationsByHackathonId(id);
+    return res.status(200).json({ data: registrations });
+  } catch (error) {
+    console.error('[getHackathonRegistrations] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /hackathons/:id/registrations/:registrationId/status
+ * Update the status of a hackathon registration
+ */
+export const updateHackathonRegistrationStatus = async (req, res) => {
+  try {
+    const { id, registrationId } = req.params;
+    const { status } = req.body;
+    
+    // Verify the caller is the organizer of the hackathon
+    const hackathon = await getHackathonById(id);
+    if (!hackathon) {
+      return res.status(404).json({ error: 'Hackathon not found' });
+    }
+    
+    if (hackathon.organizerId !== req.user.id) {
+      return res.status(403).json({ error: 'You are not the organizer of this hackathon' });
+    }
+
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    await updateRegistrationStatus(registrationId, status);
+    
+    return res.status(200).json({ message: 'Registration status updated successfully' });
+  } catch (error) {
+    console.error('[updateHackathonRegistrationStatus] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

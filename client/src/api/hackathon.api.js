@@ -23,7 +23,22 @@ export const createHackathonApi = async (data) => {
 };
 
 export const registerHackathonApi = async (data) => {
-  const response = await api.post('/hackathons/register', data);
+  // If data is FormData, headers are automatically handled by Axios
+  let headers = {};
+  if (data instanceof FormData) {
+    headers['Content-Type'] = 'multipart/form-data';
+  }
+  const response = await api.post('/hackathons/register', data, { headers });
+  return response.data?.data ?? response.data;
+};
+
+export const getHackathonRegistrationsApi = async (id) => {
+  const response = await api.get(`/hackathons/${id}/registrations`);
+  return response.data?.data ?? response.data;
+};
+
+export const updateRegistrationStatusApi = async (hackathonId, registrationId, status) => {
+  const response = await api.put(`/hackathons/${hackathonId}/registrations/${registrationId}/status`, { status });
   return response.data?.data ?? response.data;
 };
 

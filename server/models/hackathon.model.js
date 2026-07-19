@@ -29,7 +29,13 @@ import pool from '../database/db.js';
         role VARCHAR(100),
         experienceLevel VARCHAR(100),
         githubUrl VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        idea TEXT,
+        proposalUrl VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (hackathonId) REFERENCES hackathons(id) ON DELETE CASCADE,
+        FOREIGN KEY (teamId) REFERENCES teams(id) ON DELETE SET NULL
       )
     `;
     await pool.query(createTableQuery);
@@ -43,7 +49,10 @@ import pool from '../database/db.js';
     "ALTER TABLE hackathons ADD COLUMN theme VARCHAR(255);",
     "ALTER TABLE hackathons ADD COLUMN maxTeamSize INT DEFAULT 4;",
     "ALTER TABLE hackathons ADD COLUMN prizePool VARCHAR(255);",
-    "ALTER TABLE hackathons ADD COLUMN image TEXT;"
+    "ALTER TABLE hackathons ADD COLUMN image TEXT;",
+    "ALTER TABLE hackathon_registrations ADD COLUMN idea TEXT;",
+    "ALTER TABLE hackathon_registrations ADD COLUMN proposalUrl VARCHAR(255);",
+    "ALTER TABLE hackathon_registrations ADD COLUMN status VARCHAR(50) DEFAULT 'pending';"
   ];
   for (let q of queries) {
     try {
@@ -185,24 +194,27 @@ export const getHackathonsByOrganizerId = async (organizerId) => {
 /**
  * Register a user/team for a hackathon.
  */
-export const registerForHackathon = async (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl) => {
-  const query = `
-    INSERT INTO hackathon_registrations (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  await pool.query(query, [id, userId, hackathonId, teamId || null, regType || 'solo', role || null, experienceLevel || null, githubUrl || null]);
-  return { id, userId, hackathonId, teamId, regType };
+export const registerForHackathon = async (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl, idea, proposalUrl) => {
+  try {
+    const query = `
+      INSERT INTO hackathon_registrations (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl, idea, proposalUrl)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await pool.query(query, [id, userId, hackathonId, teamId || null, regType, role || null, experienceLevel || null, githubUrl || null, idea || null, proposalUrl || null]);
+    return true;
+  } catch (error) {
+    console.error('Error registering for hackathon:', error);
+    throw error;
+  }
 };
 
-/**
- * Get all hackathons a user is registered for.
- */
 export const getRegisteredHackathonsByUserId = async (userId) => {
   try {
     const query = `
-      SELECT h.*, r.regType, r.teamId 
+      SELECT h.*, r.regType, r.teamId, r.role, t.name as teamName 
       FROM hackathons h
       JOIN hackathon_registrations r ON h.id = r.hackathonId
+      LEFT JOIN teams t ON r.teamId = t.id
       WHERE r.userId = ?
       ORDER BY r.created_at DESC
     `;
@@ -215,6 +227,32 @@ export const getRegisteredHackathonsByUserId = async (userId) => {
     });
   } catch (error) {
     console.error('Error fetching registered hackathons:', error);
+    throw error;
+  }
+};
+
+export const getRegistrationsByHackathonId = async (hackathonId) => {
+  const query = `
+    SELECT r.id, r.userId, r.hackathonId, r.teamId, r.regType, r.role, r.experienceLevel, r.githubUrl, r.idea, r.proposalUrl, r.status, r.created_at,
+           u.name as participantName, u.email as participantEmail,
+           t.name as teamName, (SELECT COUNT(*) FROM team_members tm WHERE tm.teamId = t.id) as teamSize
+    FROM hackathon_registrations r
+    JOIN users u ON r.userId = u.id
+    LEFT JOIN teams t ON r.teamId = t.id
+    WHERE r.hackathonId = ?
+    ORDER BY r.created_at DESC
+  `;
+  const [rows] = await pool.query(query, [hackathonId]);
+  return rows;
+};
+
+export const updateRegistrationStatus = async (registrationId, status) => {
+  try {
+    const query = `UPDATE hackathon_registrations SET status = ? WHERE id = ?`;
+    await pool.query(query, [status, registrationId]);
+    return true;
+  } catch (error) {
+    console.error('Error updating registration status:', error);
     throw error;
   }
 };

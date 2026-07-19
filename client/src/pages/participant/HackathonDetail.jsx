@@ -28,6 +28,11 @@ export default function HackathonDetail() {
   const [role, setRole] = useState('Developer');
   const [experienceLevel, setExperienceLevel] = useState('Intermediate');
   const [githubUrl, setGithubUrl] = useState('');
+  
+  // New wizard states
+  const [modalStep, setModalStep] = useState(1);
+  const [idea, setIdea] = useState('');
+  const [proposalFile, setProposalFile] = useState(null);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -50,19 +55,25 @@ export default function HackathonDetail() {
   const handleRegister = async () => {
     setRegistering(true);
     try {
-      const payload = { 
-        hackathonId: id,
-        regType,
-        role,
-        experienceLevel,
-        githubUrl
-      };
+      const formData = new FormData();
+      formData.append('hackathonId', id);
+      formData.append('regType', regType);
+      formData.append('role', role);
+      formData.append('experienceLevel', experienceLevel);
+      formData.append('githubUrl', githubUrl);
+      formData.append('idea', idea);
+
       if (regType === 'team' && myTeam) {
-        payload.teamId = myTeam.id;
+        formData.append('teamId', myTeam.id);
       }
-      await registerHackathonApi(payload);
+      if (proposalFile) {
+        formData.append('proposal', proposalFile);
+      }
+
+      await registerHackathonApi(formData);
       toast.success('Successfully registered for the hackathon!');
       setShowModal(false);
+      setModalStep(1); // Reset
       navigate('/dashboard'); // Go to participant dashboard
     } catch (err) {
       toast.error('Failed to register. Please try again.');
@@ -433,75 +444,118 @@ export default function HackathonDetail() {
         }}>
           <div style={{
             background: 'var(--hz-bg)', borderRadius: 'var(--hz-radius)',
-            width: '100%', maxWidth: '500px', padding: '2rem',
-            boxShadow: 'var(--hz-shadow-lg)', position: 'relative'
+            width: '100%', maxWidth: '600px', padding: '2rem',
+            boxShadow: 'var(--hz-shadow-lg)', position: 'relative',
+            maxHeight: '90vh', overflowY: 'auto'
           }}>
-            <h2 className="hz-heading-3 hz-mb-4">Register for Hackathon</h2>
+            <h2 className="hz-heading-3 hz-mb-4">
+              Register for Hackathon 
+              <span style={{ fontSize: '0.9rem', color: 'var(--hz-text-muted)', marginLeft: '1rem' }}>
+                Step {modalStep} of 2
+              </span>
+            </h2>
             
-            <div className="hz-mb-4">
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>
-                Registration Type
-              </label>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  <input type="radio" name="regType" value="solo" checked={regType === 'solo'} onChange={() => setRegType('solo')} />
-                  Solo Participant
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  <input type="radio" name="regType" value="team" checked={regType === 'team'} onChange={() => setRegType('team')} />
-                  Register as Team
-                </label>
-              </div>
-            </div>
-
-              {regType === 'team' && (
+            {modalStep === 1 ? (
+              <>
                 <div className="hz-mb-4">
-                  {myTeam ? (
-                    <div style={{ padding: '1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
-                      <p style={{ margin: 0, fontWeight: 'var(--hz-font-weight-bold)' }}>{myTeam.name}</p>
-                      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--hz-text-muted)' }}>{myTeam.members?.length || 0} Members</p>
-                    </div>
-                  ) : (
-                    <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: 'var(--hz-radius-sm)' }}>
-                      You are not in a team. Please create or join a team first, or register as a solo participant.
-                    </div>
-                  )}
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>
+                    Registration Type
+                  </label>
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input type="radio" name="regType" value="solo" checked={regType === 'solo'} onChange={() => setRegType('solo')} />
+                      Solo Participant
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input type="radio" name="regType" value="team" checked={regType === 'team'} onChange={() => setRegType('team')} />
+                      Register as Team
+                    </label>
+                  </div>
                 </div>
-              )}
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Your Role</label>
-                <select className="hz-input" value={role} onChange={(e) => setRole(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)' }}>
-                  <option value="Developer">Developer</option>
-                  <option value="Designer">Designer</option>
-                  <option value="Product Manager">Product Manager</option>
-                  <option value="Data Scientist">Data Scientist</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+                {regType === 'team' && (
+                  <div className="hz-mb-4">
+                    {myTeam ? (
+                      <div style={{ padding: '1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
+                        <p style={{ margin: 0, fontWeight: 'var(--hz-font-weight-bold)' }}>{myTeam.name}</p>
+                        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--hz-text-muted)' }}>{myTeam.members?.length || 0} Members</p>
+                      </div>
+                    ) : (
+                      <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: 'var(--hz-radius-sm)' }}>
+                        You are not in a team. Please create or join a team first, or register as a solo participant.
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Experience Level</label>
-                <select className="hz-input" value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)' }}>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Your Role</label>
+                  <select className="hz-input" value={role} onChange={(e) => setRole(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)' }}>
+                    <option value="Developer">Developer</option>
+                    <option value="Designer">Designer</option>
+                    <option value="Product Manager">Product Manager</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>GitHub / Portfolio URL</label>
-                <input type="url" className="hz-input" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/yourusername" style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }} />
-              </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Experience Level</label>
+                  <select className="hz-input" value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)' }}>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
-              <Button variant="outline" onClick={() => setShowModal(false)} disabled={registering}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleRegister} disabled={registering || (regType === 'team' && !myTeam)}>
-                {registering ? 'Registering...' : 'Confirm Registration'}
-              </Button>
-            </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>GitHub / Portfolio URL</label>
+                  <input type="url" className="hz-input" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/yourusername" style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }} />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
+                  <Button variant="outline" onClick={() => { setShowModal(false); setModalStep(1); }}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" onClick={() => setModalStep(2)} disabled={regType === 'team' && !myTeam}>
+                    Next Step
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>What are you going to build? (Idea/Pitch)</label>
+                  <textarea 
+                    className="hz-input" 
+                    value={idea} 
+                    onChange={(e) => setIdea(e.target.value)} 
+                    placeholder="Briefly describe your project idea or what problem you're aiming to solve..." 
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)', minHeight: '120px' }} 
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Upload Proposal Document (Optional)</label>
+                  <input 
+                    type="file" 
+                    onChange={(e) => setProposalFile(e.target.files[0])} 
+                    accept=".pdf,.doc,.docx"
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }} 
+                  />
+                  <p style={{ fontSize: '0.8rem', color: 'var(--hz-text-muted)', margin: '0.25rem 0 0' }}>Allowed: PDF, DOC. Max size: 5MB.</p>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
+                  <Button variant="outline" onClick={() => setModalStep(1)} disabled={registering}>
+                    Back
+                  </Button>
+                  <Button variant="primary" onClick={handleRegister} disabled={registering}>
+                    {registering ? 'Registering...' : 'Confirm Registration'}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
