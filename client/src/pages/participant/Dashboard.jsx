@@ -294,7 +294,15 @@ export default function Dashboard() {
                               {hackathon.title}
                             </p>
                             <span style={{ fontSize: 'var(--hz-font-size-xs)', color: 'var(--hz-text-muted)' }}>
-                              Status: <span style={{ color: 'var(--hz-primary)' }}>{hackathon.status}</span>
+                              Status: <span style={{ 
+                                color: hackathon.registrationStatus === 'approved' ? 'var(--hz-success)' : 
+                                       hackathon.registrationStatus === 'rejected' ? 'var(--hz-danger)' : 
+                                       'var(--hz-warning)' 
+                              }}>
+                                {hackathon.registrationStatus === 'approved' ? 'Project Approved' : 
+                                 hackathon.registrationStatus === 'rejected' ? 'Project Rejected' : 
+                                 'Pending Approval'}
+                              </span>
                             </span>
                           </div>
                         </div>

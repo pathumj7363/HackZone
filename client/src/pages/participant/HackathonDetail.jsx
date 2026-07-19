@@ -23,6 +23,7 @@ export default function HackathonDetail() {
   const [showModal, setShowModal] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationStatus, setRegistrationStatus] = useState(null);
   const [myTeam, setMyTeam] = useState(null);
   const [regType, setRegType] = useState('solo'); // 'solo' or 'team'
   const [role, setRole] = useState('Developer');
@@ -44,8 +45,14 @@ export default function HackathonDetail() {
     ]).then(([hackathonData, registeredData, teamData]) => {
       if (hackathonData) setHackathon(hackathonData);
       if (registeredData) {
-        const alreadyRegistered = registeredData.some(h => h.id === id);
-        setIsRegistered(alreadyRegistered);
+        const registration = registeredData.find(h => h.id === id);
+        if (registration && registration.registrationStatus !== 'rejected') {
+          setIsRegistered(true);
+          setRegistrationStatus(registration.registrationStatus);
+        } else {
+          setIsRegistered(false);
+          setRegistrationStatus(registration ? registration.registrationStatus : null);
+        }
       }
       if (teamData) setMyTeam(teamData);
       setLoading(false);
@@ -333,18 +340,37 @@ export default function HackathonDetail() {
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ 
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', 
-                    padding: '0.75rem', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981',
+                    padding: '0.75rem', borderRadius: '8px', 
+                    background: registrationStatus === 'approved' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)', 
+                    color: registrationStatus === 'approved' ? '#10b981' : '#d97706',
                     fontWeight: 'var(--hz-font-weight-semibold)'
                   }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    You are already registered!
+                    {registrationStatus === 'approved' ? (
+                      <>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Registered and project approved
+                      </>
+                    ) : (
+                      <>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Pending Approval
+                      </>
+                    )}
                   </div>
                 </div>
               ) : (
                 <>
+                  {registrationStatus === 'rejected' && (
+                    <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                      Your previous idea was rejected. You may register again with a different idea.
+                    </div>
+                  )}
                   <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => setShowModal(true)}>
                     Register for Hackathon
                   </Button>

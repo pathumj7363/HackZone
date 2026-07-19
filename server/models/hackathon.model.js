@@ -211,7 +211,7 @@ export const registerForHackathon = async (id, userId, hackathonId, teamId, regT
 export const getRegisteredHackathonsByUserId = async (userId) => {
   try {
     const query = `
-      SELECT h.*, r.regType, r.teamId, r.role, t.name as teamName 
+      SELECT h.*, r.regType, r.teamId, r.role, r.status as registrationStatus, t.name as teamName 
       FROM hackathons h
       JOIN hackathon_registrations r ON h.id = r.hackathonId
       LEFT JOIN teams t ON r.teamId = t.id
