@@ -85,7 +85,7 @@ export const registerHackathon = async (req, res) => {
  */
 export const createHackathon = async (req, res) => {
   try {
-    const { title, description, startDate, endDate, rules, prizes, sponsors, judges } = req.body;
+    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status } = req.body;
 
     if (!title || typeof title !== 'string' || title.trim() === '') {
       return res.status(400).json({ error: 'Valid title is required' });
@@ -126,6 +126,7 @@ export const createHackathon = async (req, res) => {
       sponsors,
       judges,
       organizerId,
+      status,
     });
 
     return res.status(201).json({ message: 'Hackathon created', data: hackathon });

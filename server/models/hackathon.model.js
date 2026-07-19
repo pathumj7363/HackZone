@@ -11,7 +11,7 @@ export const createHackathon = async (hackathonData) => {
     
     const {
       id, title, description, startDate, endDate, rules,
-      prizes, sponsors, judges, organizerId
+      prizes, sponsors, judges, organizerId, status
     } = hackathonData;
 
     if (!id || !title || !organizerId) {
@@ -21,17 +21,27 @@ export const createHackathon = async (hackathonData) => {
     const prizesJson = prizes ? JSON.stringify(prizes) : null;
     const sponsorsJson = sponsors ? JSON.stringify(sponsors) : null;
     const judgesJson = judges ? JSON.stringify(judges) : null;
+    const hackathonStatus = status || 'draft';
 
     const query = `
       INSERT INTO hackathons (
         id, title, description, startDate, endDate, rules, 
-        prizes, sponsors, judges, organizerId
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        prizes, sponsors, judges, organizerId, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.query(query, [
-      id, title, description, startDate, endDate, rules,
-      prizesJson, sponsorsJson, judgesJson, organizerId
+      id, 
+      title, 
+      description || null, 
+      startDate, 
+      endDate, 
+      rules || null,
+      prizesJson, 
+      sponsorsJson, 
+      judgesJson, 
+      organizerId,
+      hackathonStatus
     ]);
 
     return hackathonData;
