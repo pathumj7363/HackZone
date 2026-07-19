@@ -114,7 +114,12 @@ export const createHackathon = async (hackathonData) => {
 };
 
 export const getAllHackathons = async () => {
-  const query = `SELECT * FROM hackathons ORDER BY created_at DESC`;
+  const query = `
+    SELECT h.*, 
+           (SELECT COUNT(*) FROM hackathon_registrations r WHERE r.hackathonId = h.id) as participantCount
+    FROM hackathons h 
+    ORDER BY h.created_at DESC
+  `;
   const [rows] = await pool.query(query);
   return rows;
 };
@@ -128,7 +133,11 @@ export const getHackathonById = async (id) => {
   try {
     if (!id) throw new Error('Hackathon ID is required');
 
-    const query = `SELECT * FROM hackathons WHERE id = ?`;
+    const query = `
+      SELECT h.*, 
+             (SELECT COUNT(*) FROM hackathon_registrations r WHERE r.hackathonId = h.id) as participantCount
+      FROM hackathons h WHERE h.id = ?
+    `;
     const [rows] = await pool.query(query, [id]);
 
     if (rows.length === 0) {

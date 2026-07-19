@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getHackathonDetailApi, registerHackathonApi } from '../../api/hackathon.api';
+import { getHackathonDetailApi, registerHackathonApi, getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
 import { getMyTeamApi } from '../../api/team.api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -22,6 +22,7 @@ export default function HackathonDetail() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [registering, setRegistering] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
   const [myTeam, setMyTeam] = useState(null);
   const [regType, setRegType] = useState('solo'); // 'solo' or 'team'
   const [role, setRole] = useState('Developer');
@@ -31,15 +32,19 @@ export default function HackathonDetail() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
-    getHackathonDetailApi(id).then(data => {
-      setHackathon(data);
-      setLoading(false);
-    }).catch((err) => {
-      console.error("Failed to fetch hackathon detail:", err);
+    Promise.all([
+      getHackathonDetailApi(id).catch(() => null),
+      getMyRegisteredHackathonsApi().catch(() => []),
+      getMyTeamApi().catch(() => null)
+    ]).then(([hackathonData, registeredData, teamData]) => {
+      if (hackathonData) setHackathon(hackathonData);
+      if (registeredData) {
+        const alreadyRegistered = registeredData.some(h => h.id === id);
+        setIsRegistered(alreadyRegistered);
+      }
+      if (teamData) setMyTeam(teamData);
       setLoading(false);
     });
-    
-    getMyTeamApi().then(data => setMyTeam(data)).catch(() => setMyTeam(null));
   }, [id]);
 
   const handleRegister = async () => {
@@ -95,7 +100,7 @@ export default function HackathonDetail() {
   const location = hackathon.location || "TBA";
   const theme = hackathon.theme || "Open Ended";
   const prizePool = hackathon.prizePool || "TBA";
-  const participantCount = hackathon.participants || "0 teams";
+  const participantCount = hackathon.participantCount || 0;
 
   // Dynamic Rules
   let rules = ["All code must be original.", "Projects must align with the theme.", "A demonstration is required for submission."];
@@ -313,21 +318,39 @@ export default function HackathonDetail() {
 
             {/* Registration Action Card */}
             <Card padding style={{ textAlign: 'center' }}>
-              <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => setShowModal(true)}>
-                Register for Hackathon
-              </Button>
+              {isRegistered ? (
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <div style={{ 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', 
+                    padding: '0.75rem', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981',
+                    fontWeight: 'var(--hz-font-weight-semibold)'
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    You are already registered!
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => setShowModal(true)}>
+                    Register for Hackathon
+                  </Button>
 
-              <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '1.25rem' }}>
-                <Button variant="outline" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <line x1="19" y1="8" x2="19" y2="14"></line>
-                    <line x1="22" y1="11" x2="16" y2="11"></line>
-                  </svg>
-                  Create a Team
-                </Button>
-              </Link>
+                  <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '1.25rem' }}>
+                    <Button variant="outline" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <line x1="19" y1="8" x2="19" y2="14"></line>
+                        <line x1="22" y1="11" x2="16" y2="11"></line>
+                      </svg>
+                      Create a Team
+                    </Button>
+                  </Link>
+                </>
+              )}
 
               <p style={{ fontSize: '11px', color: 'var(--hz-text-muted)', margin: 0 }}>
                 {participantCount} registered
