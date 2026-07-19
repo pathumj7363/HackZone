@@ -68,7 +68,13 @@ export default function ManageHackathon() {
         await createHackathonApi({ 
           title: formData.title, 
           description: formData.description,
-          location: formData.location
+          location: formData.location,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          maxTeamSize: formData.maxTeamSize,
+          prizePool: formData.prizePool,
+          theme: formData.theme,
+          status: formData.status
         });
       }
       setMessage('Hackathon details saved successfully!');
@@ -188,10 +194,10 @@ export default function ManageHackathon() {
             
             <div className="row g-3">
               <div className="col-12 col-md-6">
-                <Input type="datetime-local" label="Start Date & Time" name="startDate" value={formData.startDate} onChange={handleChange} />
+                <Input type="datetime-local" label="Start Date & Time" name="startDate" value={formData.startDate} onChange={handleChange} required />
               </div>
               <div className="col-12 col-md-6">
-                <Input type="datetime-local" label="End Date & Time" name="endDate" value={formData.endDate} onChange={handleChange} />
+                <Input type="datetime-local" label="End Date & Time" name="endDate" value={formData.endDate} onChange={handleChange} required />
               </div>
             </div>
           </Card>
