@@ -6,7 +6,8 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { respondToInviteApi } from '../../api/team.api';
+import { respondToInviteApi, getMyInvitesApi } from '../../api/team.api';
+import { getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
 import { toast } from 'react-toastify';
 
 export default function ParticipantDashboard() {
@@ -15,17 +16,13 @@ export default function ParticipantDashboard() {
   const [teamInvites, setTeamInvites] = useState([]);
 
   useEffect(() => {
-    // Mock data for registered hackathons
-    setRegisteredHackathons([
-      { id: 1, title: 'Global AI Hackathon 2024', status: 'Active', role: 'Team Leader', teamName: 'Neural Knights' },
-      { id: 2, title: 'Web3 Innovators', status: 'Upcoming', role: 'Solo Participant' }
-    ]);
-
-    // Mock data for team invites
-    setTeamInvites([
-      { id: 'inv1', teamName: 'Code Wizards', hackathon: 'Global AI Hackathon 2024', inviter: 'John Doe' },
-      { id: 'inv2', teamName: 'Byte Me', hackathon: 'Hack for Good', inviter: 'Alice Smith' }
-    ]);
+    getMyRegisteredHackathonsApi()
+      .then(data => setRegisteredHackathons(data || []))
+      .catch(() => setRegisteredHackathons([]));
+      
+    getMyInvitesApi()
+      .then(data => setTeamInvites(data?.data || data || []))
+      .catch(() => setTeamInvites([]));
   }, []);
 
   const handleAcceptInvite = async (id) => {

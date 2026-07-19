@@ -64,18 +64,16 @@ export default function ManageHackathon() {
     setLoading(true);
     setMessage('');
     try {
+      const payload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+          payload.append(key, formData[key]);
+        }
+      });
+
       if (typeof createHackathonApi === 'function') {
-        await createHackathonApi({ 
-          title: formData.title, 
-          description: formData.description,
-          location: formData.location,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          maxTeamSize: formData.maxTeamSize,
-          prizePool: formData.prizePool,
-          theme: formData.theme,
-          status: formData.status
-        });
+        // If we implement update in the future, we could check formData.id here
+        await createHackathonApi(payload);
       }
       setMessage('Hackathon details saved successfully!');
       setTimeout(() => {
