@@ -16,8 +16,8 @@ export const respondToInviteApi = async (respondData) => {
 };
 
 export const getMyTeamApi = async () => {
-  const response = await API.get('/teams/mine');
-  return response.data;
+  const response = await API.get('/teams/my-team');
+  return response.data?.data ?? response.data;
 };
 
 export const joinTeamApi = async (code) => {
