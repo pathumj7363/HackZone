@@ -60,7 +60,7 @@ After checking the current repository state, none of these participant-specific 
 - [x] **Task 22:** Connect `getHackathonsApi` to `API.get('/hackathons')`.
   - **Commit:** `feat(api): connect getHackathons to real endpoint`
 - [x] **Task 23:** Connect `getHackathonDetailApi` to `API.get('/hackathons/${id}')`.
-  - **Commit:** `feat(api): connect getHackathonDetail to real endpoint`
+  - **Commit:** `feat(api): implement getHackathonDetailApi`
 - [ ] **Task 24:** Remove mock delay and logic in `getMyTeamApi` in `team.api.js`.
   - **Commit:** `refactor(api): clean up team API mocks`
 - [ ] **Task 25:** Connect `getMyTeamApi` to `API.get('/teams/my-team')`.
