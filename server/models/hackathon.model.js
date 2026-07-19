@@ -19,9 +19,23 @@ import pool from '../database/db.js';
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
+    const createRegistrationsQuery = `
+      CREATE TABLE IF NOT EXISTS hackathon_registrations (
+        id VARCHAR(255) PRIMARY KEY,
+        userId VARCHAR(255) NOT NULL,
+        hackathonId VARCHAR(255) NOT NULL,
+        teamId VARCHAR(255),
+        regType VARCHAR(50) DEFAULT 'solo',
+        role VARCHAR(100),
+        experienceLevel VARCHAR(100),
+        githubUrl VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
     await pool.query(createTableQuery);
+    await pool.query(createRegistrationsQuery);
   } catch (err) {
-    console.error("Error creating hackathons table:", err);
+    console.error("Error creating hackathons tables:", err);
   }
 
   const queries = [
@@ -158,6 +172,44 @@ export const getHackathonsByOrganizerId = async (organizerId) => {
     throw error;
   }
 };
+
+/**
+ * Register a user/team for a hackathon.
+ */
+export const registerForHackathon = async (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl) => {
+  const query = `
+    INSERT INTO hackathon_registrations (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  await pool.query(query, [id, userId, hackathonId, teamId || null, regType || 'solo', role || null, experienceLevel || null, githubUrl || null]);
+  return { id, userId, hackathonId, teamId, regType };
+};
+
+/**
+ * Get all hackathons a user is registered for.
+ */
+export const getRegisteredHackathonsByUserId = async (userId) => {
+  try {
+    const query = `
+      SELECT h.*, r.regType, r.teamId 
+      FROM hackathons h
+      JOIN hackathon_registrations r ON h.id = r.hackathonId
+      WHERE r.userId = ?
+      ORDER BY r.created_at DESC
+    `;
+    const [rows] = await pool.query(query, [userId]);
+    return rows.map(hackathon => {
+      if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
+      if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
+      if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
+      return hackathon;
+    });
+  } catch (error) {
+    console.error('Error fetching registered hackathons:', error);
+    throw error;
+  }
+};
+
 
 /**
  * Update an existing hackathon.

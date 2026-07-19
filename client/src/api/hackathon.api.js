@@ -26,3 +26,8 @@ export const registerHackathonApi = async (data) => {
   const response = await api.post('/hackathons/register', data);
   return response.data?.data ?? response.data;
 };
+
+export const getMyRegisteredHackathonsApi = async () => {
+  const response = await api.get('/hackathons/participant/registered');
+  return response.data?.data ?? response.data;
+};

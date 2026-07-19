@@ -1,5 +1,27 @@
 import pool from '../database/db.js';
 
+// Auto-migrate tables
+(async () => {
+  try {
+    const createSubmissionsQuery = `
+      CREATE TABLE IF NOT EXISTS submissions (
+        id VARCHAR(255) PRIMARY KEY,
+        teamId VARCHAR(255) NOT NULL,
+        hackathonId VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        githubRepo VARCHAR(255),
+        demoVideoUrl VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    await pool.query(createSubmissionsQuery);
+    console.log("✅ Verified submissions table");
+  } catch (err) {
+    console.error("Error creating submissions table:", err);
+  }
+})();
+
 /**
  * Create a new submission
  */

@@ -1,5 +1,45 @@
 import pool from '../database/db.js';
 
+// Auto-migrate tables
+(async () => {
+  try {
+    const createTeamsQuery = `
+      CREATE TABLE IF NOT EXISTS teams (
+        id VARCHAR(255) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        leaderId VARCHAR(255) NOT NULL,
+        hackathonId VARCHAR(255) NOT NULL,
+        maxCapacity INT DEFAULT 4,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    const createTeamMembersQuery = `
+      CREATE TABLE IF NOT EXISTS team_members (
+        teamId VARCHAR(255) NOT NULL,
+        userId VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'member',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (teamId, userId)
+      )
+    `;
+    const createTeamInvitesQuery = `
+      CREATE TABLE IF NOT EXISTS team_invites (
+        id VARCHAR(255) PRIMARY KEY,
+        teamId VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    await pool.query(createTeamsQuery);
+    await pool.query(createTeamMembersQuery);
+    await pool.query(createTeamInvitesQuery);
+    console.log("✅ Verified teams tables");
+  } catch (err) {
+    console.error("Error creating teams tables:", err);
+  }
+})();
+
 /**
  * Create a new team
  */
@@ -108,7 +148,17 @@ export const getTeamByUserId = async (userId) => {
 };
 
 export const getPendingInvitesByEmail = async (email) => {
-  const query = `SELECT * FROM team_invites WHERE email = ? AND status = 'pending'`;
+  const query = `
+    SELECT ti.id, ti.teamId, ti.email, ti.status, ti.created_at,
+           t.name as teamName,
+           h.title as hackathon,
+           u.name as inviter
+    FROM team_invites ti
+    JOIN teams t ON ti.teamId = t.id
+    JOIN hackathons h ON t.hackathonId = h.id
+    LEFT JOIN users u ON t.leaderId = u.id
+    WHERE ti.email = ? AND ti.status = 'pending'
+  `;
   const [rows] = await pool.query(query, [email]);
   return rows;
 };

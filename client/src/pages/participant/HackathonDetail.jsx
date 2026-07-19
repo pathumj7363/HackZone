@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getHackathonDetailApi, registerHackathonApi } from '../../api/hackathon.api';
 import { getMyTeamApi } from '../../api/team.api';
 import Card from '../../components/ui/Card';
@@ -17,26 +17,25 @@ const TimelineDot = ({ color }) => (
 
 export default function HackathonDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Overview');
   const [showModal, setShowModal] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [myTeam, setMyTeam] = useState(null);
   const [regType, setRegType] = useState('solo'); // 'solo' or 'team'
+  const [role, setRole] = useState('Developer');
+  const [experienceLevel, setExperienceLevel] = useState('Intermediate');
+  const [githubUrl, setGithubUrl] = useState('');
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
-    // We fetch data, but for this specific design match, we'll override it with
-    // the reference data if it's the default mock or just use the reference data directly
-    // to match the image exactly.
     getHackathonDetailApi(id).then(data => {
       setHackathon(data);
       setLoading(false);
-    }).catch(() => {
-      // Fallback
-      setHackathon({ id, title: 'AI Innovation Challenge 2026' });
+    }).catch((err) => {
+      console.error("Failed to fetch hackathon detail:", err);
       setLoading(false);
     });
     
@@ -46,13 +45,20 @@ export default function HackathonDetail() {
   const handleRegister = async () => {
     setRegistering(true);
     try {
-      const payload = { hackathonId: id };
+      const payload = { 
+        hackathonId: id,
+        regType,
+        role,
+        experienceLevel,
+        githubUrl
+      };
       if (regType === 'team' && myTeam) {
         payload.teamId = myTeam.id;
       }
       await registerHackathonApi(payload);
       toast.success('Successfully registered for the hackathon!');
       setShowModal(false);
+      navigate('/dashboard'); // Go to participant dashboard
     } catch (err) {
       toast.error('Failed to register. Please try again.');
     } finally {
@@ -80,12 +86,51 @@ export default function HackathonDetail() {
     );
   }
 
-  // Use exact data from the reference image for the perfect match
-  const title = "AI Innovation Challenge 2026";
-  const dateRange = "Nov 15 - Nov 30, 2026";
-  const organizer = "AI Frontiers";
+  const title = hackathon.title || "Untitled Hackathon";
+  const dateRange = hackathon.dateRange || "";
+  const organizer = "Organizer"; // Add organizer name fetch later if needed
+  const image = hackathon.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
+  const displayStatus = hackathon.status || "COMING SOON";
+  const description = hackathon.description || "No description provided.";
+  const location = hackathon.location || "TBA";
+  const theme = hackathon.theme || "Open Ended";
+  const prizePool = hackathon.prizePool || "TBA";
+  const participantCount = hackathon.participants || "0 teams";
 
-  const TABS = ['Overview', 'Timeline', 'Prizes', 'Sponsors', 'Participants'];
+  // Dynamic Rules
+  let rules = ["All code must be original.", "Projects must align with the theme.", "A demonstration is required for submission."];
+  if (hackathon.rules && typeof hackathon.rules === 'string') {
+    rules = hackathon.rules.split('\n').filter(r => r.trim() !== '');
+  } else if (Array.isArray(hackathon.rules)) {
+    rules = hackathon.rules;
+  }
+
+  // Dynamic Prizes
+  let prizesList = hackathon.prizes && Array.isArray(hackathon.prizes) && hackathon.prizes.length > 0 
+    ? hackathon.prizes 
+    : [
+        { place: 'Grand Prize Pool', amount: prizePool, icon: '🏆', color: '#fef3c7', iconColor: '#d97706', desc: 'Total prize distribution' }
+      ];
+
+  // Dynamic Milestones
+  const startObj = new Date(hackathon.startDate || Date.now());
+  const endObj = new Date(hackathon.endDate || Date.now());
+  const winnersObj = new Date(endObj.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days after end
+  
+  const formatDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' • ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit' });
+
+  const milestones = [
+    { title: 'Registration & Hacking Begins', date: formatDate(startObj), color: '#10b981' },
+    { title: 'Submission Deadline', date: formatDate(endObj), color: '#3b82f6' },
+    { title: 'Winners Announced', date: formatDate(winnersObj), color: '#cbd5e1' },
+  ];
+
+  // Dynamic Checklist
+  const checklist = [
+    { label: 'Register for Event', status: 'Done', done: true },
+    { label: 'Team Formation', status: `By ${startObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, color: '#ef4444' },
+    { label: 'Final Submission', status: endObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
+  ];
 
   return (
     <div className="hz-page" style={{ padding: 0, paddingBottom: '4rem' }}>
@@ -96,7 +141,7 @@ export default function HackathonDetail() {
         width: '100%',
         height: '340px',
         background: '#0f172a',
-        backgroundImage: 'url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80")',
+        backgroundImage: `url("${image}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
@@ -122,7 +167,7 @@ export default function HackathonDetail() {
               fontSize: '11px', fontWeight: 'var(--hz-font-weight-bold)'
             }}>
               <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
-              Active
+              {displayStatus}
             </span>
             <span style={{
               display: 'flex', alignItems: 'center', gap: '0.4rem',
@@ -167,34 +212,6 @@ export default function HackathonDetail() {
         </div>
       </div>
 
-      {/* ── Tabs Navigation ───────────────────────────────────────────────────── */}
-      <div style={{ background: 'var(--hz-bg)', borderBottom: '1px solid var(--hz-border)', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div className="hz-container">
-          <div style={{ display: 'flex', gap: '2rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
-            {TABS.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: activeTab === tab ? '2px solid var(--hz-primary)' : '2px solid transparent',
-                  padding: '1.25rem 0',
-                  fontSize: 'var(--hz-font-size-sm)',
-                  fontWeight: activeTab === tab ? 'var(--hz-font-weight-bold)' : 'var(--hz-font-weight-medium)',
-                  color: activeTab === tab ? 'var(--hz-primary)' : 'var(--hz-text-secondary)',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s'
-                }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <div className="hz-container" style={{ marginTop: '2rem' }}>
         <div className="row g-4">
 
@@ -202,13 +219,14 @@ export default function HackathonDetail() {
           <div className="col-12 col-lg-8">
             <Card padding style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1rem' }}>
-                Redefining Intelligence
+                About this Hackathon
               </h2>
-              <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                Welcome to the <strong>AI Innovation Challenge 2026</strong>. We are at a pivotal moment in history where generative models are moving beyond simple text and image synthesis into high-stakes reasoning, autonomous agentic behavior, and scientific discovery. This hackathon is designed for the visionaries who see the potential for AI to solve humanity's most complex problems.
-              </p>
-              <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6', marginBottom: '2rem' }}>
-                Whether you are building LLM-based assistants, revolutionary multimodal interfaces, or specialized vertical AI for medicine and climate science, this stage is yours. Join over 500 developers worldwide in a 15-day sprint of pure creation.
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                <span className="hz-badge hz-badge--info">📍 {location}</span>
+                <span className="hz-badge hz-badge--warning">💡 {theme}</span>
+              </div>
+              <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.6', marginBottom: '2rem', whiteSpace: 'pre-wrap' }}>
+                {description}
               </p>
 
               <hr style={{ border: 'none', borderTop: '1px solid var(--hz-border)', margin: '0 0 1.5rem' }} />
@@ -218,12 +236,7 @@ export default function HackathonDetail() {
               </h3>
 
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {[
-                  "Teams must consist of 1 to 4 members. Cross-disciplinary teams are highly encouraged.",
-                  "All code must be original or built upon clearly credited open-source frameworks.",
-                  "Projects must utilize at least one generative AI API or local model as a core component.",
-                  "A 3-minute video demonstration and a public repository are required for submission."
-                ].map((rule, i) => (
+                {rules.map((rule, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                     <div style={{ flexShrink: 0, color: 'var(--hz-primary)', marginTop: '2px' }}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -232,7 +245,7 @@ export default function HackathonDetail() {
                       </svg>
                     </div>
                     <span style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.5' }}>
-                      {rule}
+                      {rule.text || rule}
                     </span>
                   </li>
                 ))}
@@ -241,11 +254,7 @@ export default function HackathonDetail() {
 
             {/* Prizes */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              {[
-                { place: '1st Place', amount: '$10,000', icon: '🏆', color: '#fef3c7', iconColor: '#d97706', desc: 'Plus Cloud Credits & Mentorship' },
-                { place: '2nd Place', amount: '$5,000', icon: '🥈', color: '#f1f5f9', iconColor: '#475569', desc: 'Plus Hardware Discounts' },
-                { place: '3rd Place', amount: '$2,500', icon: '🥉', color: '#ffedd5', iconColor: '#c2410c', desc: 'Plus Community Swag' }
-              ].map((prize, i) => (
+              {prizesList.map((prize, i) => (
                 <Card key={i} padding style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div style={{
                     width: '48px', height: '48px', borderRadius: '50%',
@@ -279,12 +288,7 @@ export default function HackathonDetail() {
                 <div style={{ position: 'absolute', left: '16px', top: '8px', bottom: '8px', width: '2px', background: 'var(--hz-border)' }} />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {[
-                    { title: 'Registration Opens', date: 'Oct 20, 2026 • 9:00 AM EST', color: '#10b981' },
-                    { title: 'Opening Ceremony', date: 'Nov 15, 2026 • 12:00 PM EST', color: '#3b82f6' },
-                    { title: 'Submission Deadline', date: 'Nov 30, 2026 • 11:59 PM EST', color: '#cbd5e1' },
-                    { title: 'Winners Announced', date: 'Dec 05, 2026 • 5:00 PM EST', color: '#cbd5e1' },
-                  ].map((milestone, i) => (
+                  {milestones.map((milestone, i) => (
                     <div key={i} style={{ display: 'flex', gap: '1.25rem', position: 'relative' }}>
                       <div style={{ marginTop: '4px' }}>
                         <TimelineDot color={milestone.color} />
@@ -326,7 +330,7 @@ export default function HackathonDetail() {
               </Link>
 
               <p style={{ fontSize: '11px', color: 'var(--hz-text-muted)', margin: 0 }}>
-                Join 428 hackers already registered
+                {participantCount} registered
               </p>
             </Card>
 
@@ -336,12 +340,7 @@ export default function HackathonDetail() {
                 Deadline Checklist
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {[
-                  { label: 'Join Discord', status: 'Done', done: true },
-                  { label: 'Team Formation', status: '2 days left', color: '#ef4444' },
-                  { label: 'Project Draft', status: 'Nov 22' },
-                  { label: 'Final Video Pitch', status: 'Nov 30' }
-                ].map((item, i) => (
+                {checklist.map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       {item.done ? (
@@ -385,15 +384,15 @@ export default function HackathonDetail() {
                 </div>
                 <div>
                   <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>
-                    AI Frontiers
+                    {organizer}
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--hz-text-muted)' }}>
-                    San Francisco, CA
+                    Platform Organizer
                   </div>
                 </div>
               </div>
               <p style={{ fontSize: '11px', color: 'var(--hz-text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                AI Frontiers is a global collective dedicated to democratizing access to high-performance compute and neural research.
+                Hosted on the HackZone Platform. Contact organizers through the official Discord server.
               </p>
             </div>
 
@@ -420,7 +419,7 @@ export default function HackathonDetail() {
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>
                 Registration Type
               </label>
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                   <input type="radio" name="regType" value="solo" checked={regType === 'solo'} onChange={() => setRegType('solo')} />
                   Solo Participant
@@ -432,20 +431,45 @@ export default function HackathonDetail() {
               </div>
             </div>
 
-            {regType === 'team' && (
-              <div className="hz-mb-6">
-                {myTeam ? (
-                  <div style={{ padding: '1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
-                    <p style={{ margin: 0, fontWeight: 'var(--hz-font-weight-bold)' }}>{myTeam.name}</p>
-                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--hz-text-muted)' }}>{myTeam.members?.length || 0} Members</p>
-                  </div>
-                ) : (
-                  <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: 'var(--hz-radius-sm)' }}>
-                    You are not in a team. Please create or join a team first, or register as a solo participant.
-                  </div>
-                )}
+              {regType === 'team' && (
+                <div className="hz-mb-4">
+                  {myTeam ? (
+                    <div style={{ padding: '1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
+                      <p style={{ margin: 0, fontWeight: 'var(--hz-font-weight-bold)' }}>{myTeam.name}</p>
+                      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--hz-text-muted)' }}>{myTeam.members?.length || 0} Members</p>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: 'var(--hz-radius-sm)' }}>
+                      You are not in a team. Please create or join a team first, or register as a solo participant.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Your Role</label>
+                <select className="hz-input" value={role} onChange={(e) => setRole(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)' }}>
+                  <option value="Developer">Developer</option>
+                  <option value="Designer">Designer</option>
+                  <option value="Product Manager">Product Manager</option>
+                  <option value="Data Scientist">Data Scientist</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
-            )}
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>Experience Level</label>
+                <select className="hz-input" value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)' }}>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>GitHub / Portfolio URL</label>
+                <input type="url" className="hz-input" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/yourusername" style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }} />
+              </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
               <Button variant="outline" onClick={() => setShowModal(false)} disabled={registering}>

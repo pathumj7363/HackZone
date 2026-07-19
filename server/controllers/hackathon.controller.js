@@ -4,6 +4,8 @@ import {
   getHackathonById,
   updateHackathon as updateHackathonModel,
   getHackathonsByOrganizerId,
+  registerForHackathon,
+  getRegisteredHackathonsByUserId
 } from '../models/hackathon.model.js';
 import crypto from 'crypto';
 
@@ -95,16 +97,48 @@ export const getHackathonDetail = async (req, res) => {
 export const registerHackathon = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { hackathonId, teamId } = req.body;
+    const { hackathonId, teamId, regType, role, experienceLevel, githubUrl } = req.body;
 
-    if (!hackathonId || !teamId) {
-      return res.status(400).json({ error: 'hackathonId and teamId are required' });
+    if (!hackathonId) {
+      return res.status(400).json({ error: 'hackathonId is required' });
+    }
+    
+    if (regType === 'team' && !teamId) {
+      return res.status(400).json({ error: 'teamId is required for team registration' });
     }
 
-    // TODO: persist registration to DB when table is ready
-    return res.status(200).json({ message: 'Successfully registered for hackathon' });
+    const registrationId = crypto.randomUUID();
+    
+    await registerForHackathon(
+      registrationId,
+      userId,
+      hackathonId,
+      teamId,
+      regType,
+      role,
+      experienceLevel,
+      githubUrl
+    );
+
+    return res.status(200).json({ message: 'Successfully registered for hackathon', data: { id: registrationId } });
   } catch (error) {
     console.error('[registerHackathon] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /hackathons/registered
+ * Get all hackathons a user is registered for.
+ */
+export const getMyRegisteredHackathons = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const hackathons = await getRegisteredHackathonsByUserId(userId);
+    const formatted = hackathons.map(formatHackathonForClient);
+    return res.status(200).json({ data: formatted });
+  } catch (error) {
+    console.error('[getMyRegisteredHackathons] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -115,7 +149,12 @@ export const registerHackathon = async (req, res) => {
  */
 export const createHackathon = async (req, res) => {
   try {
-    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status, location, theme, maxTeamSize, prizePool, image } = req.body;
+    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status, location, theme, maxTeamSize, prizePool } = req.body;
+    
+    let image = req.body.image;
+    if (req.file) {
+      image = `http://localhost:5000/uploads/${req.file.filename}`;
+    }
 
     if (!title || typeof title !== 'string' || title.trim() === '') {
       return res.status(400).json({ error: 'Valid title is required' });
@@ -132,13 +171,22 @@ export const createHackathon = async (req, res) => {
     if (new Date(startDate) >= new Date(endDate)) {
       return res.status(400).json({ error: 'endDate must be after startDate' });
     }
-    if (prizes && !Array.isArray(prizes)) {
+    
+    // Parse JSON fields if they are sent as strings from FormData
+    let parsedPrizes = prizes;
+    let parsedSponsors = sponsors;
+    let parsedJudges = judges;
+    try { if (typeof prizes === 'string') parsedPrizes = JSON.parse(prizes); } catch(e){}
+    try { if (typeof sponsors === 'string') parsedSponsors = JSON.parse(sponsors); } catch(e){}
+    try { if (typeof judges === 'string') parsedJudges = JSON.parse(judges); } catch(e){}
+
+    if (parsedPrizes && !Array.isArray(parsedPrizes)) {
       return res.status(400).json({ error: 'prizes must be an array' });
     }
-    if (sponsors && !Array.isArray(sponsors)) {
+    if (parsedSponsors && !Array.isArray(parsedSponsors)) {
       return res.status(400).json({ error: 'sponsors must be an array' });
     }
-    if (judges && !Array.isArray(judges)) {
+    if (parsedJudges && !Array.isArray(parsedJudges)) {
       return res.status(400).json({ error: 'judges must be an array' });
     }
 
@@ -152,9 +200,9 @@ export const createHackathon = async (req, res) => {
       startDate,
       endDate,
       rules,
-      prizes,
-      sponsors,
-      judges,
+      prizes: parsedPrizes,
+      sponsors: parsedSponsors,
+      judges: parsedJudges,
       organizerId,
       status,
       location,
@@ -178,7 +226,11 @@ export const createHackathon = async (req, res) => {
 export const updateHackathon = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
+    
+    if (req.file) {
+      updateData.image = `http://localhost:5000/uploads/${req.file.filename}`;
+    }
 
     if (!id) {
       return res.status(400).json({ error: 'Hackathon ID is required' });
