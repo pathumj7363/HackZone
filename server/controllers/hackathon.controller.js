@@ -7,6 +7,34 @@ import {
 } from '../models/hackathon.model.js';
 import crypto from 'crypto';
 
+const formatHackathonForClient = (h) => {
+  const start = new Date(h.startDate);
+  const end = new Date(h.endDate);
+  const now = new Date();
+  
+  let displayStatus = 'COMING SOON';
+  if (h.status === 'completed' || now > end) {
+    displayStatus = 'ENDED';
+  } else if (now >= start && now <= end) {
+    displayStatus = 'IN PROGRESS';
+  } else {
+    displayStatus = 'REGISTERING';
+  }
+  
+  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  
+  return {
+    ...h,
+    status: displayStatus,
+    dbStatus: h.status,
+    dateRange: `${startStr} - ${endStr}`,
+    participants: h.participants || '0 teams',
+    avatarCount: h.avatarCount || '+0',
+    image: h.image || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  };
+};
+
 /**
  * GET /hackathons
  * Returns all hackathons. Participants see only published ones.
@@ -26,7 +54,9 @@ export const getHackathons = async (req, res) => {
       ? all
       : all.filter((h) => h.status === 'published');
 
-    return res.status(200).json({ data: hackathons });
+    const formatted = hackathons.map(formatHackathonForClient);
+
+    return res.status(200).json({ data: formatted });
   } catch (error) {
     console.error('[getHackathons] Error fetching hackathons:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -51,7 +81,7 @@ export const getHackathonDetail = async (req, res) => {
       return res.status(404).json({ error: 'Hackathon not found' });
     }
 
-    return res.status(200).json({ data: hackathon });
+    return res.status(200).json({ data: formatHackathonForClient(hackathon) });
   } catch (error) {
     console.error('[getHackathonDetail] Error fetching hackathon:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -85,7 +115,7 @@ export const registerHackathon = async (req, res) => {
  */
 export const createHackathon = async (req, res) => {
   try {
-    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status } = req.body;
+    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status, location, theme, maxTeamSize, prizePool, image } = req.body;
 
     if (!title || typeof title !== 'string' || title.trim() === '') {
       return res.status(400).json({ error: 'Valid title is required' });
@@ -127,6 +157,11 @@ export const createHackathon = async (req, res) => {
       judges,
       organizerId,
       status,
+      location,
+      theme,
+      maxTeamSize,
+      prizePool,
+      image
     });
 
     return res.status(201).json({ message: 'Hackathon created', data: hackathon });
@@ -188,7 +223,9 @@ export const getMyHackathons = async (req, res) => {
 
     const hackathons = await getHackathonsByOrganizerId(organizerId);
 
-    return res.status(200).json({ data: hackathons });
+    const formatted = hackathons.map(formatHackathonForClient);
+
+    return res.status(200).json({ data: formatted });
   } catch (error) {
     console.error('[getMyHackathons] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
