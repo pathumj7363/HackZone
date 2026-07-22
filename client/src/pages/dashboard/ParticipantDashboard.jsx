@@ -148,6 +148,83 @@ export default function ParticipantDashboard() {
           </div>
         </div>
 
+        {/* Quick Team Management Actions */}
+        <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+          <h3 className="hz-heading-3 hz-mb-4">Team Management</h3>
+          <div className="row g-3">
+            <div className="col-12 col-md-4">
+              <Card padding="1.5rem" style={{ transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.12)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <line x1="19" y1="8" x2="19" y2="14"></line>
+                      <line x1="22" y1="11" x2="16" y2="11"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--hz-text)' }}>Create a Team</h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>Generate unique code & invite allies</p>
+                  </div>
+                </div>
+                <Link to="/teams/create" style={{ textDecoration: 'none' }}>
+                  <Button variant="primary" style={{ width: '100%', borderRadius: '8px' }}>
+                    Create Team
+                  </Button>
+                </Link>
+              </Card>
+            </div>
+
+            <div className="col-12 col-md-4">
+              <Card padding="1.5rem" style={{ transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--hz-text)' }}>Join a Team</h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>Search open teams or enter code</p>
+                  </div>
+                </div>
+                <Link to="/teams/join" style={{ textDecoration: 'none' }}>
+                  <Button variant="outline" style={{ width: '100%', borderRadius: '8px' }}>
+                    Browse & Join
+                  </Button>
+                </Link>
+              </Card>
+            </div>
+
+            <div className="col-12 col-md-4">
+              <Card padding="1.5rem" style={{ transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--hz-text)' }}>My Workspace</h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>Manage members & project tasks</p>
+                  </div>
+                </div>
+                <Link to="/teams/dashboard" style={{ textDecoration: 'none' }}>
+                  <Button variant="outline" style={{ width: '100%', borderRadius: '8px' }}>
+                    View Workspace
+                  </Button>
+                </Link>
+              </Card>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Links / CTA */}
         <div style={{ marginTop: '1.5rem' }}>
           <Card padding="0" style={{ 

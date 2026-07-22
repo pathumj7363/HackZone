@@ -34,3 +34,19 @@ export const getAllTeamsApi = async () => {
   const response = await API.get('/teams');
   return response.data;
 };
+
+export const getSentInvitesApi = async (teamId) => {
+  const response = await API.get(`/teams/${teamId}/invites`);
+  return response.data;
+};
+
+export const updateTeamGithubApi = async (teamId, githubRepo) => {
+  const response = await API.put(`/teams/${teamId}/github`, { githubRepo });
+  return response.data;
+};
+
+export const leaveTeamApi = async () => {
+  const response = await API.post('/teams/leave');
+  return response.data;
+};
+
