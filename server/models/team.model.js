@@ -8,8 +8,11 @@ import pool from '../database/db.js';
         id VARCHAR(255) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         leaderId VARCHAR(255) NOT NULL,
-        hackathonId VARCHAR(255) NOT NULL,
+        hackathonId VARCHAR(255),
         maxCapacity INT DEFAULT 4,
+        inviteCode VARCHAR(255) UNIQUE,
+        description TEXT,
+        isPublic TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -34,7 +37,23 @@ import pool from '../database/db.js';
     await pool.query(createTeamsQuery);
     await pool.query(createTeamMembersQuery);
     await pool.query(createTeamInvitesQuery);
-    console.log("✅ Verified teams tables");
+
+    // Auto-migrate new columns for existing installations
+    const alterQueries = [
+      "ALTER TABLE teams ADD COLUMN inviteCode VARCHAR(255) UNIQUE;",
+      "ALTER TABLE teams ADD COLUMN description TEXT;",
+      "ALTER TABLE teams ADD COLUMN isPublic TINYINT(1) DEFAULT 1;",
+      "ALTER TABLE teams MODIFY COLUMN hackathonId VARCHAR(255) NULL;"
+    ];
+    for (let q of alterQueries) {
+      try {
+        await pool.query(q);
+      } catch (e) {
+        // Column may already exist or hackathonId already nullable
+      }
+    }
+
+    console.log("✅ Verified teams tables and schema columns");
   } catch (err) {
     console.error("Error creating teams tables:", err);
   }
@@ -43,17 +62,18 @@ import pool from '../database/db.js';
 /**
  * Create a new team
  */
-export const createTeam = async (id, name, leaderId, hackathonId, maxCapacity = 4) => {
+export const createTeam = async (id, name, leaderId, hackathonId = null, maxCapacity = 4, inviteCode = null, description = '', isPublic = true) => {
+  const finalHackathonId = hackathonId && hackathonId.trim() !== '' ? hackathonId : 'general';
   const query = `
-    INSERT INTO teams (id, name, leaderId, hackathonId, maxCapacity)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO teams (id, name, leaderId, hackathonId, maxCapacity, inviteCode, description, isPublic)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
-  await pool.query(query, [id, name, leaderId, hackathonId, maxCapacity]);
-  
+  await pool.query(query, [id, name, leaderId, finalHackathonId, maxCapacity, inviteCode, description, isPublic ? 1 : 0]);
+
   // Also add the leader as a member
   await addTeamMember(id, leaderId, 'leader');
-  
-  return { id, name, leaderId, hackathonId, maxCapacity };
+
+  return { id, name, leaderId, hackathonId: finalHackathonId, maxCapacity, inviteCode, description, isPublic };
 };
 
 /**
@@ -118,19 +138,28 @@ export const getMyTeam = async (userId) => {
     WHERE tm.teamId = ?
   `;
   const [memberRows] = await pool.query(memberQuery, [team.id]);
-  team.members = memberRows.map(m => m.name || m.email); 
+  team.members = memberRows.map(m => m.name || m.email);
   return team;
 };
 
 export const getAllTeams = async () => {
-  const query = `SELECT * FROM teams ORDER BY created_at DESC`;
+  const query = `
+    SELECT t.*, 
+           COUNT(tm.userId) as membersCount,
+           u.name as leaderName
+    FROM teams t
+    LEFT JOIN team_members tm ON t.id = tm.teamId
+    LEFT JOIN users u ON t.leaderId = u.id
+    GROUP BY t.id
+    ORDER BY t.created_at DESC
+  `;
   const [rows] = await pool.query(query);
   return rows;
 };
 
 export const joinTeam = async (code, userId) => {
-  const query = `SELECT id FROM teams WHERE name = ? OR id = ? LIMIT 1`;
-  const [rows] = await pool.query(query, [code, code]);
+  const query = `SELECT id FROM teams WHERE inviteCode = ? OR name = ? OR id = ? LIMIT 1`;
+  const [rows] = await pool.query(query, [code, code, code]);
   if (!rows.length) throw new Error('Invalid team code');
   await addTeamMember(rows[0].id, userId, 'member');
   return true;
@@ -160,5 +189,16 @@ export const getPendingInvitesByEmail = async (email) => {
     WHERE ti.email = ? AND ti.status = 'pending'
   `;
   const [rows] = await pool.query(query, [email]);
+  return rows;
+};
+
+export const getInvitesByTeamId = async (teamId) => {
+  const query = `
+    SELECT id, teamId, email, status, created_at
+    FROM team_invites
+    WHERE teamId = ?
+    ORDER BY created_at DESC
+  `;
+  const [rows] = await pool.query(query, [teamId]);
   return rows;
 };

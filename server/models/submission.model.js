@@ -65,9 +65,10 @@ export const getSubmissionsByTeamId = async (teamId) => {
 
 export const getMySubmissions = async (userId) => {
   const query = `
-    SELECT s.*, t.name as teamName FROM submissions s
+    SELECT s.*, t.name as teamName, h.title as hackathonName FROM submissions s
     JOIN team_members tm ON s.teamId = tm.teamId
     JOIN teams t ON t.id = s.teamId
+    LEFT JOIN hackathons h ON s.hackathonId = h.id
     WHERE tm.userId = ?
   `;
   const [rows] = await pool.query(query, [userId]);
