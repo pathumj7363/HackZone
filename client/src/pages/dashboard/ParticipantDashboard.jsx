@@ -6,7 +6,7 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { respondToInviteApi } from '../../api/team.api';
+import { getMyInvitesApi, respondToInviteApi } from '../../api/team.api';
 import { toast } from 'react-toastify';
 
 export default function ParticipantDashboard() {
@@ -21,11 +21,16 @@ export default function ParticipantDashboard() {
       { id: 2, title: 'Web3 Innovators', status: 'Upcoming', role: 'Solo Participant' }
     ]);
 
-    // Mock data for team invites
-    setTeamInvites([
-      { id: 'inv1', teamName: 'Code Wizards', hackathon: 'Global AI Hackathon 2024', inviter: 'John Doe' },
-      { id: 'inv2', teamName: 'Byte Me', hackathon: 'Hack for Good', inviter: 'Alice Smith' }
-    ]);
+    // Fetch real pending team invites
+    getMyInvitesApi()
+      .then(res => {
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setTeamInvites(list);
+      })
+      .catch(err => {
+        console.error('[ParticipantDashboard] Error fetching invites:', err);
+        setTeamInvites([]);
+      });
   }, []);
 
   const handleAcceptInvite = async (id) => {
@@ -91,13 +96,22 @@ export default function ParticipantDashboard() {
               ) : (
                 teamInvites.map(invite => (
                   <Card key={invite.id} padding="1.5rem">
-                    <h4 className="hz-heading-4" style={{ margin: 0, marginBottom: '0.25rem' }}>{invite.teamName}</h4>
+                    <h4 className="hz-heading-4" style={{ margin: 0, marginBottom: '0.25rem' }}>
+                      {invite.teamName || (invite.teamId ? `Team #${invite.teamId.slice(0, 6)}` : 'Team Invite')}
+                    </h4>
                     <p className="hz-text-muted" style={{ fontSize: '0.875rem', margin: 0, marginBottom: '0.25rem' }}>
-                      Hackathon: {invite.hackathon}
+                      Sent to: {invite.email}
                     </p>
-                    <p className="hz-text-muted hz-mb-4" style={{ fontSize: '0.875rem' }}>
-                      Invited by: {invite.inviter}
-                    </p>
+                    {invite.hackathon && (
+                      <p className="hz-text-muted" style={{ fontSize: '0.875rem', margin: 0, marginBottom: '0.25rem' }}>
+                        Hackathon: {invite.hackathon}
+                      </p>
+                    )}
+                    {invite.inviter && (
+                      <p className="hz-text-muted hz-mb-4" style={{ fontSize: '0.875rem' }}>
+                        Invited by: {invite.inviter}
+                      </p>
+                    )}
                     <div className="d-flex gap-2">
                       <Button variant="primary" size="sm" className="flex-grow-1" onClick={() => handleAcceptInvite(invite.id)}>
                         Accept

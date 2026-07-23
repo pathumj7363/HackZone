@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getMyInvitesApi } from '../../api/team.api';
 
 // Mock data for open teams
 const OPEN_TEAMS = [
@@ -11,9 +12,24 @@ const OPEN_TEAMS = [
 
 export default function TeamJoin() {
   const [search, setSearch] = useState('');
+  const [invites, setInvites] = useState([]);
+  const [loadingInvites, setLoadingInvites] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    getMyInvitesApi()
+      .then(res => {
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setInvites(list);
+        setLoadingInvites(false);
+      })
+      .catch(err => {
+        console.error('[TeamJoin] Error fetching invites:', err);
+        setInvites([]);
+        setLoadingInvites(false);
+      });
+  }, []);
 
   const filteredTeams = OPEN_TEAMS.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -34,6 +50,26 @@ export default function TeamJoin() {
           {/* Left Column */}
           <div style={{ flex: '1 1 320px', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
+            {/* Pending Invites Card */}
+            <div className="hz-card hz-card--padding">
+              <h3 className="hz-heading-3" style={{ margin: '0 0 1rem' }}>Pending Invites</h3>
+              {loadingInvites ? (
+                <p className="hz-text-muted" style={{ fontSize: '0.875rem' }}>Loading invites...</p>
+              ) : invites.length === 0 ? (
+                <p className="hz-text-muted" style={{ fontSize: '0.875rem' }}>No pending team invites.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {invites.map(inv => (
+                    <div key={inv.id} style={{ padding: '0.75rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
+                      <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.95rem' }}>
+                        {inv.teamName || (inv.teamId ? `Team #${inv.teamId.slice(0, 6)}` : 'Team Invite')}
+                      </h4>
+                      <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.75rem' }}>Status: {inv.status}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Graphic Card */}
             <div className="hz-card" style={{ 
