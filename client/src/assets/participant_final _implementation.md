@@ -73,7 +73,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `refactor(api): remove submission mock data`
 - [x] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
   - **Commit:** `feat(api): connect getMySubmissions to real endpoint`
-- [ ] **Task 29:** Update Hackathon Dashboard UI to handle real data structure (e.g., missing image URLs).
+- [x] **Task 29:** Update Hackathon Dashboard UI to handle real data structure (e.g., missing image URLs).
   - **Commit:** `feat(pages): integrate real data in Hackathon Dashboard`
 - [ ] **Task 30:** Add loading states/spinners to Hackathon Dashboard while fetching data.
   - **Commit:** `feat(ui): add loading states for hackathon fetching`

@@ -58,6 +58,13 @@ function AvatarStack({ index, extraLabel }) {
 // ── Filter pills ────────────────────────────────────────────────────────────
 const FILTERS = ['All', 'Upcoming', 'Active', 'Ended'];
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
 export default function HackathonList() {
   const [hackathons, setHackathons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -203,7 +210,10 @@ export default function HackathonList() {
               <div className="row g-4">
                 {filtered.map((h, idx) => {
                   const sc = getStatusConfig(h.status);
-                  const hasImgError = imgErrors[h.id];
+                  const hasImgError = imgErrors[h.id] || !h.image;
+                  const displayDateRange = h.dateRange || (h.startDate && h.endDate ? `${formatDate(h.startDate)} - ${formatDate(h.endDate)}` : (formatDate(h.startDate) || 'Date TBA'));
+                  const displayLocation = h.location || 'Virtual';
+                  const displayParticipants = h.participants || '0 Participants';
                   return (
                     <div key={h.id} className="col-12 col-md-6 col-lg-4">
                       <div style={{
@@ -282,7 +292,7 @@ export default function HackathonList() {
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                               </svg>
-                              <span>{h.dateRange}</span>
+                              <span>{displayDateRange}</span>
                             </div>
                             {/* Location */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)', fontSize: 'var(--hz-font-size-sm)' }}>
@@ -290,7 +300,7 @@ export default function HackathonList() {
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                               </svg>
-                              <span>{h.location}</span>
+                              <span>{displayLocation}</span>
                             </div>
                             {/* Participants */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)', fontSize: 'var(--hz-font-size-sm)' }}>
@@ -300,7 +310,7 @@ export default function HackathonList() {
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                               </svg>
-                              <span>{h.participants}</span>
+                              <span>{displayParticipants}</span>
                             </div>
                           </div>
                         </div>
