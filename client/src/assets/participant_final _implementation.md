@@ -79,7 +79,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(ui): add loading states for hackathon fetching`
 
 ## Day 7: Team Management UI
-- [ ] **Task 31:** Remove old "Enter Team Code" UI from team management page.
+- [x] **Task 31:** Remove old "Enter Team Code" UI from team management page.
   - **Commit:** `refactor(pages): remove team code join UI`
 - [ ] **Task 32:** Fetch and display pending email invites using `getMyInvitesApi`.
   - **Commit:** `feat(pages): fetch and display pending team invites`

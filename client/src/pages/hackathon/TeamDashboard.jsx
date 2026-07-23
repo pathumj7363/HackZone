@@ -91,7 +91,7 @@ export default function TeamDashboard() {
               No Team Yet
             </h2>
             <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-sm)', maxWidth: '360px', margin: '0 auto 2rem' }}>
-              Collaborate with others and compete together. Create your team or join one using an invite code.
+              Collaborate with others and compete together. Create your team or browse open teams to join.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/teams/create" style={{ textDecoration: 'none' }}>

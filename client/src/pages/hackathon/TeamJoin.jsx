@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { joinTeamApi } from '../../api/team.api';
 
 // Mock data for open teams
 const OPEN_TEAMS = [
@@ -11,27 +10,10 @@ const OPEN_TEAMS = [
 ];
 
 export default function TeamJoin() {
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
-
-  const handleJoin = async (e) => {
-    e.preventDefault();
-    if (!code.trim()) return;
-    setLoading(true);
-    setError('');
-    try {
-      await joinTeamApi(code);
-      navigate('/teams/dashboard');
-    } catch (err) {
-      setError(err.message || 'Invalid code');
-      setLoading(false);
-    }
-  };
 
   const filteredTeams = OPEN_TEAMS.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -52,47 +34,6 @@ export default function TeamJoin() {
           {/* Left Column */}
           <div style={{ flex: '1 1 320px', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            {/* Invite Code Card */}
-            <div className="hz-card hz-card--padding">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                <div style={{ color: 'var(--hz-primary)', display: 'flex', alignItems: 'center' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"></path>
-                  </svg>
-                </div>
-                <h3 className="hz-heading-3" style={{ margin: 0 }}>Have an invite code?</h3>
-              </div>
-              
-              <form onSubmit={handleJoin}>
-                <input
-                  type="text"
-                  className="hz-input"
-                  placeholder="EX: HZ-2024-X"
-                  value={code}
-                  onChange={e => setCode(e.target.value)}
-                  style={{ marginBottom: '1rem', background: 'var(--hz-surface)', padding: '0.875rem 1rem' }}
-                />
-                {error && <div className="hz-field-error" style={{ marginBottom: '1rem' }}>{error}</div>}
-                
-                <button 
-                  type="submit" 
-                  className="hz-btn hz-btn-primary" 
-                  style={{ width: '100%', marginBottom: '1rem', padding: '0.875rem' }}
-                  disabled={loading || !code.trim()}
-                >
-                  {loading ? 'Joining...' : 'Join Team'}
-                </button>
-              </form>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-muted)', fontSize: '0.75rem' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                Codes are shared by team captains.
-              </div>
-            </div>
 
             {/* Graphic Card */}
             <div className="hz-card" style={{ 
