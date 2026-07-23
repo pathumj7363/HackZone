@@ -29,3 +29,8 @@ export const getAllTeamsApi = async () => {
   const response = await API.get('/teams');
   return response.data;
 };
+
+export const getMyInvitesApi = async () => {
+  const response = await API.get('/teams/my-invites');
+  return response.data;
+};

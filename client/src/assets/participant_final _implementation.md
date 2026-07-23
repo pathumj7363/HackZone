@@ -64,10 +64,10 @@ After checking the current repository state, none of these participant-specific 
 - [x] **Task 24:** Remove mock delay and logic in `getMyTeamApi` in `team.api.js`.
   - **Commit:** `refactor(api): clean up team API mocks`
 - [x] **Task 25:** Connect `getMyTeamApi` to `API.get('/teams/my-team')`.
-  - **Commit:** `feat(api): connect getMyTeam to real endpoint`
+  - **Commit:** `feat(api): Connect getMyTeam to real endpoint`
 
 ## Day 6: Frontend API Setup (Part 2) & Participant UI Setup
-- [ ] **Task 26:** Create `getMyInvitesApi` connecting to `API.get('/teams/my-invites')`.
+- [x] **Task 26:** Create `getMyInvitesApi` connecting to `API.get('/teams/my-invites')`.
   - **Commit:** `feat(api): add getMyInvites API method`
 - [ ] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
   - **Commit:** `refactor(api): remove submission mock data`
