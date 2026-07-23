@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getHackathonsApi } from '../../api/hackathon.api';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 // ── Status config ──────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -195,9 +196,7 @@ export default function HackathonList() {
 
         {/* ── Grid ─────────────────────────────────────────────────────── */}
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
-            <div className="hz-spinner hz-spinner--lg"></div>
-          </div>
+          <LoadingSpinner size="lg" centered label="Loading hackathons..." />
         ) : (
           <>
             {filtered.length === 0 ? (
