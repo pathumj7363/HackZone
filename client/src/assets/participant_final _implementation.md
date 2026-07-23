@@ -71,7 +71,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(api): add getMyInvites API method`
 - [x] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
   - **Commit:** `refactor(api): remove submission mock data`
-- [ ] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
+- [x] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
   - **Commit:** `feat(api): connect getMySubmissions to real endpoint`
 - [ ] **Task 29:** Update Hackathon Dashboard UI to handle real data structure (e.g., missing image URLs).
   - **Commit:** `feat(pages): integrate real data in Hackathon Dashboard`

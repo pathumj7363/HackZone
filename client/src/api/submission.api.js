@@ -6,7 +6,7 @@ export const submitProjectApi = async (submissionData) => {
 };
 
 export const getMySubmissionsApi = async () => {
-  const response = await API.get('/submissions/mine');
+  const response = await API.get('/submissions/my-submissions');
   return response.data;
 };
 
