@@ -69,7 +69,7 @@ After checking the current repository state, none of these participant-specific 
 ## Day 6: Frontend API Setup (Part 2) & Participant UI Setup
 - [x] **Task 26:** Create `getMyInvitesApi` connecting to `API.get('/teams/my-invites')`.
   - **Commit:** `feat(api): add getMyInvites API method`
-- [ ] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
+- [x] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
   - **Commit:** `refactor(api): remove submission mock data`
 - [ ] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
   - **Commit:** `feat(api): connect getMySubmissions to real endpoint`
