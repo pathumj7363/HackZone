@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyInvitesApi } from '../../api/team.api';
+import { getMyInvitesApi, respondToInviteApi } from '../../api/team.api';
+import { toast } from 'react-toastify';
 
 // Mock data for open teams
 const OPEN_TEAMS = [
@@ -30,6 +31,35 @@ export default function TeamJoin() {
         setLoadingInvites(false);
       });
   }, []);
+
+  const handleAcceptInvite = async (id) => {
+    try {
+      const invite = invites.find(inv => inv.id === id);
+      if (!invite) return;
+      
+      await respondToInviteApi({ inviteId: id, status: 'accepted', teamId: invite.teamId });
+      setInvites(invites.filter(inv => inv.id !== id));
+      toast.success("Invite accepted!");
+      navigate('/teams/dashboard');
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to accept invite");
+    }
+  };
+
+  const handleDeclineInvite = async (id) => {
+    try {
+      const invite = invites.find(inv => inv.id === id);
+      if (!invite) return;
+      
+      await respondToInviteApi({ inviteId: id, status: 'rejected', teamId: invite.teamId });
+      setInvites(invites.filter(inv => inv.id !== id));
+      toast.info("Invite declined.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to decline invite");
+    }
+  };
 
   const filteredTeams = OPEN_TEAMS.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -64,7 +94,15 @@ export default function TeamJoin() {
                       <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.95rem' }}>
                         {inv.teamName || (inv.teamId ? `Team #${inv.teamId.slice(0, 6)}` : 'Team Invite')}
                       </h4>
-                      <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.75rem' }}>Status: {inv.status}</p>
+                      <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.75rem', marginBottom: '0.5rem' }}>Status: {inv.status}</p>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="hz-btn hz-btn-primary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', flexGrow: 1 }} onClick={() => handleAcceptInvite(inv.id)}>
+                          Accept
+                        </button>
+                        <button className="hz-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', flexGrow: 1, border: '1px solid var(--hz-border)' }} onClick={() => handleDeclineInvite(inv.id)}>
+                          Decline
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -83,7 +83,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `refactor(pages): remove team code join UI`
 - [x] **Task 32:** Fetch and display pending email invites using `getMyInvitesApi`.
   - **Commit:** `feat(pages): fetch and display pending team invites`
-- [ ] **Task 33:** Wire "Accept" and "Reject" buttons for invites to `respondToInviteApi`.
+- [x] **Task 33:** Wire "Accept" and "Reject" buttons for invites to `respondToInviteApi`.
   - **Commit:** `feat(pages): implement invite accept and reject logic`
 - [ ] **Task 34:** Refresh team details and invite list automatically after responding to an invite.
   - **Commit:** `feat(pages): refresh team state after invite response`
