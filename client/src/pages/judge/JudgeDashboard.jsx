@@ -2,25 +2,44 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { getAssignedSubmissions } from '../../api/evaluation.api';
+import { getMyPendingInvitationsApi, respondToInvitationApi } from '../../api/invitation.api';
 import { Button, Card, Badge, LoadingSpinner, PageHeader } from '../../components/ui';
+import { toast } from 'react-toastify';
 
 export default function JudgeDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
+  const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Fetch data from real backend endpoint
-    getAssignedSubmissions().then(data => {
-      // data might be undefined if API fails, default to []
-      setProjects(data || []);
+  const loadData = () => {
+    Promise.all([
+      getAssignedSubmissions(),
+      getMyPendingInvitationsApi()
+    ]).then(([projectsData, invitesData]) => {
+      setProjects(projectsData || []);
+      setInvitations(invitesData || []);
       setLoading(false);
     }).catch(err => {
       console.error(err);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
+
+  const handleRespond = async (inviteId, status) => {
+    try {
+      await respondToInvitationApi(inviteId, status);
+      toast.success(`Invitation ${status}`);
+      loadData();
+    } catch (err) {
+      toast.error(err.response?.data?.error || err.error || 'Failed to respond to invitation');
+    }
+  };
 
   // Filter projects by evaluation status
   // Assuming our API returns evaluations that may or may not be completed yet.
@@ -37,6 +56,29 @@ export default function JudgeDashboard() {
         title="Judge Dashboard" 
         subtitle={`Welcome back, ${user?.name || 'Judge'}. You have ${pendingProjects.length} pending reviews to complete.`}
       />
+
+      {invitations.length > 0 && (
+        <Card padding style={{ marginBottom: '2rem', border: '1px solid var(--hz-warning)', background: 'var(--hz-warning-bg)' }}>
+          <h3 className="hz-heading-3" style={{ color: 'var(--hz-warning-text)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Pending Hackathon Invitations
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {invitations.map(invite => (
+              <div key={invite.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--hz-surface)', padding: '1rem', borderRadius: '8px' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 0.25rem' }}>{invite.hackathonTitle || `Hackathon #${invite.hackathonId}`}</h4>
+                  <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>You have been invited to judge this hackathon.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Button variant="outline" onClick={() => handleRespond(invite.id, 'declined')}>Decline</Button>
+                  <Button variant="primary" onClick={() => handleRespond(invite.id, 'accepted')}>Accept</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* 1. Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>

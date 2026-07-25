@@ -1,11 +1,12 @@
-import { 
-  createEvaluation, 
-  getEvaluationsByJudgeId, 
+import {
+  createEvaluation,
+  getEvaluationsByJudgeId,
   updateEvaluation,
   getEvaluationsBySubmissionId,
   getLeaderboardData,
   assignJudgeToSubmission,
-  removeJudgeFromSubmission
+  removeJudgeFromSubmission,
+  getSubmissionsForJudge
 } from '../models/evaluation.model.js';
 import pool from '../database/db.js';
 import crypto from 'crypto';
@@ -39,8 +40,33 @@ const updateSubmissionAverage = async (submissionId) => {
 export const getAssignedSubmissions = async (req, res) => {
   try {
     const judgeId = req.user.id;
-    const evaluations = await getEvaluationsByJudgeId(judgeId);
-    res.status(200).json({ data: evaluations });
+    const submissions = await getSubmissionsForJudge(judgeId);
+    
+    // Map data for backward compatibility with frontend
+    const mapped = submissions.map(sub => ({
+      id: sub.submissionId,
+      submissionId: sub.submissionId,
+      title: sub.submissionTitle,
+      submissionTitle: sub.submissionTitle,
+      githubRepo: sub.githubRepo,
+      demoVideoUrl: sub.demoVideoUrl,
+      teamName: sub.teamName || 'Unknown Team',
+      hackathonId: sub.hackathonId,
+      hackathon: sub.hackathon,
+      status: sub.innovationScore != null ? 'Completed' : 'Pending',
+      innovationScore: sub.innovationScore,
+      technicalComplexityScore: sub.technicalComplexityScore,
+      designScore: sub.designScore,
+      usabilityScore: sub.usabilityScore,
+      evaluation: sub.innovationScore != null ? {
+        innovation: sub.innovationScore,
+        technicalExecution: sub.technicalComplexityScore,
+        marketReadiness: sub.designScore,
+        presentation: sub.usabilityScore
+      } : null
+    }));
+    
+    res.status(200).json({ data: mapped });
   } catch (error) {
     console.error('Error fetching assigned submissions:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -51,17 +77,17 @@ export const submitEvaluation = async (req, res) => {
   try {
     const judgeId = req.user.id;
     const { submissionId, hackathonId, scores } = req.body;
-    
+
     if (!submissionId || !hackathonId || !scores) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const id = crypto.randomUUID();
     const newEval = await createEvaluation(id, submissionId, judgeId, hackathonId, scores);
-    
+
     // Calculate new average asynchronously
     updateSubmissionAverage(submissionId);
-    
+
     res.status(201).json({ message: 'Evaluation submitted successfully', data: newEval });
   } catch (error) {
     console.error('Error submitting evaluation:', error);
@@ -78,7 +104,7 @@ export const editEvaluation = async (req, res) => {
     const { scores, submissionId } = req.body;
 
     const success = await updateEvaluation(id, scores);
-    
+
     if (success) {
       // Calculate new average asynchronously
       if (submissionId) {
@@ -98,7 +124,7 @@ export const getLeaderboard = async (req, res) => {
   try {
     const judgeId = req.user.id;
     const { hackathonId } = req.params;
-    
+
     if (!hackathonId) {
       return res.status(400).json({ error: 'hackathonId is required' });
     }
@@ -114,11 +140,11 @@ export const getLeaderboard = async (req, res) => {
 export const assignJudge = async (req, res) => {
   try {
     const { judgeId, submissionId, hackathonId } = req.body;
-    
+
     if (!judgeId || !submissionId || !hackathonId) {
       return res.status(400).json({ error: 'judgeId, submissionId, and hackathonId are required' });
     }
-    
+
     const result = await assignJudgeToSubmission(judgeId, submissionId, hackathonId);
     return res.status(201).json({ message: 'Judge assigned successfully', data: result });
   } catch (error) {
@@ -133,7 +159,7 @@ export const assignJudge = async (req, res) => {
 export const unassignJudge = async (req, res) => {
   try {
     const { judgeId, submissionId } = req.body;
-    
+
     if (!judgeId || !submissionId) {
       return res.status(400).json({ error: 'judgeId and submissionId are required' });
     }

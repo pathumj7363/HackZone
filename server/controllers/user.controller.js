@@ -11,7 +11,7 @@ import { getUsersByRole, updateJudgeProfile } from '../models/user.model.js';
 export const getJudges = async (req, res) => {
   try {
     const { search, page = 1, limit = 10 } = req.query;
-    
+
     // Fetch all judges from the database
     let judges = await getUsersByRole('judge');
 
@@ -23,13 +23,13 @@ export const getJudges = async (req, res) => {
         const nameMatch = judge.name?.toLowerCase().includes(searchLower);
         const emailMatch = judge.email?.toLowerCase().includes(searchLower);
         const occupationMatch = judge.occupation?.toLowerCase().includes(searchLower);
-        
+
         let tagsMatch = false;
         if (judge.expertiseTags) {
           try {
             // expertiseTags could be a JSON string from DB depending on DB driver
-            const tags = typeof judge.expertiseTags === 'string' 
-              ? JSON.parse(judge.expertiseTags) 
+            const tags = typeof judge.expertiseTags === 'string'
+              ? JSON.parse(judge.expertiseTags)
               : judge.expertiseTags;
             if (Array.isArray(tags)) {
               tagsMatch = tags.some(tag => tag.toLowerCase().includes(searchLower));
@@ -46,10 +46,10 @@ export const getJudges = async (req, res) => {
     // 2. Pagination
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
-    
+
     const startIndex = (pageNumber - 1) * limitNumber;
     const endIndex = pageNumber * limitNumber;
-    
+
     // Omit sensitive data like password_hash before returning
     const safeJudges = judges.map(judge => {
       const { password_hash, ...safeJudge } = judge;
@@ -82,13 +82,13 @@ export const updateJudgeProfileController = async (req, res) => {
   try {
     const userId = req.user.id;
     const { occupation, expertiseTags, linkedInUrl } = req.body;
-    
+
     if (req.user.role !== 'judge') {
       return res.status(403).json({ error: 'Only judges can update this profile' });
     }
 
     const success = await updateJudgeProfile(userId, { occupation, expertiseTags, linkedInUrl });
-    
+
     if (success) {
       return res.status(200).json({ message: 'Judge profile updated successfully' });
     } else {

@@ -26,7 +26,7 @@ export class DuplicateAssignmentError extends Error {
  */
 export const createEvaluation = async (id, submissionId, judgeId, hackathonId, scores) => {
   const { innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback } = scores;
-  
+
   const query = `
     INSERT INTO evaluations (
       id, submissionId, judgeId, hackathonId, 
@@ -34,12 +34,12 @@ export const createEvaluation = async (id, submissionId, judgeId, hackathonId, s
     ) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
-  
+
   await pool.query(query, [
-    id, submissionId, judgeId, hackathonId, 
+    id, submissionId, judgeId, hackathonId,
     innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback
   ]);
-  
+
   return { id, submissionId, judgeId, hackathonId, ...scores };
 };
 
@@ -237,11 +237,46 @@ export const getEvaluationsByJudgeId = async (judgeId) => {
     const [rows] = await pool.query(query, [judgeId]);
     return rows;
   } catch (err) {
-    // Fallback if submissions table is not fully joined or created yet
     if (err.code === 'ER_NO_SUCH_TABLE') {
-      const fallbackQuery = `SELECT * FROM evaluations WHERE judgeId = ?`;
-      const [rows] = await pool.query(fallbackQuery, [judgeId]);
-      return rows;
+      return [];
+    }
+    throw err;
+  }
+};
+
+/**
+ * Fetch all submissions for hackathons the judge has accepted, 
+ * including any evaluations they have already submitted.
+ */
+export const getSubmissionsForJudge = async (judgeId) => {
+  try {
+    const query = `
+      SELECT 
+        s.id as submissionId, 
+        s.title as submissionTitle, 
+        s.githubRepo, 
+        s.demoVideoUrl, 
+        s.hackathonId,
+        h.title as hackathon,
+        t.name as teamName,
+        e.id as evaluationId,
+        e.innovationScore,
+        e.technicalComplexityScore,
+        e.designScore,
+        e.usabilityScore
+      FROM submissions s
+      JOIN hackathons h ON s.hackathonId = h.id
+      LEFT JOIN teams t ON s.teamId = t.id
+      JOIN judge_invitations i ON s.hackathonId = i.hackathonId
+      LEFT JOIN evaluations e ON s.id = e.submissionId AND e.judgeId = ?
+      WHERE i.userId = ? AND i.status = 'accepted'
+      ORDER BY s.created_at DESC
+    `;
+    const [rows] = await pool.query(query, [judgeId, judgeId]);
+    return rows;
+  } catch (err) {
+    if (err.code === 'ER_NO_SUCH_TABLE') {
+      return [];
     }
     throw err;
   }
@@ -255,17 +290,17 @@ export const getEvaluationsByJudgeId = async (judgeId) => {
  */
 export const updateEvaluation = async (id, scores) => {
   const { innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback } = scores;
-  
+
   const query = `
     UPDATE evaluations 
     SET innovationScore = ?, technicalComplexityScore = ?, designScore = ?, usabilityScore = ?, feedback = ?
     WHERE id = ?
   `;
-  
+
   const [result] = await pool.query(query, [
     innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback, id
   ]);
-  
+
   return result.affectedRows > 0;
 };
 

@@ -48,13 +48,13 @@ export const createUser = async (id, name, email, password_hash, role) => {
 export const updateJudgeProfile = async (id, profileData) => {
   const { occupation, expertiseTags, linkedInUrl } = profileData;
   const tagsJson = expertiseTags ? JSON.stringify(expertiseTags) : null;
-  
+
   const query = `
     UPDATE users 
     SET occupation = ?, expertiseTags = ?, linkedInUrl = ?
     WHERE id = ? AND role = 'judge'
   `;
-  
+
   const [result] = await pool.query(query, [occupation, tagsJson, linkedInUrl, id]);
   return result.affectedRows > 0;
 };
@@ -68,13 +68,13 @@ export const updateJudgeProfile = async (id, profileData) => {
 export const updateParticipantProfile = async (id, profileData) => {
   const { skills, githubUrl, linkedInUrl, bio } = profileData;
   const skillsJson = skills ? JSON.stringify(skills) : null;
-  
+
   const query = `
     UPDATE users 
     SET skills = ?, githubUrl = ?, linkedInUrl = ?, bio = ?
     WHERE id = ? AND role = 'participant'
   `;
-  
+
   const [result] = await pool.query(query, [skillsJson, githubUrl, linkedInUrl, bio, id]);
   return result.affectedRows > 0;
 };
@@ -87,13 +87,13 @@ export const updateParticipantProfile = async (id, profileData) => {
  */
 export const updateOrganizerProfile = async (id, profileData) => {
   const { organizationName, websiteUrl, isVerified } = profileData;
-  
+
   const query = `
     UPDATE users 
     SET organizationName = ?, websiteUrl = ?, isVerified = ?
     WHERE id = ? AND role = 'organizer'
   `;
-  
+
   const [result] = await pool.query(query, [organizationName, websiteUrl, isVerified, id]);
   return result.affectedRows > 0;
 };
