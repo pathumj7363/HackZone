@@ -55,39 +55,39 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `test(api): verify participant endpoints end-to-end`
 
 ## Day 5: Frontend API Setup (Part 1)
-- [ ] **Task 21:** Remove `mockHackathons` array and mock delay in `client/src/api/hackathon.api.js`.
+- [x] **Task 21:** Remove `mockHackathons` array and mock delay in `client/src/api/hackathon.api.js`.
   - **Commit:** `refactor(api): remove hackathon mock data`
-- [ ] **Task 22:** Connect `getHackathonsApi` to `API.get('/hackathons')`.
+- [x] **Task 22:** Connect `getHackathonsApi` to `API.get('/hackathons')`.
   - **Commit:** `feat(api): connect getHackathons to real endpoint`
-- [ ] **Task 23:** Connect `getHackathonDetailApi` to `API.get('/hackathons/${id}')`.
-  - **Commit:** `feat(api): connect getHackathonDetail to real endpoint`
-- [ ] **Task 24:** Remove mock delay and logic in `getMyTeamApi` in `team.api.js`.
+- [x] **Task 23:** Connect `getHackathonDetailApi` to `API.get('/hackathons/${id}')`.
+  - **Commit:** `feat(api): implement getHackathonDetailApi`
+- [x] **Task 24:** Remove mock delay and logic in `getMyTeamApi` in `team.api.js`.
   - **Commit:** `refactor(api): clean up team API mocks`
-- [ ] **Task 25:** Connect `getMyTeamApi` to `API.get('/teams/my-team')`.
-  - **Commit:** `feat(api): connect getMyTeam to real endpoint`
+- [x] **Task 25:** Connect `getMyTeamApi` to `API.get('/teams/my-team')`.
+  - **Commit:** `feat(api): Connect getMyTeam to real endpoint`
 
 ## Day 6: Frontend API Setup (Part 2) & Participant UI Setup
-- [ ] **Task 26:** Create `getMyInvitesApi` connecting to `API.get('/teams/my-invites')`.
+- [x] **Task 26:** Create `getMyInvitesApi` connecting to `API.get('/teams/my-invites')`.
   - **Commit:** `feat(api): add getMyInvites API method`
-- [ ] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
+- [x] **Task 27:** Remove mocked arrays in `client/src/api/submission.api.js`.
   - **Commit:** `refactor(api): remove submission mock data`
-- [ ] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
+- [x] **Task 28:** Connect `getMySubmissionsApi` to `API.get('/submissions/my-submissions')`.
   - **Commit:** `feat(api): connect getMySubmissions to real endpoint`
-- [ ] **Task 29:** Update Hackathon Dashboard UI to handle real data structure (e.g., missing image URLs).
+- [x] **Task 29:** Update Hackathon Dashboard UI to handle real data structure (e.g., missing image URLs).
   - **Commit:** `feat(pages): integrate real data in Hackathon Dashboard`
-- [ ] **Task 30:** Add loading states/spinners to Hackathon Dashboard while fetching data.
+- [x] **Task 30:** Add loading states/spinners to Hackathon Dashboard while fetching data.
   - **Commit:** `feat(ui): add loading states for hackathon fetching`
 
 ## Day 7: Team Management UI
-- [ ] **Task 31:** Remove old "Enter Team Code" UI from team management page.
+- [x] **Task 31:** Remove old "Enter Team Code" UI from team management page.
   - **Commit:** `refactor(pages): remove team code join UI`
-- [ ] **Task 32:** Fetch and display pending email invites using `getMyInvitesApi`.
+- [x] **Task 32:** Fetch and display pending email invites using `getMyInvitesApi`.
   - **Commit:** `feat(pages): fetch and display pending team invites`
-- [ ] **Task 33:** Wire "Accept" and "Reject" buttons for invites to `respondToInviteApi`.
+- [x] **Task 33:** Wire "Accept" and "Reject" buttons for invites to `respondToInviteApi`.
   - **Commit:** `feat(pages): implement invite accept and reject logic`
-- [ ] **Task 34:** Refresh team details and invite list automatically after responding to an invite.
+- [x] **Task 34:** Refresh team details and invite list automatically after responding to an invite.
   - **Commit:** `feat(pages): refresh team state after invite response`
-- [ ] **Task 35:** Handle errors and display toast notifications for invite actions.
+- [x] **Task 35:** Handle errors and display toast notifications for invite actions.
   - **Commit:** `feat(ui): add notifications for team invite actions`
 
 ## Day 8: Submissions UI & Final Polish

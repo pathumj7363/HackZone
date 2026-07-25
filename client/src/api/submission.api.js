@@ -8,7 +8,7 @@ export const submitProjectApi = async (submissionData) => {
 export const getMySubmissionsApi = async () => {
   try {
     const response = await API.get('/submissions/my-submissions');
-    return response.data.data;
+    return response.data.data ?? response.data;
   } catch (error) {
     console.error('Error fetching my submissions:', error);
     throw error.response?.data || { error: 'Network error occurred' };

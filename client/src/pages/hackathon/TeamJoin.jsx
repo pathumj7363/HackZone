@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { joinTeamApi, getAllTeamsApi } from '../../api/team.api';
+import { getMyInvitesApi, respondToInviteApi, joinTeamApi, getAllTeamsApi } from '../../api/team.api';
 import { toast } from 'react-toastify';
 
 export default function TeamJoin() {
@@ -11,11 +11,16 @@ export default function TeamJoin() {
   const [search, setSearch] = useState('');
   const [teams, setTeams] = useState([]);
   const [fetchingTeams, setFetchingTeams] = useState(true);
+  
+  const [invites, setInvites] = useState([]);
+  const [loadingInvites, setLoadingInvites] = useState(true);
+  
   const navigate = useNavigate();
 
   useEffect(() => { 
     window.scrollTo(0, 0); 
     loadOpenTeams();
+    loadInvites();
   }, []);
 
   const loadOpenTeams = async () => {
@@ -28,6 +33,48 @@ export default function TeamJoin() {
       setTeams([]);
     } finally {
       setFetchingTeams(false);
+    }
+  };
+
+  const loadInvites = async () => {
+    try {
+      const res = await getMyInvitesApi();
+      const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      setInvites(list);
+    } catch (err) {
+      console.error('[TeamJoin] Error fetching invites:', err);
+      setInvites([]);
+    } finally {
+      setLoadingInvites(false);
+    }
+  };
+
+  const handleAcceptInvite = async (id) => {
+    try {
+      const invite = invites.find(inv => inv.id === id);
+      if (!invite) return;
+      
+      await respondToInviteApi({ inviteId: id, status: 'accepted', teamId: invite.teamId });
+      await loadInvites();
+      toast.success("Invite accepted!");
+      navigate('/teams/dashboard');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || "Failed to accept invite");
+    }
+  };
+
+  const handleDeclineInvite = async (id) => {
+    try {
+      const invite = invites.find(inv => inv.id === id);
+      if (!invite) return;
+      
+      await respondToInviteApi({ inviteId: id, status: 'rejected', teamId: invite.teamId });
+      await loadInvites();
+      toast.info("Invite declined.");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || "Failed to decline invite");
     }
   };
 
@@ -93,12 +140,42 @@ export default function TeamJoin() {
           {/* Left Column */}
           <div style={{ flex: '1 1 320px', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            {/* Invite Code Card */}
+            {/* Pending Invites Card */}
             <div className="hz-card hz-card--padding">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                <div style={{ color: 'var(--hz-primary)', display: 'flex', alignItems: 'center' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"></path>
+              <h3 className="hz-heading-3" style={{ margin: '0 0 1rem' }}>Pending Invites</h3>
+              {loadingInvites ? (
+                <p className="hz-text-muted" style={{ fontSize: '0.875rem' }}>Loading invites...</p>
+              ) : invites.length === 0 ? (
+                <p className="hz-text-muted" style={{ fontSize: '0.875rem' }}>No pending team invites.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {invites.map(inv => (
+                    <div key={inv.id} style={{ padding: '0.75rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)' }}>
+                      <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.95rem' }}>
+                        {inv.teamName || (inv.teamId ? `Team #${inv.teamId.slice(0, 6)}` : 'Team Invite')}
+                      </h4>
+                      <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.75rem', marginBottom: '0.5rem' }}>Status: {inv.status}</p>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="hz-btn hz-btn-primary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', flexGrow: 1 }} onClick={() => handleAcceptInvite(inv.id)}>
+                          Accept
+                        </button>
+                        <button className="hz-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', flexGrow: 1, border: '1px solid var(--hz-border)' }} onClick={() => handleDeclineInvite(inv.id)}>
+                          Decline
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Join by Code Card */}
+            <div className="hz-card hz-card--padding">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ color: 'var(--hz-primary)' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                   </svg>
                 </div>
                 <h3 className="hz-heading-3" style={{ margin: 0 }}>Have an invite code?</h3>
@@ -262,4 +339,3 @@ export default function TeamJoin() {
     </div>
   );
 }
-

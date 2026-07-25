@@ -15,7 +15,7 @@ export default function ParticipantDashboard() {
   const [registeredHackathons, setRegisteredHackathons] = useState([]);
   const [teamInvites, setTeamInvites] = useState([]);
 
-  useEffect(() => {
+  const loadData = () => {
     getMyRegisteredHackathonsApi()
       .then(data => setRegisteredHackathons(data || []))
       .catch(() => setRegisteredHackathons([]));
@@ -23,23 +23,33 @@ export default function ParticipantDashboard() {
     getMyInvitesApi()
       .then(data => setTeamInvites(data?.data || data || []))
       .catch(() => setTeamInvites([]));
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const handleAcceptInvite = async (id) => {
     try {
-      setTeamInvites(teamInvites.filter(invite => invite.id !== id));
+      const invite = teamInvites.find(inv => inv.id === id);
+      if (!invite) return;
+      await respondToInviteApi({ inviteId: id, status: 'accepted', teamId: invite.teamId });
       toast.success("Invite accepted!");
+      loadData();
     } catch (err) {
-      toast.error("Failed to accept invite");
+      toast.error(err.response?.data?.error || "Failed to accept invite");
     }
   };
 
   const handleDeclineInvite = async (id) => {
     try {
-      setTeamInvites(teamInvites.filter(invite => invite.id !== id));
+      const invite = teamInvites.find(inv => inv.id === id);
+      if (!invite) return;
+      await respondToInviteApi({ inviteId: id, status: 'rejected', teamId: invite.teamId });
       toast.info("Invite declined.");
+      loadData();
     } catch (err) {
-      toast.error("Failed to decline invite");
+      toast.error(err.response?.data?.error || "Failed to decline invite");
     }
   };
 
@@ -132,13 +142,22 @@ export default function ParticipantDashboard() {
                 teamInvites.map(invite => (
                   <Card key={invite.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s', borderLeft: '3px solid var(--hz-primary)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'}>
                     <div style={{ marginBottom: '1rem' }}>
-                      <h4 className="hz-heading-4" style={{ margin: '0 0 0.25rem 0', fontSize: '1.05rem' }}>{invite.teamName}</h4>
-                      <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.25rem 0' }}>
-                        For Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{invite.hackathon}</strong>
-                      </p>
-                      <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
-                        Invited by: <strong>{invite.inviter}</strong>
-                      </p>
+                      <h4 className="hz-heading-4" style={{ margin: '0 0 0.25rem 0', fontSize: '1.05rem' }}>{invite.teamName || (invite.teamId ? `Team #${invite.teamId.slice(0, 6)}` : 'Team Invite')}</h4>
+                      {invite.email && (
+                        <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.25rem 0' }}>
+                          Sent to: {invite.email}
+                        </p>
+                      )}
+                      {invite.hackathon && (
+                        <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.25rem 0' }}>
+                          For Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{invite.hackathon}</strong>
+                        </p>
+                      )}
+                      {invite.inviter && (
+                        <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
+                          Invited by: <strong>{invite.inviter}</strong>
+                        </p>
+                      )}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <Button variant="primary" size="sm" style={{ flex: 1, padding: '0.4rem' }} onClick={() => handleAcceptInvite(invite.id)}>
