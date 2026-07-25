@@ -1,20 +1,38 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import { getOrganizerStatsApi } from '../../api/hackathon.api';
 
 export default function OrganizerDashboard() {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalTeams: 0,
+    totalSubmissions: 0,
+    activeJudges: 0,
+    pendingReviews: 0,
+    recentActivity: []
+  });
+  const [loading, setLoading] = useState(true);
 
-  // Reset scroll to top upon page navigation
+  // Reset scroll to top upon page navigation 
   useEffect(() => {
     window.scrollTo(0, 0);
+    getOrganizerStatsApi()
+      .then(data => {
+        if (data) setStats(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   return (
     <div className="hz-page">
       <div className="hz-container">
-        
+
         {/* Page Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
@@ -51,10 +69,9 @@ export default function OrganizerDashboard() {
                 </svg>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>124</span>
-                <span className="hz-badge hz-badge--success">+12%</span>
+                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : stats.totalTeams}</span>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Active this week</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Registered teams</div>
             </Card>
           </div>
 
@@ -72,10 +89,9 @@ export default function OrganizerDashboard() {
                 </svg>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>86</span>
-                <span className="hz-badge hz-badge--primary">42 today</span>
+                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : stats.totalSubmissions}</span>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Growth last 24h</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Total projects</div>
             </Card>
           </div>
 
@@ -86,14 +102,13 @@ export default function OrganizerDashboard() {
                 <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--hz-text-muted)', letterSpacing: '0.05em' }}>JUDGES</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 13.5V16.5l-4-4-4 4v-3L10 9.5Z"></path>
-                  <path d="M22 10.5V13.5l-4-4-4 4v-3L18 6.5Z" style={{transform: "translate(-3px, 1px) rotate(45deg)", transformOrigin: "center"}}></path>
+                  <path d="M22 10.5V13.5l-4-4-4 4v-3L18 6.5Z" style={{ transform: "translate(-3px, 1px) rotate(45deg)", transformOrigin: "center" }}></path>
                 </svg>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>12</span>
-                <span style={{ color: '#16a34a', fontSize: '0.85rem', fontWeight: '600' }}>● Active</span>
+                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : stats.activeJudges}</span>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Panel confirmed</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Active assignees</div>
             </Card>
           </div>
 
@@ -108,8 +123,7 @@ export default function OrganizerDashboard() {
                 </svg>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: '#ef4444' }}>14</span>
-                <span className="hz-badge hz-badge--danger">Critical</span>
+                <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: '#ef4444' }}>{loading ? '-' : stats.pendingReviews}</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Action required</div>
             </Card>
@@ -118,10 +132,10 @@ export default function OrganizerDashboard() {
 
         {/* Main Grid (8 + 4) */}
         <div className="row g-4">
-          
+
           {/* Left Column (8/12) */}
           <div className="col-12 col-lg-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
+
             {/* Submissions Over Time */}
             <Card style={{ borderRadius: '12px', border: '1px solid var(--hz-border)', overflow: 'hidden' }}>
               <div style={{ padding: '1.5rem 1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -139,7 +153,7 @@ export default function OrganizerDashboard() {
                   <line x1="0" y1="100" x2="1000" y2="100" stroke="#f1f5f9" strokeWidth="2" />
                   <line x1="0" y1="150" x2="1000" y2="150" stroke="#f1f5f9" strokeWidth="2" />
                   <line x1="0" y1="200" x2="1000" y2="200" stroke="#f1f5f9" strokeWidth="2" />
-                  
+
                   {/* Smooth curved line for chart */}
                   <path d="M 0,180 C 200,180 300,160 400,140 C 500,120 550,80 700,50 C 850,20 950,50 1000,60" fill="none" stroke="var(--hz-primary)" strokeWidth="4" />
                 </svg>
@@ -157,71 +171,35 @@ export default function OrganizerDashboard() {
             {/* Recent Activity */}
             <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 1.5rem 0', color: 'var(--hz-text)' }}>Recent Activity</h2>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                
-                {/* Item 1 */}
-                <div style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--hz-border)', marginBottom: '1.25rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-primary)' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                      <line x1="16" y1="13" x2="8" y2="13"></line>
-                      <line x1="16" y1="17" x2="8" y2="17"></line>
-                      <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ color: 'var(--hz-text)', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontWeight: '600' }}>Neural Knights</span> submitted a project: <span style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'underline' }}>Quantum Optimizer</span>
-                    </div>
-                    <div style={{ color: 'var(--hz-text-muted)', fontSize: '0.85rem' }}>
-                      2 hours ago • Category: AI/ML
-                    </div>
-                  </div>
-                </div>
 
-                {/* Item 2 */}
-                <div style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--hz-border)', marginBottom: '1.25rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-warning-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-warning)' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <line x1="20" y1="8" x2="20" y2="14"></line>
-                      <line x1="23" y1="11" x2="17" y2="11"></line>
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ color: 'var(--hz-text)', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontWeight: '600' }}>Sarah Jenkins</span> joined the judging panel
+                {stats.recentActivity && stats.recentActivity.length > 0 ? stats.recentActivity.map((activity, index) => (
+                  <div key={activity.id} style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: index < stats.recentActivity.length - 1 ? '1px solid var(--hz-border)' : 'none', marginBottom: index < stats.recentActivity.length - 1 ? '1.25rem' : '0' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-primary)' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
                     </div>
-                    <div style={{ color: 'var(--hz-text-muted)', fontSize: '0.85rem' }}>
-                      5 hours ago • Specialist: Fintech
+                    <div>
+                      <div style={{ color: 'var(--hz-text)', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                        <span style={{ fontWeight: '600' }}>{activity.teamName || 'Unknown Team'}</span> submitted a project: <span style={{ color: 'var(--hz-primary)', fontWeight: '600', textDecoration: 'underline' }}>{activity.title}</span>
+                      </div>
+                      <div style={{ color: 'var(--hz-text-muted)', fontSize: '0.85rem' }}>
+                        {new Date(activity.created_at).toLocaleString()}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )) : (
+                  <p className="hz-text-muted">No recent activity.</p>
+                )}
 
-                {/* Item 3 */}
-                <div style={{ display: 'flex', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--hz-border)' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--hz-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--hz-primary-active)' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <div style={{ color: 'var(--hz-text)', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                      New team "<span style={{ fontWeight: '600' }}>Cyber Sentinels</span>" created
-                    </div>
-                    <div style={{ color: 'var(--hz-text-muted)', fontSize: '0.85rem' }}>
-                      Yesterday at 6:45 PM • 4 Members
-                    </div>
-                  </div>
-                </div>
               </div>
-              
+
               <div style={{ textAlign: 'center', paddingTop: '1.25rem' }}>
                 <Link to="#" style={{ color: 'var(--hz-primary)', fontWeight: '500', textDecoration: 'none' }}>View All Activity</Link>
               </div>
@@ -231,12 +209,12 @@ export default function OrganizerDashboard() {
 
           {/* Right Column (4/12) */}
           <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
+
             {/* Quick Actions */}
             <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 1.25rem 0', color: 'var(--hz-text)' }}>Quick Actions</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                
+
                 {/* Manage Hackathon */}
                 <Link to="/organizer/hackathon" style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ border: '1px solid var(--hz-border)', borderRadius: '8px', padding: '1.5rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--hz-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--hz-border)'}>
@@ -296,7 +274,7 @@ export default function OrganizerDashboard() {
             {/* Hackathon Status */}
             <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 1.5rem 0', color: 'var(--hz-text)' }}>Hackathon Status</h2>
-              
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--hz-text)' }}>
                   <span style={{ fontWeight: '500' }}>Registration Progress</span>
@@ -327,7 +305,7 @@ export default function OrganizerDashboard() {
               <Button style={{ backgroundColor: 'white', color: 'var(--hz-primary)', fontWeight: 'bold', padding: '0.75rem 1.25rem', borderRadius: '8px', position: 'relative', zIndex: 2 }}>
                 Contact Support
               </Button>
-              
+
               {/* Background graphic */}
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', opacity: 0.15 }}>
                 <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor">

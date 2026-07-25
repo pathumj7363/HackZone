@@ -6,8 +6,23 @@ export const submitProjectApi = async (submissionData) => {
 };
 
 export const getMySubmissionsApi = async () => {
-  const response = await API.get('/submissions/mine');
-  return response.data;
+  try {
+    const response = await API.get('/submissions/my-submissions');
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching my submissions:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};
+
+export const getHackathonSubmissionsApi = async (hackathonId) => {
+  try {
+    const response = await API.get(`/submissions/hackathon/${hackathonId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching hackathon submissions:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
 };
 
 export const getAllSubmissionsApi = async () => {

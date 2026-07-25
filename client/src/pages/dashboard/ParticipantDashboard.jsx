@@ -96,12 +96,19 @@ export default function ParticipantDashboard() {
                           </p>
                         )}
                         
-                        <div>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
                           <Link to={`/hackathons/${hackathon.id}`} style={{ textDecoration: 'none' }}>
                             <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
                               View Details
                             </Button>
                           </Link>
+                          {hackathon.registrationStatus === 'approved' && (
+                            <Link to="/submit" style={{ textDecoration: 'none' }}>
+                              <Button variant="primary" size="sm" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                                Submit Project
+                              </Button>
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>

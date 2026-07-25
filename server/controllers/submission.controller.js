@@ -1,4 +1,4 @@
-import { createSubmission, getMySubmissions as getMySubmissionsModel, getSubmissionsByTeamId, getAllSubmissions } from '../models/submission.model.js';
+import { createSubmission, getMySubmissions as getMySubmissionsModel, getSubmissionsByTeamId, getAllSubmissions, getSubmissionsWithAssignments as getSubmissionsWithAssignmentsModel } from '../models/submission.model.js';
 import crypto from 'crypto';
 
 export const submitProject = async (req, res) => {
@@ -59,6 +59,21 @@ export const fetchAllSubmissions = async (req, res) => {
     return res.status(200).json(submissions);
   } catch (error) {
     console.error('[fetchAllSubmissions] Error fetching submissions:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getHackathonSubmissions = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: 'Hackathon ID is required' });
+    }
+    
+    const submissions = await getSubmissionsWithAssignmentsModel(id);
+    return res.status(200).json({ data: submissions });
+  } catch (error) {
+    console.error('[getHackathonSubmissions] Error fetching submissions:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

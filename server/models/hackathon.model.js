@@ -301,3 +301,71 @@ export const updateHackathon = async (id, updateData) => {
     throw error;
   }
 };
+
+export const getOrganizerStats = async (organizerId) => {
+  const [hackathons] = await pool.query(`SELECT id FROM hackathons WHERE organizerId = ?`, [organizerId]);
+  if (!hackathons.length) {
+    return { totalTeams: 0, totalSubmissions: 0, activeJudges: 0, pendingReviews: 0, recentActivity: [] };
+  }
+  
+  const hackathonIds = hackathons.map(h => h.id);
+  const placeholders = hackathonIds.map(() => '?').join(',');
+
+  const [teamsRes] = await pool.query(
+    `SELECT COUNT(id) as count FROM hackathon_registrations WHERE hackathonId IN (${placeholders})`,
+    hackathonIds
+  );
+
+  const [submissionsRes] = await pool.query(
+    `SELECT COUNT(id) as count FROM submissions WHERE hackathonId IN (${placeholders})`,
+    hackathonIds
+  );
+
+  // Active judges in evaluations
+  let judgesCount = 0;
+  try {
+    const [judgesRes] = await pool.query(
+      `SELECT COUNT(DISTINCT judgeId) as count FROM evaluations WHERE hackathonId IN (${placeholders})`,
+      hackathonIds
+    );
+    judgesCount = judgesRes[0].count;
+  } catch(e) {
+    // If evaluations table doesn't exist yet, ignore
+  }
+
+  // Pending reviews
+  let reviewsCount = 0;
+  try {
+    const [reviewsRes] = await pool.query(
+      `SELECT COUNT(id) as count FROM evaluations WHERE hackathonId IN (${placeholders}) AND innovationScore IS NULL`,
+      hackathonIds
+    );
+    reviewsCount = reviewsRes[0].count;
+  } catch(e) {
+    // Ignore if table missing
+  }
+
+  // Recent submissions activity
+  let recentActivity = [];
+  try {
+    const [activityRes] = await pool.query(`
+      SELECT s.id, s.title, s.created_at, 'submission' as type, t.name as teamName
+      FROM submissions s
+      JOIN teams t ON s.teamId = t.id
+      WHERE s.hackathonId IN (${placeholders})
+      ORDER BY s.created_at DESC
+      LIMIT 5
+    `, hackathonIds);
+    recentActivity = activityRes;
+  } catch(e) {
+    // Ignore
+  }
+
+  return {
+    totalTeams: teamsRes[0].count,
+    totalSubmissions: submissionsRes[0].count,
+    activeJudges: judgesCount,
+    pendingReviews: reviewsCount,
+    recentActivity: recentActivity
+  };
+};
