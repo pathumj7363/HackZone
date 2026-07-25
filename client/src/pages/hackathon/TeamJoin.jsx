@@ -55,12 +55,12 @@ export default function TeamJoin() {
       if (!invite) return;
       
       await respondToInviteApi({ inviteId: id, status: 'accepted', teamId: invite.teamId });
-      setInvites(invites.filter(inv => inv.id !== id));
+      await loadInvites();
       toast.success("Invite accepted!");
       navigate('/teams/dashboard');
     } catch (err) {
       console.error(err);
-      toast.error("Failed to accept invite");
+      toast.error(err.response?.data?.error || "Failed to accept invite");
     }
   };
 
@@ -70,11 +70,11 @@ export default function TeamJoin() {
       if (!invite) return;
       
       await respondToInviteApi({ inviteId: id, status: 'rejected', teamId: invite.teamId });
-      setInvites(invites.filter(inv => inv.id !== id));
+      await loadInvites();
       toast.info("Invite declined.");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to decline invite");
+      toast.error(err.response?.data?.error || "Failed to decline invite");
     }
   };
 

@@ -15,7 +15,7 @@ export default function ParticipantDashboard() {
   const [registeredHackathons, setRegisteredHackathons] = useState([]);
   const [teamInvites, setTeamInvites] = useState([]);
 
-  useEffect(() => {
+  const loadData = () => {
     getMyRegisteredHackathonsApi()
       .then(data => setRegisteredHackathons(data || []))
       .catch(() => setRegisteredHackathons([]));
@@ -23,23 +23,33 @@ export default function ParticipantDashboard() {
     getMyInvitesApi()
       .then(data => setTeamInvites(data?.data || data || []))
       .catch(() => setTeamInvites([]));
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const handleAcceptInvite = async (id) => {
     try {
-      setTeamInvites(teamInvites.filter(invite => invite.id !== id));
+      const invite = teamInvites.find(inv => inv.id === id);
+      if (!invite) return;
+      await respondToInviteApi({ inviteId: id, status: 'accepted', teamId: invite.teamId });
       toast.success("Invite accepted!");
+      loadData();
     } catch (err) {
-      toast.error("Failed to accept invite");
+      toast.error(err.response?.data?.error || "Failed to accept invite");
     }
   };
 
   const handleDeclineInvite = async (id) => {
     try {
-      setTeamInvites(teamInvites.filter(invite => invite.id !== id));
+      const invite = teamInvites.find(inv => inv.id === id);
+      if (!invite) return;
+      await respondToInviteApi({ inviteId: id, status: 'rejected', teamId: invite.teamId });
       toast.info("Invite declined.");
+      loadData();
     } catch (err) {
-      toast.error("Failed to decline invite");
+      toast.error(err.response?.data?.error || "Failed to decline invite");
     }
   };
 
