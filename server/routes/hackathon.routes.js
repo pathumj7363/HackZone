@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { registerHackathon, getHackathons, getHackathonDetail, createHackathon, updateHackathon, getMyHackathons, getMyRegisteredHackathons, getHackathonRegistrations, updateHackathonRegistrationStatus } from '../controllers/hackathon.controller.js';
+import { registerHackathon, getHackathons, getHackathonDetail, createHackathon, updateHackathon, getMyHackathons, getMyRegisteredHackathons, getHackathonRegistrations, updateHackathonRegistrationStatus, getOrganizerStats } from '../controllers/hackathon.controller.js';
 import { verifyToken, isOrganizer } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const upload = multer({ dest: 'uploads/' });
 
 router.get('/', getHackathons);
 router.get('/my-hackathons', verifyToken, isOrganizer, getMyHackathons);
+router.get('/organizer/stats', verifyToken, isOrganizer, getOrganizerStats);
 router.get('/participant/registered', verifyToken, getMyRegisteredHackathons);
 router.get('/:id', getHackathonDetail);
 router.post('/', verifyToken, isOrganizer, upload.single('image'), createHackathon);

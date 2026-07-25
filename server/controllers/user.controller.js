@@ -1,4 +1,4 @@
-import { getUsersByRole } from '../models/user.model.js';
+import { getUsersByRole, updateJudgeProfile } from '../models/user.model.js';
 
 /**
  * GET /judges
@@ -70,6 +70,32 @@ export const getJudges = async (req, res) => {
     });
   } catch (error) {
     console.error('[getJudges] Error fetching judges:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /profile/judge
+ * Updates the current judge's profile
+ */
+export const updateJudgeProfileController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { occupation, expertiseTags, linkedInUrl } = req.body;
+    
+    if (req.user.role !== 'judge') {
+      return res.status(403).json({ error: 'Only judges can update this profile' });
+    }
+
+    const success = await updateJudgeProfile(userId, { occupation, expertiseTags, linkedInUrl });
+    
+    if (success) {
+      return res.status(200).json({ message: 'Judge profile updated successfully' });
+    } else {
+      return res.status(400).json({ error: 'Failed to update judge profile' });
+    }
+  } catch (error) {
+    console.error('[updateJudgeProfileController] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

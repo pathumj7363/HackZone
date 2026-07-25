@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import judgeRoutes from "./routes/judge.routes.js";
 import evaluationRoutes from "./routes/evaluation.routes.js";
 import participantRoutes from "./routes/participant.routes.js";
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 
 // Mount Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/judge", judgeRoutes);
 app.use("/api/evaluations", evaluationRoutes);
 app.use("/api/participant", participantRoutes);

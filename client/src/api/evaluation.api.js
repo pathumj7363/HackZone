@@ -65,6 +65,28 @@ export const getLeaderboard = async (hackathonId) => {
   }
 };
 
+export const assignJudgeApi = async (judgeId, submissionId, hackathonId) => {
+  try {
+    const payload = { judgeId, submissionId, hackathonId };
+    const response = await API.post('/evaluations/assign', payload);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error assigning judge:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};
+
+export const unassignJudgeApi = async (judgeId, submissionId) => {
+  try {
+    const payload = { judgeId, submissionId };
+    const response = await API.delete('/evaluations/assign', { data: payload });
+    return response.data.data;
+  } catch (error) {
+    console.error('Error unassigning judge:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};
+
 // =========================================================================
 // BACKWARDS COMPATIBILITY ALIASES
 // Exporting the old function names so the existing UI doesn't crash

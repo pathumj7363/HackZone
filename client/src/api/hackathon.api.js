@@ -38,8 +38,23 @@ export const getHackathonRegistrationsApi = async (id) => {
 };
 
 export const updateRegistrationStatusApi = async (hackathonId, registrationId, status) => {
-  const response = await api.put(`/hackathons/${hackathonId}/registrations/${registrationId}/status`, { status });
-  return response.data?.data ?? response.data;
+  try {
+    const response = await api.put(`/hackathons/${hackathonId}/registrations/${registrationId}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating registration status:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};
+
+export const getOrganizerStatsApi = async () => {
+  try {
+    const response = await api.get('/hackathons/organizer/stats');
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching organizer stats:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
 };
 
 export const getMyRegisteredHackathonsApi = async () => {
