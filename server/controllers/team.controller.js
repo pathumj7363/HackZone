@@ -1,17 +1,22 @@
-import { createTeam, getTeamById, addTeamMember, createTeamInvite, updateTeamInviteStatus, getMyTeam as getMyTeamOld, getAllTeams, joinTeam, getTeamByUserId, getPendingInvitesByEmail } from '../models/team.model.js';
+import { createTeam, getTeamById, addTeamMember, createTeamInvite, updateTeamInviteStatus, getMyTeam as getMyTeamOld, getAllTeams, joinTeam, getTeamByUserId, getPendingInvitesByEmail, getInvitesByTeamId } from '../models/team.model.js';
 import crypto from 'crypto';
 
 export const createNewTeam = async (req, res) => {
   try {
     const leaderId = req.user.id;
-    const { name, hackathonId, maxCapacity } = req.body;
+    let { name, hackathonId, maxCapacity, description, isPublic, inviteCode } = req.body;
 
-    if (!name || !hackathonId) {
-      return res.status(400).json({ error: 'Name and hackathonId are required' });
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Team name is required' });
+    }
+
+    if (!inviteCode) {
+      inviteCode = 'HZ-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
 
     const teamId = crypto.randomUUID();
-    const team = await createTeam(teamId, name, leaderId, hackathonId, maxCapacity);
+    const finalHackathonId = hackathonId && hackathonId.trim() !== '' ? hackathonId : 'general';
+    const team = await createTeam(teamId, name.trim(), leaderId, finalHackathonId, maxCapacity || 4, inviteCode, description || '', isPublic !== false);
 
     return res.status(201).json({ message: 'Team created successfully', data: team });
   } catch (error) {
@@ -119,6 +124,27 @@ export const getMyInvites = async (req, res) => {
     return res.status(200).json({ data: invites });
   } catch (error) {
     console.error('[getMyInvites] Error fetching invites:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getSentInvites = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    if (!teamId) {
+      return res.status(400).json({ error: 'teamId is required' });
+    }
+
+    // Validate that the user is the leader or a member of the team
+    const team = await getTeamById(teamId);
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    const invites = await getInvitesByTeamId(teamId);
+    return res.status(200).json({ data: invites });
+  } catch (error) {
+    console.error('[getSentInvites] Error fetching team invites:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

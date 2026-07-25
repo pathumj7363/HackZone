@@ -5,8 +5,19 @@ import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import TextArea from '../../components/ui/TextArea';
 import Button from '../../components/ui/Button';
+import { toast } from 'react-toastify';
+
+const generateCode = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'HZ-';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
 
 export default function TeamCreate() {
+  const [inviteCode, setInviteCode] = useState(() => generateCode());
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -18,15 +29,33 @@ export default function TeamCreate() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
+  const handleRegenerateCode = () => {
+    const newCode = generateCode();
+    setInviteCode(newCode);
+    toast.info("Generated new invite code!");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) {
+      toast.error("Team name is required");
+      return;
+    }
     setLoading(true);
     try {
-      await createTeamApi({ name: form.name, description: form.description, isPublic: form.isPublic });
+      await createTeamApi({ 
+        name: form.name.trim(), 
+        description: form.description, 
+        isPublic: form.isPublic,
+        maxCapacity: form.maxMembers,
+        inviteCode: inviteCode,
+        hackathonId: 'general'
+      });
+      toast.success("Team created successfully!");
       navigate('/teams/dashboard');
     } catch (error) {
       console.error(error);
+      toast.error(error?.response?.data?.error || "Failed to create team");
       setLoading(false);
     }
   };
@@ -112,20 +141,29 @@ export default function TeamCreate() {
                   />
                 </div>
                 <div className="col-12 col-md-6">
-                  {/* Custom input for invite code preview to support icon */}
+                  {/* Custom input for unique invite code preview */}
                   <div style={{ marginBottom: '0.5rem' }}>
-                    <label style={{ display: 'block', fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>
-                      Invite Code Preview
-                    </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <label style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: 0 }}>
+                        Auto-Generated Code
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleRegenerateCode}
+                        style={{ background: 'none', border: 'none', color: 'var(--hz-primary)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: '500' }}
+                      >
+                        🔄 Refresh
+                      </button>
+                    </div>
                     <div style={{ position: 'relative' }}>
                       <input
                         type="text"
                         readOnly
-                        value="HZ-8821"
+                        value={inviteCode}
                         className="hz-input"
-                        style={{ background: 'var(--hz-bg)', color: 'var(--hz-text-muted)', paddingRight: '2.5rem' }}
+                        style={{ background: 'var(--hz-surface)', color: 'var(--hz-primary)', fontWeight: 'bold', letterSpacing: '0.05em', paddingRight: '2.5rem' }}
                       />
-                      <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-secondary)', display: 'flex', alignItems: 'center' }}>
+                      <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -133,7 +171,7 @@ export default function TeamCreate() {
                       </div>
                     </div>
                     <p style={{ marginTop: '0.35rem', fontSize: '11px', color: 'var(--hz-text-muted)', fontStyle: 'italic' }}>
-                      Code will be active after creation.
+                      Unique invite code generated for your team.
                     </p>
                   </div>
                 </div>
@@ -159,7 +197,7 @@ export default function TeamCreate() {
                         Public Team
                       </div>
                       <div style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)' }}>
-                        Discoverable in the global directory.
+                        Discoverable in the global directory (Join Team section).
                       </div>
                     </div>
                   </div>
@@ -177,7 +215,7 @@ export default function TeamCreate() {
                     </svg>
                   </div>
                   <div style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)' }}>
-                    Private teams require a direct invite link to join.
+                    {form.isPublic ? 'Visible in Browse Open Teams and searchable by name or code.' : 'Private teams require a direct invite code to join.'}
                   </div>
                 </div>
               </div>
@@ -211,3 +249,4 @@ export default function TeamCreate() {
     </div>
   );
 }
+

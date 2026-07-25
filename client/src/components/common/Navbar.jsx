@@ -171,7 +171,7 @@ export default function Navbar() {
                 display: 'flex', flexDirection: 'column', gap: '0.25rem',
                 zIndex: 100
               }}>
-                <Link to="/profile" style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>
+                <Link to={user.role === 'judge' ? '/judge/profile' : '/profile'} style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>
                   Profile
                 </Link>
                 <Link to="/settings" style={{ padding: '0.5rem', textDecoration: 'none', color: metaClr, borderRadius: '4px', fontSize: '0.875rem' }} onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} onClick={() => setDropdownOpen(false)}>

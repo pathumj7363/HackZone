@@ -29,7 +29,8 @@ describe('Hackathon Model Participant Queries', () => {
     assert.strictEqual(pool.query.mock.calls.length, 1);
     
     const callArgs = pool.query.mock.calls[0].arguments;
-    assert.strictEqual(callArgs[0], 'SELECT * FROM hackathons ORDER BY created_at DESC');
+    assert.ok(callArgs[0].includes('SELECT h.*'));
+    assert.ok(callArgs[0].includes('participantCount'));
   });
 
   test('getHackathonById should return a single hackathon when found', async () => {
@@ -43,7 +44,8 @@ describe('Hackathon Model Participant Queries', () => {
     assert.strictEqual(pool.query.mock.calls.length, 1);
     
     const callArgs = pool.query.mock.calls[0].arguments;
-    assert.strictEqual(callArgs[0], 'SELECT * FROM hackathons WHERE id = ?');
+    assert.ok(callArgs[0].includes('SELECT h.*'));
+    assert.ok(callArgs[0].includes('participantCount'));
     assert.deepStrictEqual(callArgs[1], ['123']);
   });
 

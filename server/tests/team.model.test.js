@@ -88,14 +88,14 @@ describe('Team Model Participant Queries', () => {
     assert.deepStrictEqual(result, mockTeams);
     assert.strictEqual(pool.query.mock.calls.length, 1);
     const callArgs = pool.query.mock.calls[0].arguments;
-    assert.strictEqual(callArgs[0], 'SELECT * FROM teams ORDER BY created_at DESC');
+    assert.ok(callArgs[0].includes('FROM teams t'));
   });
 
   test('joinTeam should add user as a member if valid code', async () => {
     const mockTeam = { id: 'team-uuid' };
     
     pool.query.mock.mockImplementation(async (query) => {
-      if (query.includes('SELECT id FROM teams WHERE name = ? OR id = ?')) {
+      if (query.includes('SELECT id FROM teams WHERE inviteCode = ? OR name = ? OR id = ?')) {
         return [[mockTeam]];
       } else if (query.includes('INSERT INTO team_members')) {
         return [{ affectedRows: 1 }];

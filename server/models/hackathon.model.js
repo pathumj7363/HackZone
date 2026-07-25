@@ -1,5 +1,69 @@
 import pool from '../database/db.js';
 
+// Auto-migrate new columns and ensure table exists
+(async () => {
+  try {
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS hackathons (
+        id VARCHAR(255) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        startDate DATETIME,
+        endDate DATETIME,
+        rules TEXT,
+        prizes JSON,
+        sponsors JSON,
+        judges JSON,
+        organizerId VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    const createRegistrationsQuery = `
+      CREATE TABLE IF NOT EXISTS hackathon_registrations (
+        id VARCHAR(255) PRIMARY KEY,
+        userId VARCHAR(255) NOT NULL,
+        hackathonId VARCHAR(255) NOT NULL,
+        teamId VARCHAR(255),
+        regType VARCHAR(50) DEFAULT 'solo',
+        role VARCHAR(100),
+        experienceLevel VARCHAR(100),
+        githubUrl VARCHAR(255),
+        idea TEXT,
+        proposalUrl VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (hackathonId) REFERENCES hackathons(id) ON DELETE CASCADE,
+        FOREIGN KEY (teamId) REFERENCES teams(id) ON DELETE SET NULL
+      )
+    `;
+    await pool.query(createTableQuery);
+    await pool.query(createRegistrationsQuery);
+  } catch (err) {
+    console.error("Error creating hackathons tables:", err);
+  }
+
+  const queries = [
+    "ALTER TABLE hackathons ADD COLUMN location VARCHAR(255);",
+    "ALTER TABLE hackathons ADD COLUMN theme VARCHAR(255);",
+    "ALTER TABLE hackathons ADD COLUMN maxTeamSize INT DEFAULT 4;",
+    "ALTER TABLE hackathons ADD COLUMN prizePool VARCHAR(255);",
+    "ALTER TABLE hackathons ADD COLUMN image TEXT;",
+    "ALTER TABLE hackathon_registrations ADD COLUMN idea TEXT;",
+    "ALTER TABLE hackathon_registrations ADD COLUMN proposalUrl VARCHAR(255);",
+    "ALTER TABLE hackathon_registrations ADD COLUMN status VARCHAR(50) DEFAULT 'pending';"
+  ];
+  for (let q of queries) {
+    try {
+      await pool.query(q);
+    } catch (e) {
+      // Ignore if column already exists
+    }
+  }
+  console.log("✅ Verified hackathon table and metadata columns");
+})();
+
 /**
  * Create a new hackathon.
  * @param {Object} hackathonData - The hackathon details
@@ -11,7 +75,8 @@ export const createHackathon = async (hackathonData) => {
     
     const {
       id, title, description, startDate, endDate, rules,
-      prizes, sponsors, judges, organizerId, status
+      prizes, sponsors, judges, organizerId, status,
+      location, theme, maxTeamSize, prizePool, image
     } = hackathonData;
 
     if (!id || !title || !organizerId) {
@@ -26,8 +91,9 @@ export const createHackathon = async (hackathonData) => {
     const query = `
       INSERT INTO hackathons (
         id, title, description, startDate, endDate, rules, 
-        prizes, sponsors, judges, organizerId, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        prizes, sponsors, judges, organizerId, status,
+        location, theme, maxTeamSize, prizePool, image
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.query(query, [
@@ -41,7 +107,12 @@ export const createHackathon = async (hackathonData) => {
       sponsorsJson, 
       judgesJson, 
       organizerId,
-      hackathonStatus
+      hackathonStatus,
+      location || null,
+      theme || null,
+      maxTeamSize || 4,
+      prizePool || null,
+      image || null
     ]);
 
     return hackathonData;
@@ -52,7 +123,12 @@ export const createHackathon = async (hackathonData) => {
 };
 
 export const getAllHackathons = async () => {
-  const query = `SELECT * FROM hackathons ORDER BY created_at DESC`;
+  const query = `
+    SELECT h.*, 
+           (SELECT COUNT(*) FROM hackathon_registrations r WHERE r.hackathonId = h.id) as participantCount
+    FROM hackathons h 
+    ORDER BY h.created_at DESC
+  `;
   const [rows] = await pool.query(query);
   return rows;
 };
@@ -66,7 +142,11 @@ export const getHackathonById = async (id) => {
   try {
     if (!id) throw new Error('Hackathon ID is required');
 
-    const query = `SELECT * FROM hackathons WHERE id = ?`;
+    const query = `
+      SELECT h.*, 
+             (SELECT COUNT(*) FROM hackathon_registrations r WHERE r.hackathonId = h.id) as participantCount
+      FROM hackathons h WHERE h.id = ?
+    `;
     const [rows] = await pool.query(query, [id]);
 
     if (rows.length === 0) {
@@ -112,6 +192,73 @@ export const getHackathonsByOrganizerId = async (organizerId) => {
 };
 
 /**
+ * Register a user/team for a hackathon.
+ */
+export const registerForHackathon = async (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl, idea, proposalUrl) => {
+  try {
+    const query = `
+      INSERT INTO hackathon_registrations (id, userId, hackathonId, teamId, regType, role, experienceLevel, githubUrl, idea, proposalUrl)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await pool.query(query, [id, userId, hackathonId, teamId || null, regType, role || null, experienceLevel || null, githubUrl || null, idea || null, proposalUrl || null]);
+    return true;
+  } catch (error) {
+    console.error('Error registering for hackathon:', error);
+    throw error;
+  }
+};
+
+export const getRegisteredHackathonsByUserId = async (userId) => {
+  try {
+    const query = `
+      SELECT h.*, r.regType, r.teamId, r.role, r.status as registrationStatus, t.name as teamName 
+      FROM hackathons h
+      JOIN hackathon_registrations r ON h.id = r.hackathonId
+      LEFT JOIN teams t ON r.teamId = t.id
+      WHERE r.userId = ?
+      ORDER BY r.created_at DESC
+    `;
+    const [rows] = await pool.query(query, [userId]);
+    return rows.map(hackathon => {
+      if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
+      if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
+      if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
+      return hackathon;
+    });
+  } catch (error) {
+    console.error('Error fetching registered hackathons:', error);
+    throw error;
+  }
+};
+
+export const getRegistrationsByHackathonId = async (hackathonId) => {
+  const query = `
+    SELECT r.id, r.userId, r.hackathonId, r.teamId, r.regType, r.role, r.experienceLevel, r.githubUrl, r.idea, r.proposalUrl, r.status, r.created_at,
+           u.name as participantName, u.email as participantEmail,
+           t.name as teamName, (SELECT COUNT(*) FROM team_members tm WHERE tm.teamId = t.id) as teamSize
+    FROM hackathon_registrations r
+    JOIN users u ON r.userId = u.id
+    LEFT JOIN teams t ON r.teamId = t.id
+    WHERE r.hackathonId = ?
+    ORDER BY r.created_at DESC
+  `;
+  const [rows] = await pool.query(query, [hackathonId]);
+  return rows;
+};
+
+export const updateRegistrationStatus = async (registrationId, status) => {
+  try {
+    const query = `UPDATE hackathon_registrations SET status = ? WHERE id = ?`;
+    await pool.query(query, [status, registrationId]);
+    return true;
+  } catch (error) {
+    console.error('Error updating registration status:', error);
+    throw error;
+  }
+};
+
+
+/**
  * Update an existing hackathon.
  * @param {string} id 
  * @param {Object} updateData 
@@ -136,6 +283,11 @@ export const updateHackathon = async (id, updateData) => {
     if (updateData.prizes !== undefined) { fields.push('prizes = ?'); values.push(JSON.stringify(updateData.prizes)); }
     if (updateData.sponsors !== undefined) { fields.push('sponsors = ?'); values.push(JSON.stringify(updateData.sponsors)); }
     if (updateData.judges !== undefined) { fields.push('judges = ?'); values.push(JSON.stringify(updateData.judges)); }
+    if (updateData.location !== undefined) { fields.push('location = ?'); values.push(updateData.location); }
+    if (updateData.theme !== undefined) { fields.push('theme = ?'); values.push(updateData.theme); }
+    if (updateData.maxTeamSize !== undefined) { fields.push('maxTeamSize = ?'); values.push(updateData.maxTeamSize); }
+    if (updateData.prizePool !== undefined) { fields.push('prizePool = ?'); values.push(updateData.prizePool); }
+    if (updateData.image !== undefined) { fields.push('image = ?'); values.push(updateData.image); }
 
     if (fields.length === 0) return true;
 
@@ -148,4 +300,72 @@ export const updateHackathon = async (id, updateData) => {
     console.error('Error updating hackathon:', error);
     throw error;
   }
+};
+
+export const getOrganizerStats = async (organizerId) => {
+  const [hackathons] = await pool.query(`SELECT id FROM hackathons WHERE organizerId = ?`, [organizerId]);
+  if (!hackathons.length) {
+    return { totalTeams: 0, totalSubmissions: 0, activeJudges: 0, pendingReviews: 0, recentActivity: [] };
+  }
+  
+  const hackathonIds = hackathons.map(h => h.id);
+  const placeholders = hackathonIds.map(() => '?').join(',');
+
+  const [teamsRes] = await pool.query(
+    `SELECT COUNT(id) as count FROM hackathon_registrations WHERE hackathonId IN (${placeholders})`,
+    hackathonIds
+  );
+
+  const [submissionsRes] = await pool.query(
+    `SELECT COUNT(id) as count FROM submissions WHERE hackathonId IN (${placeholders})`,
+    hackathonIds
+  );
+
+  // Active judges in evaluations
+  let judgesCount = 0;
+  try {
+    const [judgesRes] = await pool.query(
+      `SELECT COUNT(DISTINCT judgeId) as count FROM evaluations WHERE hackathonId IN (${placeholders})`,
+      hackathonIds
+    );
+    judgesCount = judgesRes[0].count;
+  } catch(e) {
+    // If evaluations table doesn't exist yet, ignore
+  }
+
+  // Pending reviews
+  let reviewsCount = 0;
+  try {
+    const [reviewsRes] = await pool.query(
+      `SELECT COUNT(id) as count FROM evaluations WHERE hackathonId IN (${placeholders}) AND innovationScore IS NULL`,
+      hackathonIds
+    );
+    reviewsCount = reviewsRes[0].count;
+  } catch(e) {
+    // Ignore if table missing
+  }
+
+  // Recent submissions activity
+  let recentActivity = [];
+  try {
+    const [activityRes] = await pool.query(`
+      SELECT s.id, s.title, s.created_at, 'submission' as type, t.name as teamName
+      FROM submissions s
+      JOIN teams t ON s.teamId = t.id
+      WHERE s.hackathonId IN (${placeholders})
+      ORDER BY s.created_at DESC
+      LIMIT 5
+    `, hackathonIds);
+    recentActivity = activityRes;
+  } catch(e) {
+    // Ignore
+  }
+
+  return {
+    totalTeams: teamsRes[0].count,
+    totalSubmissions: submissionsRes[0].count,
+    activeJudges: judgesCount,
+    pendingReviews: reviewsCount,
+    recentActivity: recentActivity
+  };
 };

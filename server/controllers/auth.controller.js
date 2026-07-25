@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { findUserByEmail, createUser } from '../models/user.model.js';
+import { findUserByEmail, createUser, updateJudgeProfile, updateOrganizerProfile } from '../models/user.model.js';
 
 // Generates a JWT token for the user
 const generateToken = (userId, role) => {
@@ -13,7 +13,7 @@ const generateToken = (userId, role) => {
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, occupation, organizationName } = req.body;
 
     // 1. Validation
     if (!name || !email || !password) {
@@ -36,6 +36,12 @@ export const register = async (req, res) => {
     const userRole = role || 'participant'; // Default to participant if no role provided
 
     const newUser = await createUser(userId, name, email, hashedPassword, userRole);
+
+    if (userRole === 'judge' && occupation) {
+      await updateJudgeProfile(userId, { occupation });
+    } else if (userRole === 'organizer' && organizationName) {
+      await updateOrganizerProfile(userId, { organizationName });
+    }
 
     // 5. Generate token
     const token = generateToken(newUser.id, newUser.role);

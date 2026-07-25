@@ -59,13 +59,6 @@ function ProjectIcon({ index }) {
   );
 }
 
-// ── Mock enriched data (supplements the API data) ──────────────────────────
-const MOCK_EXTRA = [
-  { id: 's1', title: 'Neural Knights',   subtitle: 'AI-driven security mesh',      hackathon: 'Global AI Innovate 2024', status: 'Submitted', updated: '2 days ago' },
-  { id: 's2', title: 'Cyber Sentinels',  subtitle: 'Decentralized Auth Protocol',  hackathon: 'Web3 Future Build',        status: 'Draft',     updated: 'Oct 12, 2024' },
-  { id: 's3', title: 'Eco-Pulse',        subtitle: 'Carbon tracking dashboard',    hackathon: 'GreenTech Hack',           status: 'Reviewed',  updated: '5 days ago' },
-];
-
 export default function MySubmissions() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -76,15 +69,14 @@ export default function MySubmissions() {
   useEffect(() => {
     getMySubmissionsApi()
       .then(data => {
-        // Merge API data with mock extras for a richer display
-        const enriched = MOCK_EXTRA.map((extra, i) => {
-          const api = data.find(d => d.id === extra.id) || {};
-          return { ...extra, ...api, ...extra }; // extra takes display priority
-        });
-        setSubmissions(enriched.length ? enriched : MOCK_EXTRA);
+        setSubmissions(data || []);
         setLoading(false);
       })
-      .catch(() => { setSubmissions(MOCK_EXTRA); setLoading(false); });
+      .catch((err) => {
+        console.error("Failed to load submissions", err);
+        setSubmissions([]);
+        setLoading(false);
+      });
   }, []);
 
   // ── Loading ────────────────────────────────────────────────────────────────
@@ -235,7 +227,7 @@ export default function MySubmissions() {
                   paddingRight: '1rem',
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                 }}>
-                  {s.hackathon || (s.hackathonId ? `Hackathon #${s.hackathonId}` : '—')}
+                  {s.hackathonName || s.hackathon || (s.hackathonId ? `Hackathon #${s.hackathonId}` : '—')}
                 </div>
 
                 {/* Status */}
