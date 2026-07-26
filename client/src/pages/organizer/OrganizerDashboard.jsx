@@ -226,8 +226,8 @@ export default function OrganizerDashboard() {
                   </div>
                 </Link>
 
-                {/* Manage Teams */}
-                <Link to="/organizer/teams" style={{ textDecoration: 'none', color: 'inherit' }}>
+                {/* Manage Submissions */}
+                <Link to="/organizer/submissions" style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ border: '1px solid var(--hz-border)', borderRadius: '8px', padding: '1.5rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--hz-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--hz-border)'}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -241,7 +241,7 @@ export default function OrganizerDashboard() {
                       <path d="M12 18h.01"></path>
                       <path d="M16 18h.01"></path>
                     </svg>
-                    <span style={{ fontSize: '0.85rem', fontWeight: '500', textAlign: 'center' }}>Manage Teams</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: '500', textAlign: 'center' }}>Manage Submissions</span>
                   </div>
                 </Link>
 

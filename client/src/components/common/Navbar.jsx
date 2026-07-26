@@ -101,7 +101,7 @@ export default function Navbar() {
         links = [
           { to: '/organizer', label: 'Dashboard' },
           { to: '/organizer/hackathon', label: 'Hackathons' },
-          { to: '/organizer/teams', label: 'Teams' },
+          { to: '/organizer/submissions', label: 'Registrations & Submissions' },
           { to: '/organizer/judges', label: 'Judges' },
           { to: '/organizer/announce', label: 'Announcements' },
         ];

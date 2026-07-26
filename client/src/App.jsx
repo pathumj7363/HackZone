@@ -14,6 +14,7 @@ import ParticipantDashboard from './pages/dashboard/ParticipantDashboard'
 import Profile from './pages/participant/Profile'
 import HackathonList from './pages/participant/HackathonList'
 import HackathonDetail from './pages/participant/HackathonDetail'
+import HackathonRegistration from './pages/hackathon/HackathonRegistration'
 import TeamCreate from './pages/hackathon/TeamCreate'
 import TeamJoin from './pages/hackathon/TeamJoin'
 import TeamDashboard from './pages/hackathon/TeamDashboard'
@@ -22,7 +23,7 @@ import MySubmissions from './pages/submission/MySubmissions'
 import EvaluationResults from './pages/submission/EvaluationResults'
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard'
 import ManageHackathon from './pages/organizer/ManageHackathon'
-import ManageTeams from './pages/organizer/ManageTeams'
+import ManageSubmissions from './pages/organizer/ManageSubmissions'
 import AssignJudges from './pages/organizer/AssignJudges'
 import Announcements from './pages/organizer/Announcements'
 import JudgeDashboard from './pages/judge/JudgeDashboard'
@@ -53,6 +54,8 @@ export default function App() {
             <Route path="/register/role-select" element={<RoleSelect />} />
             <Route path="/register" element={<Register />} />
 
+            <Route path="/hackathons/:id/register" element={<ProtectedRoute allowedRoles={['participant']}><HackathonRegistration /></ProtectedRoute>} />
+
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><ParticipantDashboard /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute allowedRoles={['participant']}><Profile /></ProtectedRoute>} />
@@ -69,7 +72,7 @@ export default function App() {
 
               <Route path="/organizer" element={<ProtectedRoute allowedRoles={['organizer']}><OrganizerDashboard /></ProtectedRoute>} />
               <Route path="/organizer/hackathon" element={<ProtectedRoute allowedRoles={['organizer']}><ManageHackathon /></ProtectedRoute>} />
-              <Route path="/organizer/teams" element={<ProtectedRoute allowedRoles={['organizer']}><ManageTeams /></ProtectedRoute>} />
+              <Route path="/organizer/submissions" element={<ProtectedRoute allowedRoles={['organizer']}><ManageSubmissions /></ProtectedRoute>} />
               <Route path="/organizer/judges" element={<ProtectedRoute allowedRoles={['organizer']}><AssignJudges /></ProtectedRoute>} />
               <Route path="/organizer/announce" element={<ProtectedRoute allowedRoles={['organizer']}><Announcements /></ProtectedRoute>} />
 
