@@ -91,7 +91,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(ui): add notifications for team invite actions`
 
 ## Day 8: Submissions UI & Final Polish
-- [ ] **Task 36:** Update Participant Dashboard to fetch and display past submissions using `getMySubmissionsApi`.
+- [x] **Task 36:** Update Participant Dashboard to fetch and display past submissions using `getMySubmissionsApi`.
   - **Commit:** `feat(pages): fetch real submissions in participant dashboard`
 - [ ] **Task 37:** Implement an empty state UI if the user has no submissions.
   - **Commit:** `feat(ui): add empty state for missing submissions`

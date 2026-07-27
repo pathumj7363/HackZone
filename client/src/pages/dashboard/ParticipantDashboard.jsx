@@ -8,21 +8,27 @@ import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { respondToInviteApi, getMyInvitesApi } from '../../api/team.api';
 import { getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
+import { getMySubmissionsApi } from '../../api/submission.api';
 import { toast } from 'react-toastify';
 
 export default function ParticipantDashboard() {
   const { user } = useAuth();
   const [registeredHackathons, setRegisteredHackathons] = useState([]);
   const [teamInvites, setTeamInvites] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
 
   const loadData = () => {
     getMyRegisteredHackathonsApi()
       .then(data => setRegisteredHackathons(data || []))
       .catch(() => setRegisteredHackathons([]));
-      
+
     getMyInvitesApi()
       .then(data => setTeamInvites(data?.data || data || []))
       .catch(() => setTeamInvites([]));
+
+    getMySubmissionsApi()
+      .then(data => setSubmissions(data || []))
+      .catch(() => setSubmissions([]));
   };
 
   useEffect(() => {
@@ -67,9 +73,9 @@ export default function ParticipantDashboard() {
             <h3 className="hz-heading-3 hz-mb-4">Registered Hackathons</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {registeredHackathons.length === 0 ? (
-                <EmptyState 
-                  title="No Registered Hackathons" 
-                  description="You haven't registered for any hackathons yet." 
+                <EmptyState
+                  title="No Registered Hackathons"
+                  description="You haven't registered for any hackathons yet."
                 />
               ) : (
                 registeredHackathons.map(hackathon => (
@@ -83,19 +89,19 @@ export default function ParticipantDashboard() {
                         flexShrink: 0,
                         border: '1px solid var(--hz-border)'
                       }} />
-                      
+
                       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
                           <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hackathon.title}</h4>
                           <Badge variant={
-                            hackathon.registrationStatus === 'approved' ? 'success' : 
-                            hackathon.registrationStatus === 'rejected' ? 'danger' : 'warning'
+                            hackathon.registrationStatus === 'approved' ? 'success' :
+                              hackathon.registrationStatus === 'rejected' ? 'danger' : 'warning'
                           }>
-                            {hackathon.registrationStatus === 'approved' ? 'Project Approved' : 
-                             hackathon.registrationStatus === 'rejected' ? 'Project Rejected' : 'Pending Approval'}
+                            {hackathon.registrationStatus === 'approved' ? 'Project Approved' :
+                              hackathon.registrationStatus === 'rejected' ? 'Project Rejected' : 'Pending Approval'}
                           </Badge>
                         </div>
-                        
+
                         {hackathon.teamName ? (
                           <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.75rem 0' }}>
                             Registered as team: <strong style={{ color: 'var(--hz-text)' }}>{hackathon.teamName}</strong>
@@ -105,7 +111,7 @@ export default function ParticipantDashboard() {
                             Registered as: <strong style={{ color: 'var(--hz-text)' }}>Solo Participant</strong>
                           </p>
                         )}
-                        
+
                         <div style={{ display: 'flex', gap: '0.75rem' }}>
                           <Link to={`/hackathons/${hackathon.id}`} style={{ textDecoration: 'none' }}>
                             <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
@@ -251,10 +257,77 @@ export default function ParticipantDashboard() {
           </div>
         </div>
 
+        {/* Past Submissions */}
+        <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 className="hz-heading-3" style={{ margin: 0 }}>My Submissions</h3>
+            <Link to="/my-submissions" style={{ textDecoration: 'none' }}>
+              <Button variant="outline" size="sm" style={{ fontSize: '0.85rem' }}>
+                View All
+              </Button>
+            </Link>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {submissions.length === 0 ? (
+              <EmptyState
+                title="No Submissions Found"
+                description="You haven't submitted any projects for hackathons yet."
+              />
+            ) : (
+              submissions.map(sub => (
+                <Card key={sub.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s, transform 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ flex: 1, minWidth: '250px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
+                        <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem' }}>{sub.title || 'Untitled Project'}</h4>
+                        <Badge variant={sub.status === 'rejected' ? 'danger' : 'success'}>
+                          {sub.status || 'Submitted'}
+                        </Badge>
+                      </div>
+                      {sub.description && (
+                        <p className="hz-text-muted" style={{ fontSize: '0.875rem', margin: '0 0 0.5rem 0', lineHeight: '1.4' }}>
+                          {sub.description}
+                        </p>
+                      )}
+                      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
+                        {(sub.hackathonName || sub.hackathonTitle || sub.hackathon) && (
+                          <span>Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{sub.hackathonName || sub.hackathonTitle || sub.hackathon}</strong></span>
+                        )}
+                        {sub.teamName && (
+                          <span>Team: <strong style={{ color: 'var(--hz-text)' }}>{sub.teamName}</strong></span>
+                        )}
+                        {sub.created_at && (
+                          <span>Submitted: <strong style={{ color: 'var(--hz-text)' }}>{new Date(sub.created_at).toLocaleDateString()}</strong></span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      {sub.githubRepo && (
+                        <a href={sub.githubRepo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                          <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                            GitHub Repo
+                          </Button>
+                        </a>
+                      )}
+                      {sub.demoVideoUrl && (
+                        <a href={sub.demoVideoUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                          <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                            Demo Video
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Quick Links / CTA */}
         <div style={{ marginTop: '1.5rem' }}>
-          <Card padding="0" style={{ 
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%)', 
+          <Card padding="0" style={{
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%)',
             border: '1px solid rgba(139, 92, 246, 0.2)',
             overflow: 'hidden',
             position: 'relative',
@@ -265,7 +338,7 @@ export default function ParticipantDashboard() {
             <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '200px', height: '200px', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '50%', filter: 'blur(40px)', pointerEvents: 'none' }} />
 
             <div style={{ position: 'relative', zIndex: 1, padding: '3rem 2rem', textAlign: 'center' }}>
-              <div style={{ 
+              <div style={{
                 width: '56px', height: '56px', borderRadius: '14px', background: 'var(--hz-bg)', border: '1px solid var(--hz-border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
               }}>
@@ -273,15 +346,15 @@ export default function ParticipantDashboard() {
                   <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                 </svg>
               </div>
-              
+
               <h4 className="hz-heading-3 hz-mb-2" style={{ fontWeight: 'var(--hz-font-weight-bold)' }}>
                 Ready for your next challenge?
               </h4>
-              
+
               <p className="hz-text-muted hz-mb-6" style={{ maxWidth: '450px', margin: '0 auto 2rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
                 Join the most exciting hackathons around the globe. Browse upcoming events, form a team, and build incredible projects.
               </p>
-              
+
               <Link to="/hackathons" style={{ textDecoration: 'none' }}>
                 <Button variant="primary" style={{ padding: '0.75rem 2rem', fontSize: '1rem', borderRadius: '999px', boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)' }}>
                   Explore Hackathons
