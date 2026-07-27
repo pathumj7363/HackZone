@@ -93,7 +93,7 @@ After checking the current repository state, none of these participant-specific 
 ## Day 8: Submissions UI & Final Polish
 - [x] **Task 36:** Update Participant Dashboard to fetch and display past submissions using `getMySubmissionsApi`.
   - **Commit:** `feat(pages): fetch real submissions in participant dashboard`
-- [ ] **Task 37:** Implement an empty state UI if the user has no submissions.
+- [x] **Task 37:** Implement an empty state UI if the user has no submissions.
   - **Commit:** `feat(ui): add empty state for missing submissions`
 - [ ] **Task 38:** Handle any database schema edge cases (e.g., null values, date formatting on frontend).
   - **Commit:** `fix(pages): handle data formatting and null values`
