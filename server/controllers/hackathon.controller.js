@@ -11,6 +11,8 @@ import {
   getOrganizerStats as getOrganizerStatsModel,
   deleteHackathonById
 } from '../models/hackathon.model.js';
+import { findUserByEmail } from '../models/user.model.js';
+import { createJudgeInvitation } from '../models/invitation.model.js';
 import crypto from 'crypto';
 
 const formatHackathonForClient = (h) => {
@@ -280,6 +282,26 @@ export const createHackathon = async (req, res) => {
       image
     });
 
+    // Handle judge invitations
+    if (parsedJudges && parsedJudges.length > 0) {
+      for (const judge of parsedJudges) {
+        if (!judge.email) continue;
+        
+        try {
+          const user = await findUserByEmail(judge.email);
+          await createJudgeInvitation(id, judge.email, user ? user.id : null);
+          
+          if (user) {
+            console.log(`[Judge System] Internal system invitation created for ${judge.email}`);
+          } else {
+            console.log(`[Judge Email] Mock Email Sent to ${judge.email}: You have been invited to judge ${title}.`);
+          }
+        } catch (inviteError) {
+          console.error(`Failed to invite judge ${judge.email}:`, inviteError);
+        }
+      }
+    }
+
     return res.status(201).json({ message: 'Hackathon created', data: hackathon });
   } catch (error) {
     console.error('[createHackathon] Error:', error);
@@ -317,10 +339,34 @@ export const updateHackathon = async (req, res) => {
       return res.status(403).json({ error: 'You do not have permission to update this hackathon' });
     }
 
+    if (updateData.judges && typeof updateData.judges === 'string') {
+      try { updateData.judges = JSON.parse(updateData.judges); } catch(e){}
+    }
+
     const success = await updateHackathonModel(id, updateData);
 
     if (!success) {
       return res.status(404).json({ error: 'Hackathon not found or no changes made' });
+    }
+
+    // Handle judge invitations
+    if (updateData.judges && updateData.judges.length > 0) {
+      for (const judge of updateData.judges) {
+        if (!judge.email) continue;
+        
+        try {
+          const user = await findUserByEmail(judge.email);
+          await createJudgeInvitation(id, judge.email, user ? user.id : null);
+          
+          if (user) {
+            console.log(`[Judge System] Internal system invitation created/verified for ${judge.email}`);
+          } else {
+            console.log(`[Judge Email] Mock Email Sent to ${judge.email}: You have been invited to judge ${hackathon.title}.`);
+          }
+        } catch (inviteError) {
+          // Ignore duplicate entries (already invited)
+        }
+      }
     }
 
     return res.status(200).json({ message: 'Hackathon updated successfully' });
