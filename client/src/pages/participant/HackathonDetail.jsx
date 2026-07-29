@@ -398,34 +398,26 @@ export default function HackathonDetail() {
               </p>
             </Card>
 
-            {/* Deadline Checklist */}
-            <Card padding>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
-                Deadline Checklist
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {checklist.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      {item.done ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                      ) : (
-                        <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid var(--hz-border)' }} />
-                      )}
+            {/* Evaluation Areas */}
+            {hackathon.evaluationAreas && hackathon.evaluationAreas.length > 0 && (
+              <Card padding>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
+                  Evaluation Areas
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {hackathon.evaluationAreas.map((area, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'var(--hz-surface)', borderRadius: '8px' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      </div>
                       <span style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text)', fontWeight: 'var(--hz-font-weight-medium)' }}>
-                        {item.label}
+                        {area}
                       </span>
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: 'var(--hz-font-weight-bold)', color: item.color || 'var(--hz-text-muted)' }}>
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Organizer Info */}
             <div style={{ background: '#f8fafc', borderRadius: 'var(--hz-radius)', padding: '1.25rem', border: '1px solid var(--hz-border)' }}>
@@ -476,7 +468,15 @@ export default function HackathonDetail() {
                       </div>
                       <div>
                         <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>{judge.name}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--hz-text-muted)' }}>{judge.role}</div>
+                        {(judge.evaluationAreas && judge.evaluationAreas.length > 0) && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                            {judge.evaluationAreas.map(area => (
+                              <span key={area} style={{ fontSize: '10px', background: 'var(--hz-surface-raised)', color: 'var(--hz-text-secondary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--hz-border)' }}>
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
