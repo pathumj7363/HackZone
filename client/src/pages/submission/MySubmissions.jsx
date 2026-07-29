@@ -4,6 +4,8 @@ import { getMySubmissionsApi } from '../../api/submission.api';
 import EmptyState from '../../components/ui/EmptyState';
 import Button from '../../components/ui/Button';
 
+import { formatDate } from '../../utils/date';
+
 // ── Status badge styles ────────────────────────────────────────────────────
 const STATUS_STYLES = {
   submitted:    { background: 'var(--hz-primary)', color: '#fff',                    border: 'none' },
@@ -258,7 +260,7 @@ export default function MySubmissions() {
                   fontSize: 'var(--hz-font-size-sm)',
                   color: 'var(--hz-text-muted)',
                 }}>
-                  {s.updated || (s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—')}
+                  {s.updated || formatDate(s.submittedAt || s.created_at || s.createdAt || s.submitted_at || s.updatedAt)}
                 </div>
 
                 {/* Actions */}

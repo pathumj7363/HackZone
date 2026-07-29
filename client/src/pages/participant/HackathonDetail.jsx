@@ -6,6 +6,8 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { toast } from 'react-toastify';
 
+import { formatDateTime, parseRules, parsePrizes } from '../../utils/date';
+
 // Utility for timeline dots
 const TimelineDot = ({ color }) => (
   <div style={{
@@ -121,38 +123,27 @@ export default function HackathonDetail() {
   const participantCount = hackathon.participantCount || 0;
 
   // Dynamic Rules
-  let rules = ["All code must be original.", "Projects must align with the theme.", "A demonstration is required for submission."];
-  if (hackathon.rules && typeof hackathon.rules === 'string') {
-    rules = hackathon.rules.split('\n').filter(r => r.trim() !== '');
-  } else if (Array.isArray(hackathon.rules)) {
-    rules = hackathon.rules;
-  }
+  const rules = parseRules(hackathon.rules);
 
   // Dynamic Prizes
-  let prizesList = hackathon.prizes && Array.isArray(hackathon.prizes) && hackathon.prizes.length > 0 
-    ? hackathon.prizes 
-    : [
-        { place: 'Grand Prize Pool', amount: prizePool, icon: '🏆', color: '#fef3c7', iconColor: '#d97706', desc: 'Total prize distribution' }
-      ];
+  const prizesList = parsePrizes(hackathon.prizes, prizePool);
 
-  // Dynamic Milestones
-  const startObj = new Date(hackathon.startDate || Date.now());
-  const endObj = new Date(hackathon.endDate || Date.now());
-  const winnersObj = new Date(endObj.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days after end
-  
-  const formatDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' • ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit' });
+  // Dynamic Milestones (safe date handling)
+  const validStartDate = hackathon.startDate && !isNaN(new Date(hackathon.startDate).getTime()) ? new Date(hackathon.startDate) : new Date();
+  const validEndDate = hackathon.endDate && !isNaN(new Date(hackathon.endDate).getTime()) ? new Date(hackathon.endDate) : new Date(validStartDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const winnersObj = new Date(validEndDate.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days after end
 
   const milestones = [
-    { title: 'Registration & Hacking Begins', date: formatDate(startObj), color: '#10b981' },
-    { title: 'Submission Deadline', date: formatDate(endObj), color: '#3b82f6' },
-    { title: 'Winners Announced', date: formatDate(winnersObj), color: '#cbd5e1' },
+    { title: 'Registration & Hacking Begins', date: formatDateTime(validStartDate), color: '#10b981' },
+    { title: 'Submission Deadline', date: formatDateTime(validEndDate), color: '#3b82f6' },
+    { title: 'Winners Announced', date: formatDateTime(winnersObj), color: '#cbd5e1' },
   ];
 
   // Dynamic Checklist
   const checklist = [
     { label: 'Register for Event', status: 'Done', done: true },
-    { label: 'Team Formation', status: `By ${startObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, color: '#ef4444' },
-    { label: 'Final Submission', status: endObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
+    { label: 'Team Formation', status: `By ${validStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, color: '#ef4444' },
+    { label: 'Final Submission', status: validEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
   ];
 
   return (

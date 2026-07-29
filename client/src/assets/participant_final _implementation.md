@@ -95,7 +95,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `feat(pages): fetch real submissions in participant dashboard`
 - [x] **Task 37:** Implement an empty state UI if the user has no submissions.
   - **Commit:** `feat(ui): add empty state for missing submissions`
-- [ ] **Task 38:** Handle any database schema edge cases (e.g., null values, date formatting on frontend).
+- [x] **Task 38:** Handle any database schema edge cases (e.g., null values, date formatting on frontend).
   - **Commit:** `fix(pages): handle data formatting and null values`
 - [ ] **Task 39:** Perform full end-to-end test (Login -> See Hackathons -> Check Invites -> View Submissions).
   - **Commit:** `test(e2e): verify complete participant workflow`

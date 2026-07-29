@@ -11,6 +11,8 @@ import { getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
 import { getMySubmissionsApi } from '../../api/submission.api';
 import { toast } from 'react-toastify';
 
+import { formatDate } from '../../utils/date';
+
 export default function ParticipantDashboard() {
   const { user } = useAuth();
   const [registeredHackathons, setRegisteredHackathons] = useState([]);
@@ -19,15 +21,15 @@ export default function ParticipantDashboard() {
 
   const loadData = () => {
     getMyRegisteredHackathonsApi()
-      .then(data => setRegisteredHackathons(data || []))
+      .then(data => setRegisteredHackathons(Array.isArray(data) ? data : (data?.data || [])))
       .catch(() => setRegisteredHackathons([]));
 
     getMyInvitesApi()
-      .then(data => setTeamInvites(data?.data || data || []))
+      .then(data => setTeamInvites(Array.isArray(data) ? data : (data?.data || [])))
       .catch(() => setTeamInvites([]));
 
     getMySubmissionsApi()
-      .then(data => setSubmissions(data || []))
+      .then(data => setSubmissions(Array.isArray(data) ? data : (data?.data || [])))
       .catch(() => setSubmissions([]));
   };
 
@@ -92,7 +94,7 @@ export default function ParticipantDashboard() {
 
                       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
-                          <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hackathon.title}</h4>
+                          <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hackathon.title || 'Untitled Hackathon'}</h4>
                           <Badge variant={
                             hackathon.registrationStatus === 'approved' ? 'success' :
                               hackathon.registrationStatus === 'rejected' ? 'danger' : 'warning'
@@ -291,52 +293,55 @@ export default function ParticipantDashboard() {
                 />
               </Card>
             ) : (
-              submissions.map(sub => (
-                <Card key={sub.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s, transform 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div style={{ flex: 1, minWidth: '250px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
-                        <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem' }}>{sub.title || 'Untitled Project'}</h4>
-                        <Badge variant={sub.status === 'rejected' ? 'danger' : 'success'}>
-                          {sub.status || 'Submitted'}
-                        </Badge>
+              submissions.map(sub => {
+                const dateString = formatDate(sub.created_at || sub.createdAt || sub.submittedAt || sub.submitted_at || sub.created_date);
+                return (
+                  <Card key={sub.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s, transform 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ flex: 1, minWidth: '250px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
+                          <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem' }}>{sub.title || 'Untitled Project'}</h4>
+                          <Badge variant={sub.status === 'rejected' ? 'danger' : 'success'}>
+                            {sub.status || 'Submitted'}
+                          </Badge>
+                        </div>
+                        {sub.description && (
+                          <p className="hz-text-muted" style={{ fontSize: '0.875rem', margin: '0 0 0.5rem 0', lineHeight: '1.4' }}>
+                            {sub.description}
+                          </p>
+                        )}
+                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
+                          {(sub.hackathonName || sub.hackathonTitle || sub.hackathon) && (
+                            <span>Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{sub.hackathonName || sub.hackathonTitle || sub.hackathon}</strong></span>
+                          )}
+                          {sub.teamName && (
+                            <span>Team: <strong style={{ color: 'var(--hz-text)' }}>{sub.teamName}</strong></span>
+                          )}
+                          {dateString !== '—' && (
+                            <span>Submitted: <strong style={{ color: 'var(--hz-text)' }}>{dateString}</strong></span>
+                          )}
+                        </div>
                       </div>
-                      {sub.description && (
-                        <p className="hz-text-muted" style={{ fontSize: '0.875rem', margin: '0 0 0.5rem 0', lineHeight: '1.4' }}>
-                          {sub.description}
-                        </p>
-                      )}
-                      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
-                        {(sub.hackathonName || sub.hackathonTitle || sub.hackathon) && (
-                          <span>Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{sub.hackathonName || sub.hackathonTitle || sub.hackathon}</strong></span>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        {sub.githubRepo && (
+                          <a href={sub.githubRepo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                              GitHub Repo
+                            </Button>
+                          </a>
                         )}
-                        {sub.teamName && (
-                          <span>Team: <strong style={{ color: 'var(--hz-text)' }}>{sub.teamName}</strong></span>
-                        )}
-                        {sub.created_at && (
-                          <span>Submitted: <strong style={{ color: 'var(--hz-text)' }}>{new Date(sub.created_at).toLocaleDateString()}</strong></span>
+                        {sub.demoVideoUrl && (
+                          <a href={sub.demoVideoUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                              Demo Video
+                            </Button>
+                          </a>
                         )}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      {sub.githubRepo && (
-                        <a href={sub.githubRepo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                          <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-                            GitHub Repo
-                          </Button>
-                        </a>
-                      )}
-                      {sub.demoVideoUrl && (
-                        <a href={sub.demoVideoUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                          <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-                            Demo Video
-                          </Button>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))
+                  </Card>
+                );
+              })
             )}
           </div>
         </div>
