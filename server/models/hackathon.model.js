@@ -369,3 +369,43 @@ export const getOrganizerStats = async (organizerId) => {
     recentActivity: recentActivity
   };
 };
+
+/**
+ * Delete a hackathon by ID.
+ * @param {string} id 
+ * @returns {Promise<boolean>}
+ */
+export const deleteHackathonById = async (id) => {
+  try {
+    // Manually delete related data to avoid foreign key constraint errors
+    
+    // 1. Delete evaluations
+    try { await pool.query('DELETE FROM evaluations WHERE hackathonId = ?', [id]); } catch(e) {}
+    
+    // 2. Delete submissions
+    try { await pool.query('DELETE FROM submissions WHERE hackathonId = ?', [id]); } catch(e) {}
+    
+    // 3. Delete team invites and members, then teams
+    try {
+      const [teams] = await pool.query('SELECT id FROM teams WHERE hackathonId = ?', [id]);
+      if (teams.length > 0) {
+        const teamIds = teams.map(t => t.id);
+        const placeholders = teamIds.map(() => '?').join(',');
+        await pool.query(`DELETE FROM team_invites WHERE teamId IN (${placeholders})`, teamIds);
+        await pool.query(`DELETE FROM team_members WHERE teamId IN (${placeholders})`, teamIds);
+        await pool.query('DELETE FROM teams WHERE hackathonId = ?', [id]);
+      }
+    } catch(e) {}
+    
+    // 4. Delete registrations and judge invitations (just in case ON DELETE CASCADE is missing)
+    try { await pool.query('DELETE FROM hackathon_registrations WHERE hackathonId = ?', [id]); } catch(e) {}
+    try { await pool.query('DELETE FROM judge_invitations WHERE hackathonId = ?', [id]); } catch(e) {}
+
+    // Finally, delete the hackathon itself
+    const [result] = await pool.query('DELETE FROM hackathons WHERE id = ?', [id]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error deleting hackathon:', error);
+    throw error;
+  }
+};

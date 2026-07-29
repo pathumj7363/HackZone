@@ -111,7 +111,11 @@ export default function HackathonDetail() {
 
   const title = hackathon.title || "Untitled Hackathon";
   const dateRange = hackathon.dateRange || "";
-  const organizer = "Organizer"; // Add organizer name fetch later if needed
+  const orgData = hackathon.sponsors && Array.isArray(hackathon.sponsors) && hackathon.sponsors.length > 0 ? hackathon.sponsors[0] : null;
+  const organizerName = orgData?.name || "Platform Organizer";
+  const organizerDesc = orgData?.description || "Hosted on the HackZone Platform. Contact organizers through the official Discord server.";
+  const organizerWebsite = orgData?.website || null;
+  const judges = hackathon.judges && Array.isArray(hackathon.judges) ? hackathon.judges : [];
   const image = hackathon.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
   const displayStatus = hackathon.status || "COMING SOON";
   const description = hackathon.description || "No description provided.";
@@ -229,7 +233,7 @@ export default function HackathonDetail() {
               AF
             </div>
             <span style={{ fontSize: 'var(--hz-font-size-sm)' }}>
-              Organized by <strong>{organizer}</strong>
+              Organized by <strong>{organizerName}</strong>
             </span>
           </div>
         </div>
@@ -444,17 +448,41 @@ export default function HackathonDetail() {
                 </div>
                 <div>
                   <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>
-                    {organizer}
+                    {organizerName}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--hz-text-muted)' }}>
-                    Platform Organizer
-                  </div>
+                  {organizerWebsite && (
+                    <a href={organizerWebsite.startsWith('http') ? organizerWebsite : `https://${organizerWebsite}`} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--hz-primary)', textDecoration: 'none' }}>
+                      Visit Website &rarr;
+                    </a>
+                  )}
                 </div>
               </div>
               <p style={{ fontSize: '11px', color: 'var(--hz-text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                Hosted on the HackZone Platform. Contact organizers through the official Discord server.
+                {organizerDesc}
               </p>
             </div>
+
+            {/* Judges Panel */}
+            {judges.length > 0 && (
+              <Card padding style={{ marginTop: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
+                  Judging Panel
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {judges.map((judge, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                        {judge.name ? judge.name.charAt(0).toUpperCase() : 'J'}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>{judge.name}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--hz-text-muted)' }}>{judge.role}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
           </div>
         </div>

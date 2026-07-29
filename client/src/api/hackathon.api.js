@@ -22,6 +22,11 @@ export const createHackathonApi = async (data) => {
   return response.data?.data ?? response.data;
 };
 
+export const deleteHackathonApi = async (id) => {
+  const response = await api.delete(`/hackathons/${id}`);
+  return response.data;
+};
+
 export const registerHackathonApi = async (data) => {
   // If data is FormData, headers are automatically handled by Axios
   let headers = {};
