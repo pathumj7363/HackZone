@@ -15,13 +15,13 @@ export default function ManageSubmissions() {
   const [registrations, setRegistrations] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // view: 'list' | 'details'
   const [view, setView] = useState('list');
   const [activeTab, setActiveTab] = useState('proposals'); // 'proposals' | 'submissions'
   const [selectedRegistration, setSelectedRegistration] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-  
+
   // Search and filter state
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -95,7 +95,7 @@ export default function ManageSubmissions() {
   });
 
   const filteredSubmissions = submissions.filter(s => {
-    const matchesSearch = s.projectName?.toLowerCase().includes(search.toLowerCase()) || s.tagline?.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = s.title?.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase());
     return matchesSearch;
   });
 
@@ -128,7 +128,7 @@ export default function ManageSubmissions() {
 
   const renderListView = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.5s ease' }}>
-      
+
       {/* 1. Active Event Context Header */}
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', background: 'var(--hz-surface)', padding: '1.5rem 2rem', borderRadius: '24px', border: '1px solid var(--hz-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
         <div>
@@ -136,14 +136,14 @@ export default function ManageSubmissions() {
           <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '0.95rem' }}>Select which hackathon you are managing.</p>
         </div>
         <div style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'flex-end', minWidth: '250px', position: 'relative' }}>
-          <select 
-            value={selectedHackathonId} 
+          <select
+            value={selectedHackathonId}
             onChange={handleHackathonChange}
             className="hz-input"
-            style={{ 
-              padding: '0.75rem 2.5rem 0.75rem 1.25rem', 
-              borderRadius: '12px', 
-              border: '2px solid var(--hz-primary)', 
+            style={{
+              padding: '0.75rem 2.5rem 0.75rem 1.25rem',
+              borderRadius: '12px',
+              border: '2px solid var(--hz-primary)',
               backgroundColor: 'var(--hz-bg)',
               fontWeight: '700',
               fontSize: '1rem',
@@ -206,24 +206,24 @@ export default function ManageSubmissions() {
 
       {/* 3. Main Content List */}
       <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
-        
+
         {/* Toolbar & Tabs */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--hz-border)' }}>
-          
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             {/* Pill Tabs */}
             <div style={{ display: 'flex', gap: '0.5rem', padding: '0.5rem', background: 'var(--hz-bg)', borderRadius: '16px', border: '1px solid var(--hz-border)' }}>
               <button
                 onClick={() => { setActiveTab('proposals'); setSearch(''); }}
                 style={{
-                  padding: '0.75rem 1.5rem', 
-                  background: activeTab === 'proposals' ? 'var(--hz-primary)' : 'transparent', 
+                  padding: '0.75rem 1.5rem',
+                  background: activeTab === 'proposals' ? 'var(--hz-primary)' : 'transparent',
                   border: 'none',
                   borderRadius: '12px',
                   color: activeTab === 'proposals' ? '#fff' : 'var(--hz-text-muted)',
-                  fontWeight: '700', 
-                  fontSize: '0.95rem', 
-                  cursor: 'pointer', 
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: activeTab === 'proposals' ? '0 4px 12px rgba(99,102,241,0.3)' : 'none'
                 }}
@@ -233,14 +233,14 @@ export default function ManageSubmissions() {
               <button
                 onClick={() => { setActiveTab('submissions'); setSearch(''); }}
                 style={{
-                  padding: '0.75rem 1.5rem', 
-                  background: activeTab === 'submissions' ? 'var(--hz-primary)' : 'transparent', 
+                  padding: '0.75rem 1.5rem',
+                  background: activeTab === 'submissions' ? 'var(--hz-primary)' : 'transparent',
                   border: 'none',
                   borderRadius: '12px',
                   color: activeTab === 'submissions' ? '#fff' : 'var(--hz-text-muted)',
-                  fontWeight: '700', 
-                  fontSize: '0.95rem', 
-                  cursor: 'pointer', 
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: activeTab === 'submissions' ? '0 4px 12px rgba(99,102,241,0.3)' : 'none'
                 }}
@@ -248,7 +248,7 @@ export default function ManageSubmissions() {
                 Final Submissions
               </button>
             </div>
-            
+
             <Button variant="outline" onClick={exportCSV} style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', fontWeight: '600', display: 'flex', gap: '0.5rem', alignItems: 'center', background: 'var(--hz-surface)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Export CSV
@@ -260,30 +260,30 @@ export default function ManageSubmissions() {
               <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
-              <input 
-                type="text" 
-                placeholder={`Search ${activeTab}...`} 
-                value={search} 
+              <input
+                type="text"
+                placeholder={`Search ${activeTab}...`}
+                value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="hz-input"
                 style={{ width: '100%', padding: '0.75rem 1.25rem 0.75rem 2.75rem', borderRadius: '12px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)', outline: 'none' }}
               />
             </div>
-            
+
             {activeTab === 'proposals' && (
               <div style={{ position: 'relative', minWidth: '150px' }}>
-                <select 
-                  value={filter} 
+                <select
+                  value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                   className="hz-input"
-                  style={{ 
-                    padding: '0.75rem 2.5rem 0.75rem 1.25rem', 
-                    borderRadius: '12px', 
-                    border: '1px solid var(--hz-border)', 
-                    backgroundColor: 'var(--hz-bg)', 
-                    fontWeight: '600', 
-                    color: 'var(--hz-text)', 
-                    outline: 'none', 
+                  style={{
+                    padding: '0.75rem 2.5rem 0.75rem 1.25rem',
+                    borderRadius: '12px',
+                    border: '1px solid var(--hz-border)',
+                    backgroundColor: 'var(--hz-bg)',
+                    fontWeight: '600',
+                    color: 'var(--hz-text)',
+                    outline: 'none',
                     width: '100%',
                     appearance: 'none',
                     WebkitAppearance: 'none',
@@ -324,15 +324,15 @@ export default function ManageSubmissions() {
                 const avatarChar = displayName ? displayName.charAt(0).toUpperCase() : '?';
                 const bgGradient = reg.regType === 'team' ? 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)' : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)';
                 const textColor = reg.regType === 'team' ? '#3730a3' : '#374151';
-                
+
                 return (
-                  <div 
-                    key={reg.id} 
+                  <div
+                    key={reg.id}
                     onClick={() => openRegistrationDetails(reg)}
-                    style={{ 
-                      borderRadius: '12px', 
-                      background: 'var(--hz-surface)', 
-                      border: '1px solid var(--hz-border)', 
+                    style={{
+                      borderRadius: '12px',
+                      background: 'var(--hz-surface)',
+                      border: '1px solid var(--hz-border)',
                       padding: '1rem 1.5rem',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -384,19 +384,19 @@ export default function ManageSubmissions() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {filteredSubmissions.map(sub => {
-                const displayName = sub.projectName;
+                const displayName = sub.title;
                 const submitterName = sub.teamId ? sub.teamName : sub.participantName;
                 const typeLabel = sub.teamId ? 'TEAM' : 'SOLO';
                 const avatarChar = displayName ? displayName.charAt(0).toUpperCase() : '?';
-                
+
                 return (
-                  <div 
-                    key={sub.id} 
+                  <div
+                    key={sub.id}
                     onClick={() => openSubmissionDetails(sub)}
-                    style={{ 
-                      borderRadius: '12px', 
-                      background: 'var(--hz-surface)', 
-                      border: '1px solid var(--hz-border)', 
+                    style={{
+                      borderRadius: '12px',
+                      background: 'var(--hz-surface)',
+                      border: '1px solid var(--hz-border)',
                       padding: '1rem 1.5rem',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -421,11 +421,11 @@ export default function ManageSubmissions() {
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
                         <span>By {submitterName} ({typeLabel})</span>
                         <span>|</span>
-                        <span>Submitted: {formatDate(sub.createdAt)}</span>
+                        <span>Submitted: {formatDate(sub.created_at)}</span>
                       </div>
                     </div>
                     <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '0.85rem', gap: '0.5rem' }}>
-                      Evaluate <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      View Details <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                   </div>
                 );
@@ -451,7 +451,7 @@ export default function ManageSubmissions() {
             </Button>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Registration Dossier</h2>
           </div>
-          
+
           <div className="row g-4">
             <div className="col-12 col-lg-8">
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2.5rem', border: '1px solid var(--hz-border)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
@@ -475,7 +475,7 @@ export default function ManageSubmissions() {
                     {getStatusBadge(r.status)}
                   </div>
                 </div>
-                
+
                 <div style={{ marginBottom: '2.5rem' }}>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -485,7 +485,7 @@ export default function ManageSubmissions() {
                     {r.idea || "No idea submitted."}
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -521,7 +521,7 @@ export default function ManageSubmissions() {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--hz-text)' }}>Approval Actions</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {r.status !== 'approved' && (
-                    <button 
+                    <button
                       onClick={() => handleUpdateStatus(r.id, 'approved')}
                       style={{ width: '100%', padding: '1rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#059669'}
@@ -532,7 +532,7 @@ export default function ManageSubmissions() {
                     </button>
                   )}
                   {r.status !== 'rejected' && (
-                    <button 
+                    <button
                       onClick={() => handleUpdateStatus(r.id, 'rejected')}
                       style={{ width: '100%', padding: '1rem', background: 'transparent', color: '#ef4444', border: '2px solid #ef4444', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                       onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; }}
@@ -543,7 +543,7 @@ export default function ManageSubmissions() {
                     </button>
                   )}
                   {r.status !== 'pending' && (
-                    <button 
+                    <button
                       onClick={() => handleUpdateStatus(r.id, 'pending')}
                       style={{ width: '100%', padding: '1rem', background: 'var(--hz-bg)', color: 'var(--hz-text)', border: '1px solid var(--hz-border)', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s', marginTop: '0.5rem' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--hz-surface-hover)'}
@@ -559,7 +559,7 @@ export default function ManageSubmissions() {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--hz-text)' }}>Attached Documents</h3>
                 {r.proposalUrl ? (
                   <a href={r.proposalUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                    <div 
+                    <div
                       style={{ background: 'var(--hz-primary-light)', padding: '1.25rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-primary)', cursor: 'pointer', transition: 'transform 0.2s' }}
                       onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                       onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
@@ -592,15 +592,17 @@ export default function ManageSubmissions() {
       const submitterName = s.teamId ? s.teamName : s.participantName;
       const typeLabel = s.teamId ? 'TEAM' : 'SOLO';
 
+      const parsedTechStack = typeof s.techStack === 'string' ? s.techStack.split(',').map(t => t.trim()).filter(Boolean) : (s.techStack || []);
+
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Button variant="ghost" onClick={() => { setView('list'); setSelectedSubmission(null); }} style={{ padding: '0.5rem 1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '12px', fontWeight: '600' }}>
               &larr; Back
             </Button>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Project Evaluation</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Project Details</h2>
           </div>
-          
+
           <div className="row g-4">
             <div className="col-12 col-lg-8">
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2.5rem', border: '1px solid var(--hz-border)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
@@ -608,16 +610,15 @@ export default function ManageSubmissions() {
                   <Badge style={{ background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', border: 'none', marginBottom: '1rem', fontWeight: '700', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
                     {typeLabel} PROJECT
                   </Badge>
-                  <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 0.5rem 0', color: 'var(--hz-text)', letterSpacing: '-0.02em' }}>{s.projectName}</h1>
-                  <p style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: 'var(--hz-text-muted)', fontWeight: '500' }}>{s.tagline}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--hz-text-muted)', fontSize: '0.95rem' }}>
+                  <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 0.5rem 0', color: 'var(--hz-text)', letterSpacing: '-0.02em' }}>{s.title}</h1>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--hz-text-muted)', fontSize: '0.95rem', marginTop: '1rem' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--hz-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--hz-border)' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </div>
-                    <span>Submitted by <strong style={{ color: 'var(--hz-text)' }}>{submitterName}</strong> on {formatDate(s.createdAt)}</span>
+                    <span>Submitted by <strong style={{ color: 'var(--hz-text)' }}>{submitterName}</strong> on {formatDate(s.created_at)}</span>
                   </div>
                 </div>
-                
+
                 <div style={{ marginBottom: '2.5rem' }}>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -628,13 +629,25 @@ export default function ManageSubmissions() {
                   </div>
                 </div>
 
+                {s.notes && (
+                  <div style={{ marginBottom: '2.5rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      Additional Notes
+                    </h3>
+                    <div style={{ background: 'var(--hz-bg)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--hz-border)', color: 'var(--hz-text)', lineHeight: '1.7', fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
+                      {s.notes}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
                     Technology Stack
                   </h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    {s.techStack && s.techStack.length > 0 ? s.techStack.map((tech, idx) => (
+                    {parsedTechStack.length > 0 ? parsedTechStack.map((tech, idx) => (
                       <div key={idx} style={{ background: 'var(--hz-surface)', border: '2px solid var(--hz-border)', color: 'var(--hz-text)', padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: '700', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                         {tech}
                       </div>
@@ -643,14 +656,14 @@ export default function ManageSubmissions() {
                 </div>
               </div>
             </div>
-            
+
             <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--hz-border)' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--hz-text)' }}>Project Links</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {s.githubUrl ? (
-                    <a href={s.githubUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                      <div 
+                  {s.githubRepo ? (
+                    <a href={s.githubRepo} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                      <div
                         style={{ background: '#24292e', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#000'}
                         onMouseLeave={e => e.currentTarget.style.background = '#24292e'}
@@ -663,24 +676,9 @@ export default function ManageSubmissions() {
                     <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Source Code</div>
                   )}
 
-                  {s.liveUrl ? (
-                    <a href={s.liveUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                      <div 
-                        style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: 'opacity 0.2s' }}
-                        onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        Live Project
-                      </div>
-                    </a>
-                  ) : (
-                    <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Live URL</div>
-                  )}
-
-                  {s.videoUrl ? (
-                    <a href={s.videoUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                      <div 
+                  {s.demoVideoUrl ? (
+                    <a href={s.demoVideoUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                      <div
                         style={{ background: 'transparent', border: '2px solid #ec4899', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#ec4899', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#fdf2f8'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -691,6 +689,21 @@ export default function ManageSubmissions() {
                     </a>
                   ) : (
                     <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Video Demo</div>
+                  )}
+
+                  {s.fileUrl ? (
+                    <a href={s.fileUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                      <div
+                        style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download Attachment
+                      </div>
+                    </a>
+                  ) : (
+                    <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Attachment</div>
                   )}
                 </div>
               </div>
@@ -716,26 +729,26 @@ export default function ManageSubmissions() {
         `}</style>
         {/* Page Header */}
         {view === 'list' && (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '1.25rem', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.25rem',
             marginBottom: '3rem',
-            animation: 'fadeIn 0.5s ease' 
+            animation: 'fadeIn 0.5s ease'
           }}>
-            <button 
-              type="button" 
-              onClick={() => navigate(-1)} 
-              style={{ 
-                background: 'var(--hz-surface)', 
-                border: '1px solid var(--hz-border)', 
-                cursor: 'pointer', 
-                width: '48px', 
-                height: '48px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                borderRadius: '50%', 
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              style={{
+                background: 'var(--hz-surface)',
+                border: '1px solid var(--hz-border)',
+                cursor: 'pointer',
+                width: '48px',
+                height: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                 transition: 'all 0.2s',
                 color: 'var(--hz-text)'
@@ -755,7 +768,7 @@ export default function ManageSubmissions() {
         {/* Content Router */}
         {view === 'list' && renderListView()}
         {view === 'details' && renderDetailsView()}
-        
+
       </div>
     </div>
   );

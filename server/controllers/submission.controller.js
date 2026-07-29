@@ -3,15 +3,26 @@ import crypto from 'crypto';
 
 export const submitProject = async (req, res) => {
   try {
-    const { teamId, hackathonId, title, description, githubRepo, demoVideoUrl } = req.body;
-    
-    if (!teamId || !hackathonId || !title) {
-      return res.status(400).json({ error: 'teamId, hackathonId, and title are required' });
+    const userId = req.user.id;
+    const { teamId, hackathonId, title, description, techStack, repoUrl, demoUrl, videoUrl, notes } = req.body;
+
+    const finalTeamId = teamId || null;
+    const finalDescription = description || null;
+    const finalGithubRepo = repoUrl || null;
+    const finalDemoVideoUrl = videoUrl || demoUrl || null;
+
+    let fileUrl = null;
+    if (req.file) {
+      fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    }
+
+    if (!hackathonId || !title) {
+      return res.status(400).json({ error: 'hackathonId and title are required' });
     }
 
     const id = crypto.randomUUID();
-    const submission = await createSubmission(id, teamId, hackathonId, title, description, githubRepo, demoVideoUrl);
-    
+    const submission = await createSubmission(id, userId, finalTeamId, hackathonId, title, finalDescription, finalGithubRepo, finalDemoVideoUrl, fileUrl);
+
     return res.status(201).json({ message: 'Project submitted successfully', data: submission });
   } catch (error) {
     console.error('[submitProject] Error submitting project:', error);
@@ -69,7 +80,7 @@ export const getHackathonSubmissions = async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: 'Hackathon ID is required' });
     }
-    
+
     const submissions = await getSubmissionsWithAssignmentsModel(id);
     return res.status(200).json({ data: submissions });
   } catch (error) {
