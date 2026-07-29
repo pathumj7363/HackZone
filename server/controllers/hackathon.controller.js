@@ -8,7 +8,8 @@ import {
   getRegisteredHackathonsByUserId,
   getRegistrationsByHackathonId,
   updateRegistrationStatus,
-  getOrganizerStats as getOrganizerStatsModel
+  getOrganizerStats as getOrganizerStatsModel,
+  deleteHackathonById
 } from '../models/hackathon.model.js';
 import crypto from 'crypto';
 
@@ -366,6 +367,39 @@ export const getOrganizerStats = async (req, res) => {
     return res.status(200).json({ data: stats });
   } catch (error) {
     console.error('[getOrganizerStats] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * DELETE /hackathons/:id
+ * Delete a hackathon (organizer only).
+ */
+export const deleteHackathon = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Hackathon ID is required' });
+    }
+
+    const hackathon = await getHackathonById(id);
+    if (!hackathon) {
+      return res.status(404).json({ error: 'Hackathon not found' });
+    }
+
+    if (hackathon.organizerId !== req.user?.id) {
+      return res.status(403).json({ error: 'You do not have permission to delete this hackathon' });
+    }
+
+    const success = await deleteHackathonById(id);
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to delete hackathon' });
+    }
+
+    return res.status(200).json({ message: 'Hackathon deleted successfully' });
+  } catch (error) {
+    console.error('[deleteHackathon] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
