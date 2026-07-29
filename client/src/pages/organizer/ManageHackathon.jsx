@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createHackathonApi, getMyHackathonsApi, deleteHackathonApi } from '../../api/hackathon.api';
+import { getJudgesApi } from '../../api/user.api';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import TextArea from '../../components/ui/TextArea';
@@ -16,6 +17,8 @@ export default function ManageHackathon() {
   const [message, setMessage] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [hackathonToDelete, setHackathonToDelete] = useState(null);
+  const [availableJudges, setAvailableJudges] = useState([]);
+  const [activeJudgeSearchIndex, setActiveJudgeSearchIndex] = useState(null);
   
   const initialForm = {
     title: '',
@@ -101,17 +104,41 @@ export default function ManageHackathon() {
     setFormData(prev => ({ ...prev, prizes: newPrizes }));
   };
 
-  const handleJudgeChange = (index, field, value) => {
-    const newJudges = [...formData.judges];
-    newJudges[index][field] = value;
-    setFormData(prev => ({ ...prev, judges: newJudges }));
+  const handleJudgeChange = async (index, field, value) => {
+    setFormData(prev => {
+      const newJudges = [...prev.judges];
+      newJudges[index] = { ...newJudges[index], [field]: value };
+      return { ...prev, judges: newJudges };
+    });
+
+    if (field === 'name') {
+      setActiveJudgeSearchIndex(index);
+      try {
+        const results = await getJudgesApi(value);
+        setAvailableJudges(results || []);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  const selectJudge = (index, judge) => {
+    setFormData(prev => {
+      const newJudges = [...prev.judges];
+      newJudges[index] = { ...newJudges[index], name: judge.name, email: judge.email };
+      return { ...prev, judges: newJudges };
+    });
+    setActiveJudgeSearchIndex(null);
+    setAvailableJudges([]);
   };
   const addJudge = () => {
     setFormData(prev => ({ ...prev, judges: [...prev.judges, { name: '', email: '', role: 'Technical Judge' }] }));
   };
   const removeJudge = (index) => {
-    const newJudges = formData.judges.filter((_, i) => i !== index);
-    setFormData(prev => ({ ...prev, judges: newJudges }));
+    setFormData(prev => {
+      const newJudges = prev.judges.filter((_, i) => i !== index);
+      return { ...prev, judges: newJudges };
+    });
   };
 
   const handleFileChange = (e) => {
@@ -380,7 +407,55 @@ export default function ManageHackathon() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {formData.judges.map((judge, index) => (
           <div key={index} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'var(--hz-bg)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
-            <div style={{ flex: 1 }}><Input placeholder="Judge Name" value={judge.name} onChange={(e) => handleJudgeChange(index, 'name', e.target.value)} required /></div>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <Input 
+                placeholder="Search or Enter Judge Name" 
+                value={judge.name} 
+                onChange={(e) => handleJudgeChange(index, 'name', e.target.value)} 
+                onFocus={async () => {
+                  setActiveJudgeSearchIndex(index);
+                  try {
+                    const results = await getJudgesApi(judge.name || '');
+                    setAvailableJudges(results || []);
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                onBlur={() => setTimeout(() => setActiveJudgeSearchIndex(null), 200)}
+                style={{ paddingRight: '2.5rem' }}
+                required 
+              />
+              <div style={{ position: 'absolute', right: '12px', top: '50%', transform: `translateY(-50%) ${activeJudgeSearchIndex === index ? 'rotate(180deg)' : 'rotate(0)'}`, transition: 'transform 0.3s ease', pointerEvents: 'none', color: 'var(--hz-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              {activeJudgeSearchIndex === index && availableJudges.length > 0 && (
+                <div style={{ 
+                  position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, 
+                  background: 'var(--hz-surface)', border: '1px solid rgba(255,255,255,0.05)', 
+                  borderRadius: '16px', zIndex: 50, 
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
+                  padding: '0.5rem', maxHeight: '250px', overflowY: 'auto',
+                  backdropFilter: 'blur(16px)', animation: 'fadeIn 0.2s ease'
+                }}>
+                  {availableJudges.map(avJudge => (
+                    <div 
+                      key={avJudge.id} 
+                      style={{ 
+                        padding: '0.75rem 1rem', cursor: 'pointer', borderRadius: '10px',
+                        display: 'flex', flexDirection: 'column', gap: '0.25rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseDown={(e) => { e.preventDefault(); selectJudge(index, avJudge); }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <div style={{ fontWeight: '600', color: 'var(--hz-text)', fontSize: '0.95rem' }}>{avJudge.name}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>{avJudge.email}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <div style={{ flex: 1.5 }}><Input type="email" placeholder="Judge Email Address" value={judge.email} onChange={(e) => handleJudgeChange(index, 'email', e.target.value)} required /></div>
             <div style={{ flex: 1 }}>
               <select className="hz-input" value={judge.role} onChange={(e) => handleJudgeChange(index, 'role', e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }}>
@@ -390,7 +465,7 @@ export default function ManageHackathon() {
                 <option value="Lead Judge">Lead Judge</option>
               </select>
             </div>
-            <Button variant="ghost" onClick={() => removeJudge(index)} style={{ padding: '0.75rem', color: '#ef4444' }} disabled={formData.judges.length === 1}>
+            <Button variant="ghost" type="button" onClick={() => removeJudge(index)} style={{ padding: '0.75rem', color: '#ef4444' }} disabled={formData.judges.length === 1}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </Button>
           </div>
