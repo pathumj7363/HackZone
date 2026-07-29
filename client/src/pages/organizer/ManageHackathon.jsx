@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createHackathonApi, getMyHackathonsApi, deleteHackathonApi } from '../../api/hackathon.api';
+import { createHackathonApi, getMyHackathonsApi, deleteHackathonApi, updateHackathonApi } from '../../api/hackathon.api';
 import { getJudgesApi } from '../../api/user.api';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import TextArea from '../../components/ui/TextArea';
 import Button from '../../components/ui/Button';
+
+const PREDEFINED_EVAL_AREAS = [
+  "Innovation & Creativity",
+  "Technical Complexity",
+  "UI/UX Design",
+  "Business Potential",
+  "Real-World Impact",
+  "Originality",
+  "Feasibility",
+  "Presentation / Pitch",
+  "Code Quality"
+];
 
 export default function ManageHackathon() {
   const navigate = useNavigate();
@@ -31,12 +43,16 @@ export default function ManageHackathon() {
     theme: '',
     status: 'published',
     image: null,
+    evaluationAreas: [],
     prizes: [{ place: '1st Place', amount: '', desc: '' }],
     organization: { name: '', email: '', website: '', description: '' },
-    judges: [{ name: '', email: '', role: 'Technical Judge' }]
+    judges: [{ name: '', email: '', evaluationAreas: [] }]
   };
   
   const [formData, setFormData] = useState(initialForm);
+  const [evalAreaInput, setEvalAreaInput] = useState('');
+  const [showEvalDropdown, setShowEvalDropdown] = useState(false);
+  const [activeEvalAssignDropdownIndex, setActiveEvalAssignDropdownIndex] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -132,7 +148,7 @@ export default function ManageHackathon() {
     setAvailableJudges([]);
   };
   const addJudge = () => {
-    setFormData(prev => ({ ...prev, judges: [...prev.judges, { name: '', email: '', role: 'Technical Judge' }] }));
+    setFormData(prev => ({ ...prev, judges: [...prev.judges, { name: '', email: '', evaluationAreas: [] }] }));
   };
   const removeJudge = (index) => {
     setFormData(prev => {
@@ -141,10 +157,50 @@ export default function ManageHackathon() {
     });
   };
 
+  const handleJudgeEvalAreaToggle = (judgeIndex, area) => {
+    setFormData(prev => {
+      const newJudges = [...prev.judges];
+      const judgeCopy = { ...newJudges[judgeIndex] };
+      const currentAreas = judgeCopy.evaluationAreas || [];
+      
+      if (currentAreas.includes(area)) {
+        judgeCopy.evaluationAreas = currentAreas.filter(a => a !== area);
+      } else {
+        judgeCopy.evaluationAreas = [...currentAreas, area];
+      }
+      
+      newJudges[judgeIndex] = judgeCopy;
+      return { ...prev, judges: newJudges };
+    });
+  };
+
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFormData(prev => ({ ...prev, image: e.target.files[0] }));
     }
+  };
+
+  const handleAddEvalArea = (e) => {
+    if (e.key === 'Enter' && evalAreaInput.trim() !== '') {
+      e.preventDefault();
+      if (!formData.evaluationAreas.includes(evalAreaInput.trim())) {
+        setFormData(prev => ({ ...prev, evaluationAreas: [...prev.evaluationAreas, evalAreaInput.trim()] }));
+      }
+      setEvalAreaInput('');
+    }
+  };
+  
+  const removeEvalArea = (areaToRemove) => {
+    setFormData(prev => ({ ...prev, evaluationAreas: prev.evaluationAreas.filter(a => a !== areaToRemove) }));
+    
+    // Also remove this area from any judges that have it assigned
+    setFormData(prev => {
+      const newJudges = prev.judges.map(judge => ({
+        ...judge,
+        evaluationAreas: (judge.evaluationAreas || []).filter(a => a !== areaToRemove)
+      }));
+      return { ...prev, judges: newJudges };
+    });
   };
 
   const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
@@ -157,7 +213,7 @@ export default function ManageHackathon() {
     try {
       const payload = new FormData();
       Object.keys(formData).forEach(key => {
-        if (key === 'prizes' || key === 'judges') {
+        if (key === 'prizes' || key === 'judges' || key === 'evaluationAreas') {
           payload.append(key, JSON.stringify(formData[key]));
         } else if (key === 'organization') {
           payload.append('sponsors', JSON.stringify([formData[key]]));
@@ -166,10 +222,17 @@ export default function ManageHackathon() {
         }
       });
 
-      if (typeof createHackathonApi === 'function') {
-        await createHackathonApi(payload);
+      if (formData.id) {
+        if (typeof updateHackathonApi === 'function') {
+          await updateHackathonApi(formData.id, payload);
+          setMessage('Hackathon updated successfully!');
+        }
+      } else {
+        if (typeof createHackathonApi === 'function') {
+          await createHackathonApi(payload);
+          setMessage('Hackathon created & invites sent successfully!');
+        }
       }
-      setMessage('Hackathon created & invites sent successfully!');
       setTimeout(() => {
         setMessage('');
         setView('list');
@@ -189,6 +252,15 @@ export default function ManageHackathon() {
     setView('form');
   };
 
+  const formatDateTimeForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    const offset = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - offset);
+    return localDate.toISOString().slice(0, 16);
+  };
+
   const openEditForm = (hack) => {
     let orgData = { name: '', email: '', website: '', description: '' };
     if (hack.sponsors && Array.isArray(hack.sponsors) && hack.sponsors.length > 0) {
@@ -201,12 +273,13 @@ export default function ManageHackathon() {
       title: hack.title,
       description: hack.description,
       location: hack.location,
-      startDate: hack.startDate,
-      endDate: hack.endDate,
+      startDate: formatDateTimeForInput(hack.startDate),
+      endDate: formatDateTimeForInput(hack.endDate),
       status: hack.dbStatus || hack.status,
       theme: hack.theme || '',
       maxTeamSize: hack.maxTeamSize || 4,
       prizePool: hack.prizePool || '',
+      evaluationAreas: hack.evaluationAreas && Array.isArray(hack.evaluationAreas) ? hack.evaluationAreas : [],
       prizes: hack.prizes && Array.isArray(hack.prizes) && hack.prizes.length > 0 ? hack.prizes : initialForm.prizes,
       judges: hack.judges && Array.isArray(hack.judges) && hack.judges.length > 0 ? hack.judges : initialForm.judges,
       organization: orgData,
@@ -350,6 +423,72 @@ export default function ManageHackathon() {
           <label className="hz-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Event Banner</label>
           <input type="file" accept="image/*" onChange={handleFileChange} className="hz-input" style={{ width: '100%', padding: '0.65rem' }} />
         </div>
+        <div className="col-12">
+          <label className="hz-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Evaluation Areas (Optional)</label>
+          <p style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)', marginBottom: '0.5rem' }}>Add areas that judges will evaluate (e.g. Innovation, UI/UX). Press Enter to add.</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            {formData.evaluationAreas.map(area => (
+              <span key={area} style={{ background: 'var(--hz-primary)', color: '#fff', padding: '0.25rem 0.75rem', borderRadius: '16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {area}
+                <button type="button" onClick={() => removeEvalArea(area)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </span>
+            ))}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <Input 
+              name="evalAreaInput"
+              placeholder="Type or select an evaluation area and press Enter" 
+              value={evalAreaInput}
+              onChange={(e) => {
+                setEvalAreaInput(e.target.value);
+                setShowEvalDropdown(true);
+              }}
+              onFocus={() => setShowEvalDropdown(true)}
+              onBlur={() => setTimeout(() => setShowEvalDropdown(false), 200)}
+              onKeyDown={handleAddEvalArea}
+              style={{ paddingRight: '2.5rem' }}
+            />
+            <div 
+              style={{ 
+                position: 'absolute', right: '12px', top: '50%', 
+                transform: `translateY(-50%) ${showEvalDropdown ? 'rotate(180deg)' : 'rotate(0)'}`, 
+                transition: 'transform 0.3s ease', pointerEvents: 'none', 
+                color: 'var(--hz-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' 
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            {showEvalDropdown && (
+              <div style={{ 
+                position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, 
+                background: 'var(--hz-surface)', border: '1px solid rgba(255,255,255,0.1)', 
+                borderRadius: '8px', zIndex: 10, maxHeight: '150px', overflowY: 'auto',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
+              }}>
+                {PREDEFINED_EVAL_AREAS
+                  .filter(a => a.toLowerCase().includes(evalAreaInput.toLowerCase()) && !formData.evaluationAreas.includes(a))
+                  .map(area => (
+                  <div 
+                    key={area}
+                    style={{ padding: '0.65rem 1rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--hz-text)' }}
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // prevents blur event
+                      setFormData(prev => ({ ...prev, evaluationAreas: [...prev.evaluationAreas, area] }));
+                      setEvalAreaInput('');
+                      setShowEvalDropdown(false);
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    {area}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -406,68 +545,124 @@ export default function ManageHackathon() {
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {formData.judges.map((judge, index) => (
-          <div key={index} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'var(--hz-bg)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <Input 
-                placeholder="Search or Enter Judge Name" 
-                value={judge.name} 
-                onChange={(e) => handleJudgeChange(index, 'name', e.target.value)} 
-                onFocus={async () => {
-                  setActiveJudgeSearchIndex(index);
-                  try {
-                    const results = await getJudgesApi(judge.name || '');
-                    setAvailableJudges(results || []);
-                  } catch (e) {
-                    console.error(e);
-                  }
-                }}
-                onBlur={() => setTimeout(() => setActiveJudgeSearchIndex(null), 200)}
-                style={{ paddingRight: '2.5rem' }}
-                required 
-              />
-              <div style={{ position: 'absolute', right: '12px', top: '50%', transform: `translateY(-50%) ${activeJudgeSearchIndex === index ? 'rotate(180deg)' : 'rotate(0)'}`, transition: 'transform 0.3s ease', pointerEvents: 'none', color: 'var(--hz-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
-              {activeJudgeSearchIndex === index && availableJudges.length > 0 && (
-                <div style={{ 
-                  position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, 
-                  background: 'var(--hz-surface)', border: '1px solid rgba(255,255,255,0.05)', 
-                  borderRadius: '16px', zIndex: 50, 
-                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
-                  padding: '0.5rem', maxHeight: '250px', overflowY: 'auto',
-                  backdropFilter: 'blur(16px)', animation: 'fadeIn 0.2s ease'
-                }}>
-                  {availableJudges.map(avJudge => (
-                    <div 
-                      key={avJudge.id} 
-                      style={{ 
-                        padding: '0.75rem 1rem', cursor: 'pointer', borderRadius: '10px',
-                        display: 'flex', flexDirection: 'column', gap: '0.25rem',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseDown={(e) => { e.preventDefault(); selectJudge(index, avJudge); }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                      <div style={{ fontWeight: '600', color: 'var(--hz-text)', fontSize: '0.95rem' }}>{avJudge.name}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>{avJudge.email}</div>
-                    </div>
-                  ))}
+          <div key={index} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--hz-bg)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', width: '100%' }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <Input 
+                  placeholder="Search or Enter Judge Name" 
+                  value={judge.name} 
+                  onChange={(e) => handleJudgeChange(index, 'name', e.target.value)} 
+                  onFocus={async () => {
+                    setActiveJudgeSearchIndex(index);
+                    try {
+                      const results = await getJudgesApi(judge.name || '');
+                      setAvailableJudges(results || []);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  onBlur={() => setTimeout(() => setActiveJudgeSearchIndex(null), 200)}
+                  style={{ paddingRight: '2.5rem' }}
+                  required 
+                />
+                <div style={{ position: 'absolute', right: '12px', top: '50%', transform: `translateY(-50%) ${activeJudgeSearchIndex === index ? 'rotate(180deg)' : 'rotate(0)'}`, transition: 'transform 0.3s ease', pointerEvents: 'none', color: 'var(--hz-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
-              )}
+                {activeJudgeSearchIndex === index && availableJudges.length > 0 && (
+                  <div style={{ 
+                    position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, 
+                    background: 'var(--hz-surface)', border: '1px solid rgba(255,255,255,0.05)', 
+                    borderRadius: '16px', zIndex: 50, 
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
+                    padding: '0.5rem', maxHeight: '250px', overflowY: 'auto',
+                    backdropFilter: 'blur(16px)', animation: 'fadeIn 0.2s ease'
+                  }}>
+                    {availableJudges.map(avJudge => (
+                      <div 
+                        key={avJudge.id} 
+                        style={{ 
+                          padding: '0.75rem 1rem', cursor: 'pointer', borderRadius: '10px',
+                          display: 'flex', flexDirection: 'column', gap: '0.25rem',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseDown={(e) => { e.preventDefault(); selectJudge(index, avJudge); }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <div style={{ fontWeight: '600', color: 'var(--hz-text)', fontSize: '0.95rem' }}>{avJudge.name}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>{avJudge.email}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div style={{ flex: 1 }}><Input type="email" placeholder="Judge Email Address" value={judge.email} onChange={(e) => handleJudgeChange(index, 'email', e.target.value)} required /></div>
+              <div style={{ flex: 1.5, position: 'relative' }}>
+                <div 
+                  className="hz-input" 
+                  style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', minHeight: '48px', alignItems: 'center', cursor: 'pointer', paddingRight: '2.5rem', background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', borderRadius: '12px', padding: '0.5rem 2.5rem 0.5rem 0.75rem' }}
+                  onClick={() => setActiveEvalAssignDropdownIndex(activeEvalAssignDropdownIndex === index ? null : index)}
+                >
+                  {(judge.evaluationAreas || []).length > 0 ? (
+                    (judge.evaluationAreas || []).map(area => (
+                      <span key={area} style={{ background: 'var(--hz-primary)', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', zIndex: 2 }}>
+                        {area}
+                        <button type="button" onClick={(e) => { e.stopPropagation(); handleJudgeEvalAreaToggle(index, area); }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0 }}>&times;</button>
+                      </span>
+                    ))
+                  ) : (
+                    <span style={{ color: 'var(--hz-text-muted)' }}>Select Areas...</span>
+                  )}
+                  <div style={{ position: 'absolute', right: '12px', top: '50%', transform: `translateY(-50%) ${activeEvalAssignDropdownIndex === index ? 'rotate(180deg)' : 'rotate(0)'}`, transition: 'transform 0.3s ease', pointerEvents: 'none', color: 'var(--hz-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+
+                {activeEvalAssignDropdownIndex === index && (
+                  <div style={{ 
+                    position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, 
+                    background: 'var(--hz-surface)', border: '1px solid rgba(255,255,255,0.1)', 
+                    borderRadius: '8px', zIndex: 50, maxHeight: '200px', overflowY: 'auto',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
+                  }}>
+                    {formData.evaluationAreas.length > 0 ? (
+                      formData.evaluationAreas.map(area => {
+                        const isAssignedToOther = formData.judges.some((otherJ, otherIdx) => otherIdx !== index && (otherJ.evaluationAreas || []).includes(area));
+                        const isSelected = (judge.evaluationAreas || []).includes(area);
+                        
+                        if (isAssignedToOther) return null;
+                        
+                        return (
+                          <div 
+                            key={area}
+                            style={{ 
+                              padding: '0.65rem 1rem', cursor: 'pointer', fontSize: '0.85rem', 
+                              color: isSelected ? 'var(--hz-primary)' : 'var(--hz-text)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                            }}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleJudgeEvalAreaToggle(index, area);
+                              setActiveEvalAssignDropdownIndex(null);
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            {area}
+                            {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div style={{ padding: '0.65rem 1rem', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>No areas added in Step 1.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <Button variant="ghost" type="button" onClick={() => removeJudge(index)} style={{ padding: '0.75rem', color: '#ef4444' }} disabled={formData.judges.length === 1}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </Button>
             </div>
-            <div style={{ flex: 1.5 }}><Input type="email" placeholder="Judge Email Address" value={judge.email} onChange={(e) => handleJudgeChange(index, 'email', e.target.value)} required /></div>
-            <div style={{ flex: 1 }}>
-              <select className="hz-input" value={judge.role} onChange={(e) => handleJudgeChange(index, 'role', e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)' }}>
-                <option value="Technical Judge">Technical Judge</option>
-                <option value="Design Judge">Design Judge</option>
-                <option value="Business Judge">Business Judge</option>
-                <option value="Lead Judge">Lead Judge</option>
-              </select>
-            </div>
-            <Button variant="ghost" type="button" onClick={() => removeJudge(index)} style={{ padding: '0.75rem', color: '#ef4444' }} disabled={formData.judges.length === 1}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </Button>
           </div>
         ))}
       </div>

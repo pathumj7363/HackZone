@@ -69,6 +69,14 @@ export default function JudgeDashboard() {
                 <div>
                   <h4 style={{ margin: '0 0 0.25rem' }}>{invite.hackathonTitle || `Hackathon #${invite.hackathonId}`}</h4>
                   <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>You have been invited to judge this hackathon.</p>
+                  {invite.evaluationAreas && invite.evaluationAreas.length > 0 && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--hz-text)' }}>Assigned Areas:</span>
+                      {invite.evaluationAreas.map(area => (
+                        <span key={area} style={{ fontSize: '0.75rem', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', padding: '0.1rem 0.5rem', borderRadius: '12px' }}>{area}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Button variant="outline" onClick={() => handleRespond(invite.id, 'declined')}>Decline</Button>
@@ -133,9 +141,12 @@ export default function JudgeDashboard() {
                       <h4 className="hz-heading-3" style={{ margin: '0 0 0.5rem 0', fontSize: '1.125rem' }}>
                         {p.submissionTitle || `Submission #${p.submissionId}`}
                       </h4>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                         <Badge variant="primary">Hackathon {p.hackathonId}</Badge>
                         <Badge variant="warning">Action Required</Badge>
+                        {(p.judgeEvaluationAreas || []).map(area => (
+                          <Badge key={area} style={{ background: 'var(--hz-surface)', color: 'var(--hz-text)', border: '1px solid var(--hz-border)' }}>{area}</Badge>
+                        ))}
                       </div>
                       <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>
                         GitHub: {p.githubRepo || 'Not provided'}

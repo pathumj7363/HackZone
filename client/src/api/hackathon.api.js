@@ -22,6 +22,15 @@ export const createHackathonApi = async (data) => {
   return response.data?.data ?? response.data;
 };
 
+export const updateHackathonApi = async (id, data) => {
+  let headers = {};
+  if (data instanceof FormData) {
+    headers['Content-Type'] = 'multipart/form-data';
+  }
+  const response = await api.put(`/hackathons/${id}`, data, { headers });
+  return response.data?.data ?? response.data;
+};
+
 export const deleteHackathonApi = async (id) => {
   const response = await api.delete(`/hackathons/${id}`);
   return response.data;

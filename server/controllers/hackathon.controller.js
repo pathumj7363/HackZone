@@ -219,7 +219,7 @@ export const updateHackathonRegistrationStatus = async (req, res) => {
  */
 export const createHackathon = async (req, res) => {
   try {
-    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status, location, theme, maxTeamSize, prizePool } = req.body;
+    const { title, description, startDate, endDate, rules, prizes, sponsors, judges, status, location, theme, maxTeamSize, prizePool, evaluationAreas } = req.body;
     
     let image = req.body.image;
     if (req.file) {
@@ -246,9 +246,11 @@ export const createHackathon = async (req, res) => {
     let parsedPrizes = prizes;
     let parsedSponsors = sponsors;
     let parsedJudges = judges;
+    let parsedEvaluationAreas = evaluationAreas;
     try { if (typeof prizes === 'string') parsedPrizes = JSON.parse(prizes); } catch(e){}
     try { if (typeof sponsors === 'string') parsedSponsors = JSON.parse(sponsors); } catch(e){}
     try { if (typeof judges === 'string') parsedJudges = JSON.parse(judges); } catch(e){}
+    try { if (typeof evaluationAreas === 'string') parsedEvaluationAreas = JSON.parse(evaluationAreas); } catch(e){}
 
     if (parsedPrizes && !Array.isArray(parsedPrizes)) {
       return res.status(400).json({ error: 'prizes must be an array' });
@@ -258,6 +260,9 @@ export const createHackathon = async (req, res) => {
     }
     if (parsedJudges && !Array.isArray(parsedJudges)) {
       return res.status(400).json({ error: 'judges must be an array' });
+    }
+    if (parsedEvaluationAreas && !Array.isArray(parsedEvaluationAreas)) {
+      return res.status(400).json({ error: 'evaluationAreas must be an array' });
     }
 
     const id = crypto.randomUUID();
@@ -279,7 +284,8 @@ export const createHackathon = async (req, res) => {
       theme,
       maxTeamSize,
       prizePool,
-      image
+      image,
+      evaluationAreas: parsedEvaluationAreas
     });
 
     // Handle judge invitations
@@ -289,12 +295,14 @@ export const createHackathon = async (req, res) => {
         
         try {
           const user = await findUserByEmail(judge.email);
-          await createJudgeInvitation(id, judge.email, user ? user.id : null);
+          const inviteResult = await createJudgeInvitation(id, judge.email, user ? user.id : null, judge.evaluationAreas);
           
-          if (user) {
-            console.log(`[Judge System] Internal system invitation created for ${judge.email}`);
-          } else {
-            console.log(`[Judge Email] Mock Email Sent to ${judge.email}: You have been invited to judge ${title}.`);
+          if (inviteResult.isNew) {
+            if (user) {
+              console.log(`[Judge System] Internal system invitation created for ${judge.email}`);
+            } else {
+              console.log(`[Judge Email] Mock Email Sent to ${judge.email}: You have been invited to judge ${title}.`);
+            }
           }
         } catch (inviteError) {
           console.error(`Failed to invite judge ${judge.email}:`, inviteError);
@@ -342,6 +350,15 @@ export const updateHackathon = async (req, res) => {
     if (updateData.judges && typeof updateData.judges === 'string') {
       try { updateData.judges = JSON.parse(updateData.judges); } catch(e){}
     }
+    if (updateData.evaluationAreas && typeof updateData.evaluationAreas === 'string') {
+      try { updateData.evaluationAreas = JSON.parse(updateData.evaluationAreas); } catch(e){}
+    }
+    if (updateData.prizes && typeof updateData.prizes === 'string') {
+      try { updateData.prizes = JSON.parse(updateData.prizes); } catch(e){}
+    }
+    if (updateData.sponsors && typeof updateData.sponsors === 'string') {
+      try { updateData.sponsors = JSON.parse(updateData.sponsors); } catch(e){}
+    }
 
     const success = await updateHackathonModel(id, updateData);
 
@@ -356,15 +373,17 @@ export const updateHackathon = async (req, res) => {
         
         try {
           const user = await findUserByEmail(judge.email);
-          await createJudgeInvitation(id, judge.email, user ? user.id : null);
+          const inviteResult = await createJudgeInvitation(id, judge.email, user ? user.id : null, judge.evaluationAreas);
           
-          if (user) {
-            console.log(`[Judge System] Internal system invitation created/verified for ${judge.email}`);
-          } else {
-            console.log(`[Judge Email] Mock Email Sent to ${judge.email}: You have been invited to judge ${hackathon.title}.`);
+          if (inviteResult.isNew) {
+            if (user) {
+              console.log(`[Judge System] Internal system invitation created/verified for ${judge.email}`);
+            } else {
+              console.log(`[Judge Email] Mock Email Sent to ${judge.email}: You have been invited to judge ${hackathon.title}.`);
+            }
           }
         } catch (inviteError) {
-          // Ignore duplicate entries (already invited)
+          console.error(`Failed to invite judge ${judge.email}:`, inviteError);
         }
       }
     }
