@@ -292,16 +292,6 @@ export default function ManageHackathon() {
 
   const renderList = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', margin: 0, color: 'var(--hz-text)' }}>Your Events</h2>
-          <p style={{ margin: 0, color: 'var(--hz-text-muted)' }}>Manage your active and past hackathons</p>
-        </div>
-        <Button variant="primary" onClick={openCreateForm} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', padding: '0.75rem 1.5rem', borderRadius: '12px' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          Create Hackathon
-        </Button>
-      </div>
       
       {fetchLoading ? (
         <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--hz-text-muted)' }}>
@@ -672,17 +662,6 @@ export default function ManageHackathon() {
 
   const renderForm = () => (
     <div style={{ animation: 'fadeIn 0.4s ease' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', margin: 0, color: 'var(--hz-text)' }}>
-            {formData.title ? 'Edit Hackathon' : 'Create New Hackathon'}
-          </h2>
-        </div>
-        <Button type="button" variant="ghost" onClick={() => setView('list')} style={{ fontWeight: '500' }}>
-          &larr; Back to Events
-        </Button>
-      </div>
-
       <Card padding style={{ borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '3rem' }}>
         {renderProgressBar()}
 
@@ -717,7 +696,54 @@ export default function ManageHackathon() {
   );
 
   return (
-    <div className="hz-page" style={{ minHeight: '100vh', paddingBottom: '3rem' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
+        
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
+          <div>
+            <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
+              {view === 'list' ? 'Manage Hackathons' : (formData.title ? 'Edit Hackathon' : 'Create New Hackathon')}
+            </h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px', margin: 0 }}>
+              {view === 'list' 
+                ? 'Create, configure, and oversee your hackathons from start to finish.' 
+                : 'Fill out the details below to configure your hackathon.'}
+            </p>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
+            {view === 'list' ? (
+              <Button onClick={openCreateForm} style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                background: 'var(--hz-primary)', color: '#fff', border: 'none',
+                borderRadius: '12px', padding: '0.85rem 1.5rem',
+                fontSize: '1rem', fontWeight: '700', cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(99,102,241,0.4)', transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(99,102,241,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(99,102,241,0.4)'; }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Create Hackathon
+              </Button>
+            ) : (
+              <Button type="button" variant="ghost" onClick={() => setView('list')} style={{ fontWeight: '500', padding: '0.75rem 1.25rem', borderRadius: '12px', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)' }}>
+                &larr; Back to Events
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="hz-container">
         {message && (
           <div className={message.includes('Error') ? 'hz-alert hz-alert--error hz-mb-6' : 'hz-alert hz-alert--success hz-mb-6'}>

@@ -64,6 +64,7 @@ export default function ParticipantDashboard() {
   const submissionsCount = submissions.length;
   const newAnnouncementsCount = announcements.length; // Simplified for now
 
+  return (
     <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{

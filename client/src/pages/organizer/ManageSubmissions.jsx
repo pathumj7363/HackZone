@@ -129,42 +129,6 @@ export default function ManageSubmissions() {
   const renderListView = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.5s ease' }}>
 
-      {/* 1. Active Event Context Header */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', background: 'var(--hz-surface)', padding: '1.5rem 2rem', borderRadius: '24px', border: '1px solid var(--hz-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
-        <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: 'var(--hz-text)' }}>Active Event Context</h2>
-          <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '0.95rem' }}>Select which hackathon you are managing.</p>
-        </div>
-        <div style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'flex-end', minWidth: '250px', position: 'relative' }}>
-          <select
-            value={selectedHackathonId}
-            onChange={handleHackathonChange}
-            className="hz-input"
-            style={{
-              padding: '0.75rem 2.5rem 0.75rem 1.25rem',
-              borderRadius: '12px',
-              border: '2px solid var(--hz-primary)',
-              backgroundColor: 'var(--hz-bg)',
-              fontWeight: '700',
-              fontSize: '1rem',
-              color: 'var(--hz-text)',
-              outline: 'none',
-              cursor: 'pointer',
-              width: '100%',
-              maxWidth: '400px',
-              transition: 'all 0.2s',
-              appearance: 'none',
-              WebkitAppearance: 'none'
-            }}
-          >
-            {hackathons.map(h => (
-              <option key={h.id} value={h.id} style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>{h.title}</option>
-            ))}
-          </select>
-          <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </div>
-      </div>
-
       {/* 2. Top KPI Cards */}
       <div className="row g-4">
         {/* KPI 1 */}
@@ -448,12 +412,6 @@ export default function ManageSubmissions() {
 
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Button variant="ghost" onClick={() => { setView('list'); setSelectedRegistration(null); }} style={{ padding: '0.5rem 1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '12px', fontWeight: '600' }}>
-              &larr; Back
-            </Button>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Registration Dossier</h2>
-          </div>
 
 
           <div className="row g-4">
@@ -603,12 +561,6 @@ export default function ManageSubmissions() {
 
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Button variant="ghost" onClick={() => { setView('list'); setSelectedSubmission(null); }} style={{ padding: '0.5rem 1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '12px', fontWeight: '600' }}>
-              &larr; Back
-            </Button>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Project Details</h2>
-          </div>
 
 
           <div className="row g-4">
@@ -727,7 +679,92 @@ export default function ManageSubmissions() {
   };
 
   return (
-    <div className="hz-page" style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'var(--hz-bg)', transition: 'background 0.3s' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', transition: 'background 0.3s' }}>
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
+        
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
+          <div>
+            <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
+              Registrations & Submissions
+            </h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px', margin: 0 }}>
+              Review hackathon proposals, approve participants, and judge final projects.
+            </p>
+          </div>
+          {view === 'list' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
+              <div style={{ position: 'relative', width: '250px' }}>
+                <select
+                  value={selectedHackathonId}
+                  onChange={handleHackathonChange}
+                  className="hz-input"
+                  style={{
+                    padding: '0.75rem 2.5rem 0.75rem 1.25rem',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(10px)',
+                    fontWeight: '700',
+                    fontSize: '0.95rem',
+                    color: 'var(--hz-text)',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    width: '100%',
+                    transition: 'all 0.2s',
+                    appearance: 'none',
+                    WebkitAppearance: 'none'
+                  }}
+                >
+                  <option value="" disabled style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Select Hackathon...</option>
+                  {hackathons.map(h => (
+                    <option key={h.id} value={h.id} style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>{h.title}</option>
+                  ))}
+                </select>
+                <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
+          )}
+          {view === 'details' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setView('list');
+                  setSelectedRegistration(null);
+                  setSelectedSubmission(null);
+                }}
+                style={{
+                  background: 'var(--hz-surface)',
+                  border: '1px solid var(--hz-border)',
+                  cursor: 'pointer',
+                  width: '48px',
+                  height: '48px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                  transition: 'all 0.2s',
+                  color: 'var(--hz-text)'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.borderColor = 'var(--hz-primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = 'var(--hz-border)'; }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="hz-container">
         <style>{`
           @keyframes fadeIn {
@@ -738,43 +775,6 @@ export default function ManageSubmissions() {
             to { transform: rotate(360deg); }
           }
         `}</style>
-        {/* Page Header */}
-        {view === 'list' && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1.25rem',
-            marginBottom: '3rem',
-            animation: 'fadeIn 0.5s ease'
-          }}>
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              style={{
-                background: 'var(--hz-surface)',
-                border: '1px solid var(--hz-border)',
-                cursor: 'pointer',
-                width: '48px',
-                height: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                transition: 'all 0.2s',
-                color: 'var(--hz-text)'
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.borderColor = 'var(--hz-primary)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = 'var(--hz-border)'; }}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            </button>
-            <div>
-              <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 0.25rem 0', letterSpacing: '-0.03em', color: 'var(--hz-text)' }}>Registrations & Submissions</h1>
-              <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '1.1rem', fontWeight: '500' }}>Review hackathon proposals, approve participants, and judge final projects.</p>
-            </div>
-          </div>
-        )}
 
         {/* Content Router */}
         {view === 'list' && renderListView()}
