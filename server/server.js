@@ -11,6 +11,7 @@ import teamRoutes from "./routes/team.routes.js";
 import hackathonRoutes from "./routes/hackathon.routes.js";
 import submissionRoutes from "./routes/submission.routes.js";
 import invitationRoutes from "./routes/invitation.routes.js";
+import announcementRoutes from "./routes/announcement.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +36,7 @@ app.use("/api/teams", teamRoutes);
 app.use("/api/hackathons", hackathonRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/invitations", invitationRoutes);
+app.use("/api/announcements", announcementRoutes);
 const PORT = 5000;
 
 app.listen(PORT, () => {
