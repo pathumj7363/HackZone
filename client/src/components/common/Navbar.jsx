@@ -93,7 +93,7 @@ export default function Navbar() {
         links = [
           { to: '/dashboard', label: 'Dashboard' },
           { to: '/hackathons', label: 'Hackathons' },
-          { to: '/teams/dashboard', label: 'My Team' },
+          { to: '/teams', label: 'Team Hub' },
           { to: '/submissions', label: 'Submissions' },
         ];
         break;

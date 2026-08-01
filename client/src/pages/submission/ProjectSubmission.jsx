@@ -1,13 +1,70 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { submitProjectApi } from '../../api/submission.api';
-import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import TextArea from '../../components/ui/TextArea';
-import Button from '../../components/ui/Button';
 import { getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
 
 const STEPS = ['Select Hackathon', 'Project Info', 'Links & Files', 'Review & Submit'];
+
+// --- UI Helpers ---
+const Input = ({ id, label, error, helperText, ...props }) => {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ marginBottom: '1.25rem' }}>
+      <label htmlFor={id} style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem', color: 'var(--hz-text)' }}>
+        {label} {props.required && <span style={{ color: '#ef4444' }}>*</span>}
+      </label>
+      <div style={{
+        position: 'relative',
+        borderRadius: '12px',
+        background: 'var(--hz-bg)',
+        border: `2px solid ${error ? '#ef4444' : focused ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+        transition: 'all 0.3s ease',
+        boxShadow: focused && !error ? '0 0 0 4px rgba(99,102,241,0.1)' : 'none',
+        overflow: 'hidden'
+      }}>
+        <input 
+          id={id}
+          onFocus={(e) => { setFocused(true); if(props.onFocus) props.onFocus(e); }}
+          onBlur={(e) => { setFocused(false); if(props.onBlur) props.onBlur(e); }}
+          style={{ width: '100%', padding: '0.85rem 1rem', border: 'none', background: 'transparent', outline: 'none', color: 'var(--hz-text)', fontSize: '0.95rem' }}
+          {...props}
+        />
+      </div>
+      {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', margin: '0.4rem 0 0', fontWeight: '500' }}>{error}</p>}
+      {!error && helperText && <p style={{ color: 'var(--hz-text-muted)', fontSize: '0.8rem', margin: '0.4rem 0 0' }}>{helperText}</p>}
+    </div>
+  );
+};
+
+const TextArea = ({ id, label, error, helperText, rows=4, ...props }) => {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ marginBottom: '1.25rem' }}>
+      <label htmlFor={id} style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem', color: 'var(--hz-text)' }}>
+        {label} {props.required && <span style={{ color: '#ef4444' }}>*</span>}
+      </label>
+      <div style={{
+        position: 'relative',
+        borderRadius: '12px',
+        background: 'var(--hz-bg)',
+        border: `2px solid ${error ? '#ef4444' : focused ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+        transition: 'all 0.3s ease',
+        boxShadow: focused && !error ? '0 0 0 4px rgba(99,102,241,0.1)' : 'none',
+        overflow: 'hidden'
+      }}>
+        <textarea 
+          id={id} rows={rows}
+          onFocus={(e) => { setFocused(true); if(props.onFocus) props.onFocus(e); }}
+          onBlur={(e) => { setFocused(false); if(props.onBlur) props.onBlur(e); }}
+          style={{ width: '100%', padding: '0.85rem 1rem', border: 'none', background: 'transparent', outline: 'none', color: 'var(--hz-text)', fontSize: '0.95rem', resize: 'vertical' }}
+          {...props}
+        />
+      </div>
+      {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', margin: '0.4rem 0 0', fontWeight: '500' }}>{error}</p>}
+      {!error && helperText && <p style={{ color: 'var(--hz-text-muted)', fontSize: '0.8rem', margin: '0.4rem 0 0' }}>{helperText}</p>}
+    </div>
+  );
+};
 
 export default function ProjectSubmission() {
   const [step, setStep] = useState(0);
@@ -16,6 +73,9 @@ export default function ProjectSubmission() {
   const [hackathons, setHackathons] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+
+  // Drag & drop state
+  const [dragActive, setDragActive] = useState(false);
 
   // Form state
   const [form, setForm] = useState({
@@ -96,510 +156,323 @@ export default function ProjectSubmission() {
     }
   };
 
-  // ── Success State ──────────────────────────────────────────────────────────
+  // --- Success State ---
   if (submitted) {
     return (
-      <div className="hz-page">
-        <div className="hz-container">
-          <div style={{ maxWidth: '560px', margin: '4rem auto', textAlign: 'center' }}>
-            <div style={{
-              width: '72px', height: '72px', borderRadius: '50%',
-              background: 'rgba(16, 185, 129, 0.12)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 1.5rem'
-            }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </div>
-            <h1 className="hz-heading-2" style={{ fontWeight: 'var(--hz-font-weight-bold)', marginBottom: '0.5rem' }}>
-              Project Submitted!
-            </h1>
-            <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-base)', marginBottom: '2rem' }}>
-              Your project <strong style={{ color: 'var(--hz-text)' }}>{form.title}</strong> has been successfully submitted. The judges will review it shortly.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button variant="primary" onClick={() => navigate('/submissions')}>
-                View My Submissions
-              </Button>
-              <Button variant="outline" onClick={() => navigate(-1)}>
-                Back to Team
-              </Button>
-            </div>
+      <div className="hz-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hz-bg)' }}>
+        <div style={{ maxWidth: '560px', width: '100%', margin: 'auto', textAlign: 'center', padding: '3rem', background: 'var(--hz-surface)', borderRadius: '24px', boxShadow: 'var(--hz-shadow-xl)', border: '1px solid var(--hz-border)' }}>
+          <div style={{
+            width: '88px', height: '88px', borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 1.5rem', border: '2px solid rgba(16,185,129,0.3)'
+          }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--hz-text)' }}>
+            Submitted!
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', marginBottom: '2.5rem', lineHeight: 1.6 }}>
+            Your project <strong style={{ color: 'var(--hz-text)' }}>{form.title}</strong> has been successfully submitted. Time to celebrate! 🎉
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <button onClick={() => navigate('/submissions')} style={{
+              background: 'var(--hz-primary)', color: '#fff', border: 'none', padding: '0.85rem 2rem', borderRadius: '12px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 14px rgba(99,102,241,0.4)', transition: 'transform 0.2s'
+            }} onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e=>e.currentTarget.style.transform='none'}>
+              View My Submissions
+            </button>
+            <button onClick={() => navigate('/teams')} style={{
+              background: 'transparent', color: 'var(--hz-text)', border: '2px solid var(--hz-border)', padding: '0.85rem 2rem', borderRadius: '12px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s'
+            }} onMouseEnter={e=>e.currentTarget.style.background='var(--hz-bg)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              Back to Team
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── Stepper progress ───────────────────────────────────────────────────────
-  const StepBar = () => (
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'var(--hz-space-8)' }}>
-      {STEPS.map((label, i) => {
-        const isActive = i === step;
-        const isDone = i < step;
-        return (
-          <React.Fragment key={i}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                background: isDone ? '#10b981' : isActive ? 'var(--hz-primary)' : 'var(--hz-surface)',
-                border: `2px solid ${isDone ? '#10b981' : isActive ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
-                color: isDone || isActive ? '#fff' : 'var(--hz-text-muted)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 'var(--hz-font-size-xs)',
-                fontWeight: 'var(--hz-font-weight-bold)',
-                transition: 'all 0.3s ease'
-              }}>
-                {isDone
-                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  : i + 1
-                }
-              </div>
-              <span style={{
-                fontSize: 'var(--hz-font-size-xs)',
-                fontWeight: isActive ? 'var(--hz-font-weight-bold)' : 'var(--hz-font-weight-medium)',
-                color: isActive ? 'var(--hz-text)' : 'var(--hz-text-muted)',
-                whiteSpace: 'nowrap'
-              }}>{label}</span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div style={{
-                flex: 1, height: '2px', margin: '0 0.5rem',
-                marginBottom: '1.2rem',
-                background: i < step ? '#10b981' : 'var(--hz-border)',
-                transition: 'background 0.3s ease'
-              }} />
-            )}
-          </React.Fragment>
-        );
-      })}
-    </div>
-  );
+  // --- Dynamic Checklist ---
+  const checklist = [
+    { label: 'Hackathon selected', done: !!form.hackathonId },
+    { label: 'Project title', done: !!form.title.trim() },
+    { label: 'Project description', done: !!form.description.trim() },
+    { label: 'GitHub repository', done: !!form.repoUrl.trim() },
+  ];
 
-  // ── Main Layout ─────────────────────────────────────────────────────────────
   return (
-    <div className="hz-page">
-      <div className="hz-container">
-
-        {/* Page Header */}
-        <div style={{ marginBottom: 'var(--hz-space-6)' }}>
-          <h1 className="hz-heading-2" style={{ marginBottom: '0.5rem', fontWeight: 'var(--hz-font-weight-medium)' }}>
-            Submit Project
+    <div className="hz-page" style={{ paddingBottom: '5rem', background: 'var(--hz-bg)' }}>
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
+            Submit Your Project
           </h1>
-          <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-base)' }}>
-            Complete all steps to submit your hackathon project for judging.
+          <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px' }}>
+            You've built something amazing. Now it's time to share it with the world. Complete the steps below to finalize your entry.
           </p>
         </div>
+      </div>
 
-        {/* Stepper */}
-        <StepBar />
+      <div className="hz-container">
+        
+        {/* ── Glassmorphic Animated Stepper ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', position: 'relative', background: 'var(--hz-surface)', padding: '1.5rem', borderRadius: '20px', border: '1px solid var(--hz-border)', boxShadow: 'var(--hz-shadow-sm)' }}>
+          {/* Progress line background */}
+          <div style={{ position: 'absolute', top: '50%', left: '10%', right: '10%', height: '4px', background: 'var(--hz-bg)', transform: 'translateY(-50%)', borderRadius: '4px', zIndex: 1 }} />
+          {/* Active progress line */}
+          <div style={{ position: 'absolute', top: '50%', left: '10%', height: '4px', background: 'var(--hz-primary)', transform: 'translateY(-50%)', borderRadius: '4px', zIndex: 2, transition: 'width 0.4s ease-in-out', width: `${(step / (STEPS.length - 1)) * 80}%` }} />
+          
+          {STEPS.map((label, i) => {
+            const isActive = i === step;
+            const isDone = i < step;
+            return (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', position: 'relative', zIndex: 3, flex: 1 }}>
+                <div style={{
+                  width: '44px', height: '44px', borderRadius: '50%',
+                  background: isDone ? '#10b981' : isActive ? 'var(--hz-primary)' : 'var(--hz-surface)',
+                  border: `3px solid ${isDone ? '#10b981' : isActive ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+                  color: isDone || isActive ? '#fff' : 'var(--hz-text-muted)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1rem', fontWeight: '800',
+                  transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                  transform: isActive ? 'scale(1.15)' : 'scale(1)',
+                  boxShadow: isActive ? '0 0 20px rgba(99,102,241,0.4)' : 'none'
+                }}>
+                  {isDone
+                    ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    : i + 1
+                  }
+                </div>
+                <span style={{
+                  fontSize: '0.85rem',
+                  fontWeight: isActive ? '700' : '600',
+                  color: isActive ? 'var(--hz-text)' : 'var(--hz-text-muted)',
+                  whiteSpace: 'nowrap',
+                  transition: 'color 0.3s'
+                }}>{label}</span>
+              </div>
+            );
+          })}
+        </div>
 
-        <div className="row g-4">
-          {/* ── Left: Form ──────────────────────────────────────────────── */}
+        <div className="row g-5">
+          {/* ── Main Form Area ── */}
           <div className="col-12 col-lg-8">
             <form onSubmit={handleSubmit} noValidate>
-              <Card padding>
-
-                {/* STEP 0 — Select Hackathon */}
-                {step === 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                    <div>
-                      <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
-                        Select Hackathon
-                      </h2>
-                      <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-sm)' }}>
-                        Choose the hackathon you are submitting this project for.
-                      </p>
+              <div style={{ background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '24px', padding: '2.5rem', boxShadow: 'var(--hz-shadow-sm)' }}>
+                
+                {/* Step 0: Hackathon */}
+                <div style={{ display: step === 0 ? 'block' : 'none' }}>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>Select Hackathon</h2>
+                  <p style={{ color: 'var(--hz-text-secondary)', marginBottom: '2rem' }}>Which hackathon are you submitting your project for?</p>
+                  
+                  {fetchingHackathons ? (
+                    <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
+                      <span className="hz-spinner" style={{ marginRight: '0.75rem' }}></span> Loading...
                     </div>
-                    
-                    {fetchingHackathons ? (
-                      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
-                        <span className="hz-spinner" style={{ marginRight: '0.5rem' }}></span> Loading...
-                      </div>
-                    ) : hackathons.length === 0 ? (
-                      <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius)' }}>
-                        <p style={{ margin: 0, color: 'var(--hz-text-muted)' }}>You have no approved hackathon registrations to submit a project for.</p>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {hackathons.map(h => (
-                          <div 
-                            key={h.id}
+                  ) : hackathons.length === 0 ? (
+                    <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--hz-bg)', borderRadius: '16px', border: '1px dashed var(--hz-border)' }}>
+                      <p style={{ color: 'var(--hz-text-muted)', fontSize: '1.1rem' }}>No approved hackathon registrations found.</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {hackathons.map(h => {
+                        const isSelected = form.hackathonId === h.id;
+                        return (
+                          <div key={h.id}
                             onClick={() => {
                               setForm(prev => ({ ...prev, hackathonId: h.id, teamId: h.teamId }));
                               if (errors.hackathonId) setErrors(prev => ({ ...prev, hackathonId: '' }));
                             }}
-                            style={{ 
-                              padding: '1.25rem', 
-                              borderRadius: 'var(--hz-radius)', 
-                              border: `2px solid ${form.hackathonId === h.id ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
-                              background: form.hackathonId === h.id ? 'var(--hz-primary-light)' : 'var(--hz-surface)',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              transition: 'all 0.2s'
+                            style={{
+                              padding: '1.5rem', borderRadius: '16px', cursor: 'pointer',
+                              border: `2px solid ${isSelected ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+                              background: isSelected ? 'var(--hz-primary-light)' : 'var(--hz-bg)',
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                              transition: 'all 0.2s', transform: isSelected ? 'scale(1.01)' : 'scale(1)'
                             }}
                           >
                             <div>
-                              <strong style={{ display: 'block', fontSize: '1.1rem', color: form.hackathonId === h.id ? 'var(--hz-primary-dark)' : 'var(--hz-text)', marginBottom: '0.25rem' }}>{h.title}</strong>
-                              <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
-                                Submitting as: {h.regType === 'team' ? `Team (${h.teamName})` : 'Solo Participant'}
-                              </span>
+                              <strong style={{ display: 'block', fontSize: '1.25rem', color: isSelected ? 'var(--hz-primary-dark)' : 'var(--hz-text)', marginBottom: '0.25rem' }}>{h.title}</strong>
+                              <span style={{ fontSize: '0.9rem', color: 'var(--hz-text-muted)' }}>Submitting as: {h.regType === 'team' ? `Team (${h.teamName})` : 'Solo Participant'}</span>
                             </div>
-                            {form.hackathonId === h.id && (
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                              </svg>
-                            )}
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: `2px solid ${isSelected ? 'var(--hz-primary)' : 'var(--hz-border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isSelected ? 'var(--hz-primary)' : 'transparent' }}>
+                              {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                            </div>
                           </div>
-                        ))}
-                        {errors.hackathonId && <p className="hz-field-error" style={{ margin: 0 }}>{errors.hackathonId}</p>}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* STEP 1 — Project Info */}
-                {step === 1 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                    <div>
-                      <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
-                        Project Information
-                      </h2>
-                      <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-sm)' }}>
-                        Tell us about what you built.
-                      </p>
+                        )
+                      })}
+                      {errors.hackathonId && <p style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.hackathonId}</p>}
                     </div>
+                  )}
+                </div>
 
-                    <Input
-                      id="title"
-                      name="title"
-                      label="Project Title"
-                      placeholder="e.g. Neural Knights AI Assistant"
-                      value={form.title}
-                      onChange={set('title')}
-                      error={errors.title}
-                      required
-                    />
+                {/* Step 1: Info */}
+                <div style={{ display: step === 1 ? 'block' : 'none' }}>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>Project Information</h2>
+                  <p style={{ color: 'var(--hz-text-secondary)', marginBottom: '2rem' }}>Provide the core details of your creation.</p>
+                  
+                  <Input id="title" label="Project Title" placeholder="e.g. Neural Knights AI" value={form.title} onChange={set('title')} error={errors.title} required />
+                  <TextArea id="description" label="Description" placeholder="Describe the problem it solves..." value={form.description} onChange={set('description')} error={errors.description} rows={5} required />
+                  <Input id="techStack" label="Tech Stack" placeholder="e.g. React, Node.js" value={form.techStack} onChange={set('techStack')} helperText="List main technologies used." />
+                </div>
 
-                    <TextArea
-                      id="description"
-                      name="description"
-                      label="Project Description"
-                      placeholder="Describe what your project does, the problem it solves, and the impact it creates..."
-                      value={form.description}
-                      onChange={set('description')}
-                      error={errors.description}
-                      rows={5}
-                      required
-                    />
-
-                    <Input
-                      id="techStack"
-                      name="techStack"
-                      label="Tech Stack"
-                      placeholder="e.g. React, Node.js, PostgreSQL, OpenAI API"
-                      value={form.techStack}
-                      onChange={set('techStack')}
-                      helperText="List the main technologies used in your project."
-                    />
-                  </div>
-                )}
-
-                {/* STEP 2 — Links & Files */}
-                {step === 2 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                    <div>
-                      <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
-                        Links &amp; Resources
-                      </h2>
-                      <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-sm)' }}>
-                        Provide links so judges can explore your work.
-                      </p>
-                    </div>
-
-                    <Input
-                      id="repoUrl"
-                      name="repoUrl"
-                      label="GitHub Repository"
-                      placeholder="https://github.com/your-org/your-repo"
-                      value={form.repoUrl}
-                      onChange={set('repoUrl')}
-                      error={errors.repoUrl}
-                      required
-                    />
-
-                    <Input
-                      id="demoUrl"
-                      name="demoUrl"
-                      label="Live Demo URL"
-                      placeholder="https://your-demo.vercel.app"
-                      value={form.demoUrl}
-                      onChange={set('demoUrl')}
-                      helperText="Optional — share a working link to your deployed project."
-                    />
-
-                    <Input
-                      id="videoUrl"
-                      name="videoUrl"
-                      label="Demo Video URL"
-                      placeholder="https://youtube.com/watch?v=..."
-                      value={form.videoUrl}
-                      onChange={set('videoUrl')}
-                      helperText="Optional — a short walkthrough video (YouTube, Loom, etc.)"
-                    />
-
-                    {/* File upload area */}
-                    <div>
-                      <label className="hz-label" style={{ display: 'block', marginBottom: '0.5rem' }}>
-                        Attachments <span style={{ color: 'var(--hz-text-muted)', fontWeight: 'normal' }}>(optional)</span>
-                      </label>
-                      <label style={{
-                        border: '2px dashed var(--hz-border)',
-                        borderRadius: 'var(--hz-radius)',
-                        padding: '2rem',
-                        textAlign: 'center',
-                        background: 'var(--hz-surface)',
-                        cursor: 'pointer',
-                        display: 'block',
-                        transition: 'border-color var(--hz-transition)'
+                {/* Step 2: Links & Files */}
+                <div style={{ display: step === 2 ? 'block' : 'none' }}>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>Links & Resources</h2>
+                  <p style={{ color: 'var(--hz-text-secondary)', marginBottom: '2rem' }}>Provide links so judges can explore your work.</p>
+                  
+                  <Input id="repoUrl" label="GitHub Repository" placeholder="https://github.com/org/repo" value={form.repoUrl} onChange={set('repoUrl')} error={errors.repoUrl} required />
+                  <Input id="demoUrl" label="Live Demo URL" placeholder="https://demo.app" value={form.demoUrl} onChange={set('demoUrl')} helperText="Optional." />
+                  <Input id="videoUrl" label="Demo Video URL" placeholder="https://youtube.com/..." value={form.videoUrl} onChange={set('videoUrl')} helperText="Optional." />
+                  
+                  {/* Glassmorphic Drag & Drop */}
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem', color: 'var(--hz-text)' }}>Attachments <span style={{color: 'var(--hz-text-muted)'}}>(Optional)</span></label>
+                    <label 
+                      onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
+                      onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+                      onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                      onDrop={(e) => { e.preventDefault(); setDragActive(false); if(e.dataTransfer.files && e.dataTransfer.files[0]) setForm(prev => ({...prev, file: e.dataTransfer.files[0]})); }}
+                      style={{
+                        display: 'block', padding: '3rem', textAlign: 'center', cursor: 'pointer',
+                        background: dragActive ? 'rgba(99,102,241,0.05)' : 'var(--hz-bg)',
+                        border: `2px dashed ${dragActive ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+                        borderRadius: '16px', transition: 'all 0.2s ease',
+                        transform: dragActive ? 'scale(1.02)' : 'scale(1)'
                       }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
-                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--hz-border)'}
-                      >
-                        <input 
-                          type="file" 
-                          style={{ display: 'none' }} 
-                          onChange={(e) => setForm(prev => ({ ...prev, file: e.target.files[0] }))} 
-                        />
-                        <div style={{
-                          width: '44px', height: '44px', borderRadius: '50%',
-                          background: 'var(--hz-primary-light)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          margin: '0 auto 0.75rem'
-                        }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                          </svg>
-                        </div>
-                        <p style={{ margin: '0 0 0.25rem', fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-medium)', color: 'var(--hz-text)' }}>
-                          {form.file ? form.file.name : (
-                            <>Drag &amp; drop files here, or <span style={{ color: 'var(--hz-primary)', fontWeight: 'var(--hz-font-weight-bold)' }}>browse</span></>
-                          )}
-                        </p>
-                        <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-xs)' }}>
-                          PDF, ZIP, PNG — max 20 MB
-                        </p>
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {/* STEP 3 — Review */}
-                {step === 3 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                    <div>
-                      <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
-                        Review &amp; Submit
-                      </h2>
-                      <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-sm)' }}>
-                        Double-check your details before final submission.
-                      </p>
-                    </div>
-
-                    {/* Summary rows */}
-                    {[
-                      { label: 'Hackathon', value: hackathons.find(h => h.id === form.hackathonId)?.title || '—' },
-                      { label: 'Project Title', value: form.title || '—' },
-                      { label: 'Tech Stack', value: form.techStack || '—' },
-                      { label: 'GitHub Repo', value: form.repoUrl || '—' },
-                      { label: 'Live Demo', value: form.demoUrl || '—' },
-                      { label: 'Demo Video', value: form.videoUrl || '—' },
-                    ].map(({ label, value }) => (
-                      <div key={label} style={{
-                        display: 'flex', gap: '1rem',
-                        padding: '0.875rem',
-                        borderRadius: 'var(--hz-radius-sm)',
-                        background: 'var(--hz-surface)',
-                        alignItems: 'flex-start'
+                    >
+                      <input type="file" style={{ display: 'none' }} onChange={(e) => setForm(prev => ({ ...prev, file: e.target.files[0] }))} />
+                      <div style={{
+                        width: '56px', height: '56px', borderRadius: '50%', background: dragActive ? 'var(--hz-primary)' : 'var(--hz-surface)',
+                        color: dragActive ? '#fff' : 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 1rem', transition: 'all 0.2s', boxShadow: dragActive ? '0 8px 20px rgba(99,102,241,0.3)' : '0 4px 10px rgba(0,0,0,0.05)'
                       }}>
-                        <span style={{
-                          minWidth: '130px', fontSize: 'var(--hz-font-size-xs)',
-                          fontWeight: 'var(--hz-font-weight-bold)',
-                          color: 'var(--hz-text-muted)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.07em',
-                          paddingTop: '2px'
-                        }}>{label}</span>
-                        <span style={{
-                          fontSize: 'var(--hz-font-size-sm)',
-                          color: value === '—' ? 'var(--hz-text-muted)' : 'var(--hz-text)',
-                          fontWeight: 'var(--hz-font-weight-medium)',
-                          wordBreak: 'break-all'
-                        }}>{value}</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="17 8 12 3 7 8"></polyline>
+                          <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                      </div>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: '700', color: 'var(--hz-text)' }}>
+                        {form.file ? form.file.name : (
+                          <>Drag &amp; drop files or <span style={{ color: 'var(--hz-primary)' }}>browse</span></>
+                        )}
+                      </p>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>PDF, ZIP, PNG — max 20 MB</p>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Step 3: Review */}
+                <div style={{ display: step === 3 ? 'block' : 'none' }}>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>Review & Submit</h2>
+                  <p style={{ color: 'var(--hz-text-secondary)', marginBottom: '2rem' }}>Double-check your details.</p>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+                    {[
+                      { label: 'Hackathon', value: hackathons.find(h => h.id === form.hackathonId)?.title },
+                      { label: 'Project Title', value: form.title },
+                      { label: 'Tech Stack', value: form.techStack },
+                      { label: 'GitHub Repo', value: form.repoUrl },
+                      { label: 'Live Demo', value: form.demoUrl },
+                      { label: 'Demo Video', value: form.videoUrl },
+                    ].map(({ label, value }) => (
+                      <div key={label} style={{ display: 'flex', padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', border: '1px solid var(--hz-border)', alignItems: 'center' }}>
+                        <span style={{ width: '150px', fontWeight: '700', color: 'var(--hz-text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+                        <span style={{ fontWeight: '500', color: value ? 'var(--hz-text)' : 'var(--hz-border)', flex: 1, wordBreak: 'break-all' }}>{value || '—'}</span>
                       </div>
                     ))}
-
-                    {/* Description preview */}
-                    <div style={{
-                      padding: '0.875rem',
-                      borderRadius: 'var(--hz-radius-sm)',
-                      background: 'var(--hz-surface)'
-                    }}>
-                      <span style={{
-                        display: 'block', fontSize: 'var(--hz-font-size-xs)',
-                        fontWeight: 'var(--hz-font-weight-bold)',
-                        color: 'var(--hz-text-muted)',
-                        textTransform: 'uppercase', letterSpacing: '0.07em',
-                        marginBottom: '0.5rem'
-                      }}>Description</span>
-                      <p style={{
-                        margin: 0, fontSize: 'var(--hz-font-size-sm)',
-                        color: form.description ? 'var(--hz-text)' : 'var(--hz-text-muted)',
-                        lineHeight: '1.6'
-                      }}>
-                        {form.description || '—'}
-                      </p>
-                    </div>
-
-                    <TextArea
-                      id="notes"
-                      name="notes"
-                      label="Additional Notes to Judges"
-                      placeholder="Anything extra you'd like the judges to know..."
-                      value={form.notes}
-                      onChange={set('notes')}
-                      rows={3}
-                    />
-
-                    {errors.submit && (
-                      <p className="hz-field-error" role="alert">{errors.submit}</p>
-                    )}
                   </div>
-                )}
+                  
+                  <TextArea id="notes" label="Additional Notes" placeholder="Anything extra you'd like judges to know..." value={form.notes} onChange={set('notes')} rows={3} />
+                  {errors.submit && <p style={{ color: '#ef4444', fontWeight: '600', padding: '1rem', background: 'rgba(239,68,68,0.1)', borderRadius: '12px' }}>{errors.submit}</p>}
+                </div>
 
-                {/* Navigation Buttons */}
-                <div style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  marginTop: '2rem', paddingTop: '1.25rem',
-                  borderTop: '1px solid var(--hz-border)'
-                }}>
+                {/* Footer Buttons */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--hz-border)' }}>
                   <div>
                     {step > 0 && (
-                      <Button variant="outline" type="button" onClick={handleBack}>
+                      <button type="button" onClick={handleBack} style={{ background: 'transparent', border: '2px solid var(--hz-border)', padding: '0.75rem 1.5rem', borderRadius: '10px', fontWeight: '700', color: 'var(--hz-text)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--hz-bg)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                         ← Back
-                      </Button>
+                      </button>
                     )}
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <div>
                     {step < STEPS.length - 1 ? (
-                      <Button variant="primary" type="button" onClick={handleNext}>
+                      <button type="button" onClick={handleNext} style={{ background: 'var(--hz-primary)', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(99,102,241,0.3)', transition: 'all 0.2s' }} onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e=>e.currentTarget.style.transform='none'}>
                         Continue →
-                      </Button>
+                      </button>
                     ) : (
-                      <Button variant="primary" type="submit" disabled={loading}>
-                        {loading ? (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span className="hz-spinner" style={{ width: '14px', height: '14px', borderWidth: '2px' }}></span>
-                            Submitting...
-                          </span>
-                        ) : (
-                          <>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.4rem' }}>
-                              <line x1="22" y1="2" x2="11" y2="13"></line>
-                              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                            Submit Project
-                          </>
-                        )}
-                      </Button>
+                      <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg, var(--hz-primary) 0%, #312e81 100%)', color: '#fff', border: 'none', padding: '0.75rem 2.5rem', borderRadius: '10px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 15px rgba(49,46,129,0.4)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseEnter={e=>{if(!loading) e.currentTarget.style.transform='translateY(-2px)'}} onMouseLeave={e=>{if(!loading) e.currentTarget.style.transform='none'}}>
+                        {loading ? <span className="hz-spinner" style={{width:'16px',height:'16px',borderWidth:'2px'}}></span> : null}
+                        {loading ? 'Submitting...' : 'Submit Project!'}
+                      </button>
                     )}
                   </div>
                 </div>
-              </Card>
+
+              </div>
             </form>
           </div>
 
-          {/* ── Right: Sidebar ──────────────────────────────────────────── */}
-          <div className="col-12 col-lg-4 d-flex flex-column gap-4">
-
-            {/* Submission Checklist */}
-            <Card padding>
-              <h2 style={{ fontSize: 'var(--hz-font-size-lg)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
-                Submission Checklist
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-                {[
-                  { label: 'Project title filled', done: !!form.title.trim() },
-                  { label: 'Description added', done: !!form.description.trim() },
-                  { label: 'GitHub repo linked', done: !!form.repoUrl.trim() },
-                  { label: 'Live demo URL', done: !!form.demoUrl.trim() },
-                  { label: 'Demo video provided', done: !!form.videoUrl.trim() },
-                ].map(({ label, done }) => (
-                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* ── Dynamic Sidebar ── */}
+          <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            
+            <div style={{ background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '24px', padding: '2rem', boxShadow: 'var(--hz-shadow-sm)' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--hz-text)' }}>Checklist</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {checklist.map(({ label, done }) => (
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{
-                      width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
-                      background: done ? 'rgba(16,185,129,0.12)' : 'var(--hz-surface)',
-                      border: `1.5px solid ${done ? '#10b981' : 'var(--hz-border)'}`,
+                      width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0,
+                      background: done ? 'rgba(16,185,129,0.15)' : 'var(--hz-bg)',
+                      border: `2px solid ${done ? '#10b981' : 'var(--hz-border)'}`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      transition: 'all 0.3s'
+                      transition: 'all 0.3s ease'
                     }}>
-                      {done && (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      )}
+                      {done && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                     </div>
-                    <span style={{
-                      fontSize: 'var(--hz-font-size-sm)',
-                      color: done ? 'var(--hz-text)' : 'var(--hz-text-muted)',
-                      fontWeight: done ? 'var(--hz-font-weight-medium)' : 'normal',
-                      textDecoration: done ? 'none' : 'none'
-                    }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: done ? '600' : '500', color: done ? 'var(--hz-text)' : 'var(--hz-text-muted)', transition: 'color 0.3s' }}>
                       {label}
                     </span>
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
 
-            {/* Tips Card */}
-            <Card padding={false} style={{
-              background: 'linear-gradient(135deg, var(--hz-primary) 0%, #312e81 100%)',
-              border: 'none', borderRadius: 'var(--hz-radius)',
-              position: 'relative', overflow: 'hidden',
-              boxShadow: 'var(--hz-shadow-md)'
+            <div style={{ 
+              background: 'linear-gradient(135deg, #1e1b4b 0%, var(--hz-primary) 100%)', 
+              borderRadius: '24px', padding: '2rem', color: '#fff', position: 'relative', overflow: 'hidden',
+              boxShadow: '0 10px 30px rgba(99,102,241,0.2)'
             }}>
-              {/* Decorative circles */}
-              <div style={{ position: 'absolute', bottom: '-24px', right: '-24px', width: '130px', height: '130px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-              <div style={{ position: 'absolute', bottom: '16px', right: '-48px', width: '110px', height: '110px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-
-              <div style={{ padding: 'var(--hz-space-6)', position: 'relative', zIndex: 1 }}>
-                <h3 style={{ fontSize: 'var(--hz-font-size-lg)', fontWeight: 'var(--hz-font-weight-bold)', color: '#fff', margin: '0 0 0.75rem' }}>
-                  💡 Submission Tips
-                </h3>
-                <ul style={{ margin: 0, padding: '0 0 0 1.1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {[
-                    'Make sure your repo is public.',
-                    'Include a clear README with setup steps.',
-                    'Demo video should be under 3 minutes.',
-                    'Double-check all links are working.',
-                  ].map((tip, i) => (
-                    <li key={i} style={{ color: 'rgba(255,255,255,0.85)', fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.5' }}>
-                      {tip}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Card>
+              {/* Abstract decorative background */}
+              <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
+              <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
+              
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Pro Tips
+              </h3>
+              <ul style={{ margin: 0, paddingLeft: '1.25rem', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.9)' }}>Make sure your GitHub repo is public so judges can view your code.</li>
+                <li style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.9)' }}>Include a detailed README with setup instructions.</li>
+                <li style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.9)' }}>Keep your demo video short, ideally under 3 minutes.</li>
+              </ul>
+            </div>
 
           </div>
         </div>
-
       </div>
     </div>
   );

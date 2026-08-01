@@ -6,9 +6,9 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { respondToInviteApi, getMyInvitesApi } from '../../api/team.api';
 import { getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
 import { getMySubmissionsApi } from '../../api/submission.api';
+import { getAnnouncementsByHackathonApi } from '../../api/announcement.api';
 import { toast } from 'react-toastify';
 
 import { formatDate } from '../../utils/date';
@@ -16,17 +16,21 @@ import { formatDate } from '../../utils/date';
 export default function ParticipantDashboard() {
   const { user } = useAuth();
   const [registeredHackathons, setRegisteredHackathons] = useState([]);
-  const [teamInvites, setTeamInvites] = useState([]);
   const [submissions, setSubmissions] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [selectedHackathonId, setSelectedHackathonId] = useState('');
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(false);
 
   const loadData = () => {
     getMyRegisteredHackathonsApi()
-      .then(data => setRegisteredHackathons(Array.isArray(data) ? data : (data?.data || [])))
+      .then(data => {
+        const hacks = Array.isArray(data) ? data : (data?.data || []);
+        setRegisteredHackathons(hacks);
+        if (hacks.length > 0) {
+          setSelectedHackathonId(hacks[0].id);
+        }
+      })
       .catch(() => setRegisteredHackathons([]));
-
-    getMyInvitesApi()
-      .then(data => setTeamInvites(Array.isArray(data) ? data : (data?.data || [])))
-      .catch(() => setTeamInvites([]));
 
     getMySubmissionsApi()
       .then(data => setSubmissions(Array.isArray(data) ? data : (data?.data || [])))
@@ -37,92 +41,218 @@ export default function ParticipantDashboard() {
     loadData();
   }, []);
 
-  const handleAcceptInvite = async (id) => {
-    try {
-      const invite = teamInvites.find(inv => inv.id === id);
-      if (!invite) return;
-      await respondToInviteApi({ inviteId: id, status: 'accepted', teamId: invite.teamId });
-      toast.success("Invite accepted!");
-      loadData();
-    } catch (err) {
-      toast.error(err.response?.data?.error || "Failed to accept invite");
+  useEffect(() => {
+    if (selectedHackathonId) {
+      setLoadingAnnouncements(true);
+      getAnnouncementsByHackathonApi(selectedHackathonId)
+        .then(data => {
+          // Only show published announcements to participants
+          const allAnnouncements = Array.isArray(data) ? data : (data?.data || []);
+          setAnnouncements(allAnnouncements.filter(a => a.status === 'published' && (a.audience === 'all' || a.audience === 'participants')));
+        })
+        .catch(() => setAnnouncements([]))
+        .finally(() => setLoadingAnnouncements(false));
+    } else {
+      setAnnouncements([]);
     }
-  };
+  }, [selectedHackathonId]);
 
-  const handleDeclineInvite = async (id) => {
-    try {
-      const invite = teamInvites.find(inv => inv.id === id);
-      if (!invite) return;
-      await respondToInviteApi({ inviteId: id, status: 'rejected', teamId: invite.teamId });
-      toast.info("Invite declined.");
-      loadData();
-    } catch (err) {
-      toast.error(err.response?.data?.error || "Failed to decline invite");
-    }
-  };
 
-  return (
-    <div className="hz-page">
+
+  // Derived KPI Stats
+  const activeHackathonsCount = registeredHackathons.length;
+  const submissionsCount = submissions.length;
+  const newAnnouncementsCount = announcements.length; // Simplified for now
+
+    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          <div>
+            <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
+              Overview
+            </h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px', margin: 0 }}>
+              Welcome back, <span style={{ color: 'var(--hz-primary)', fontWeight: '700' }}>{user?.name || 'Participant'}</span>! Let's build something amazing.
+            </p>
+          </div>
+          <Link to="/hackathons" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              background: 'var(--hz-primary)', color: '#fff', border: 'none',
+              borderRadius: '12px', padding: '0.85rem 1.5rem',
+              fontSize: '1rem', fontWeight: '700', cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(99,102,241,0.4)', transition: 'all 0.2s',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Find Hackathons
+            </button>
+          </Link>
+        </div>
+      </div>
+
       <div className="hz-container">
-        <PageHeader
-          title={`Participant Dashboard`}
-          subtitle={`Welcome back, ${user?.name || 'Participant'}! Here is a quick overview of your hackathons and teams.`}
-        />
 
-        <div className="row g-4 hz-mb-8">
-          {/* Registered Hackathons */}
-          <div className="col-12 col-lg-8">
-            <h3 className="hz-heading-3 hz-mb-4">Registered Hackathons</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {registeredHackathons.length === 0 ? (
-                <EmptyState
-                  title="No Registered Hackathons"
-                  description="You haven't registered for any hackathons yet."
-                />
-              ) : (
-                registeredHackathons.map(hackathon => (
-                  <Card key={hackathon.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s, transform 0.2s', cursor: 'default' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
-                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                      <div style={{
-                        width: '100px',
-                        height: '100px',
-                        borderRadius: '8px',
+        {/* Top KPIs - Bento Style */}
+        <div className="row g-4" style={{ marginBottom: '2.5rem' }}>
+          <div className="col-12 col-md-4">
+            <div style={{ 
+              background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.05) 100%)', 
+              border: '1px solid rgba(99,102,241,0.2)', 
+              borderRadius: '20px', 
+              padding: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.25rem',
+              backdropFilter: 'blur(10px)',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              cursor: 'default'
+            }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0, boxShadow: '0 8px 16px rgba(99,102,241,0.25)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+              </div>
+              <div>
+                <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--hz-text)', lineHeight: 1, marginBottom: '0.25rem' }}>{activeHackathonsCount}</div>
+                <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Hackathons</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div style={{ 
+              background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(52,211,153,0.05) 100%)', 
+              border: '1px solid rgba(16,185,129,0.2)', 
+              borderRadius: '20px', 
+              padding: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.25rem',
+              backdropFilter: 'blur(10px)',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              cursor: 'default'
+            }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0, boxShadow: '0 8px 16px rgba(16,185,129,0.25)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div>
+                <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--hz-text)', lineHeight: 1, marginBottom: '0.25rem' }}>{submissionsCount}</div>
+                <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Projects Submitted</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div style={{ 
+              background: 'linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(251,191,36,0.05) 100%)', 
+              border: '1px solid rgba(245,158,11,0.2)', 
+              borderRadius: '20px', 
+              padding: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.25rem',
+              backdropFilter: 'blur(10px)',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              cursor: 'default'
+            }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0, boxShadow: '0 8px 16px rgba(245,158,11,0.25)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              </div>
+              <div>
+                <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--hz-text)', lineHeight: 1, marginBottom: '0.25rem' }}>{newAnnouncementsCount}</div>
+                <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hackathon Updates</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Grid Layout */}
+        <div className="row g-4">
+          
+          {/* Left Column (Primary Content) */}
+          <div className="col-12 col-lg-8" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            
+            {/* My Hackathons */}
+            <section>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>My Hackathons</h2>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {registeredHackathons.length === 0 ? (
+                  <div style={{ padding: '3rem', borderRadius: '20px', border: '1px dashed var(--hz-border)', textAlign: 'center', background: 'var(--hz-surface)' }}>
+                    <EmptyState
+                      title="No Hackathons Yet"
+                      description="You haven't joined any hackathons. Explore the hackathons page to get started."
+                    />
+                  </div>
+                ) : (
+                  registeredHackathons.map(hackathon => (
+                    <div key={hackathon.id} style={{ 
+                      display: 'flex', 
+                      background: 'var(--hz-surface)', 
+                      borderRadius: '20px', 
+                      overflow: 'hidden', 
+                      border: '1px solid var(--hz-border)',
+                      boxShadow: 'var(--hz-shadow-sm)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }} onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.1)';
+                      e.currentTarget.style.borderColor = 'var(--hz-primary)';
+                    }} onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)';
+                      e.currentTarget.style.borderColor = 'var(--hz-border)';
+                    }}>
+                      {/* Image Thumbnail */}
+                      <div style={{ 
+                        width: '140px', 
                         background: `url(${hackathon.image || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}) center/cover`,
-                        flexShrink: 0,
-                        border: '1px solid var(--hz-border)'
-                      }} />
-
-                      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
-                          <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hackathon.title || 'Untitled Hackathon'}</h4>
+                        position: 'relative'
+                      }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent, var(--hz-surface))' }}></div>
+                      </div>
+                      
+                      {/* Content */}
+                      <div style={{ flex: 1, padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.75rem' }}>
+                          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'var(--hz-text)' }}>{hackathon.title || 'Untitled Hackathon'}</h3>
                           <Badge variant={
                             hackathon.registrationStatus === 'approved' ? 'success' :
                               hackathon.registrationStatus === 'rejected' ? 'danger' : 'warning'
-                          }>
+                          } style={{ borderRadius: '8px', padding: '0.35rem 0.75rem', fontWeight: '600' }}>
                             {hackathon.registrationStatus === 'approved' ? 'Project Approved' :
                               hackathon.registrationStatus === 'rejected' ? 'Project Rejected' : 'Pending Approval'}
                           </Badge>
                         </div>
-
-                        {hackathon.teamName ? (
-                          <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.75rem 0' }}>
-                            Registered as team: <strong style={{ color: 'var(--hz-text)' }}>{hackathon.teamName}</strong>
-                          </p>
-                        ) : (
-                          <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.75rem 0' }}>
-                            Registered as: <strong style={{ color: 'var(--hz-text)' }}>Solo Participant</strong>
-                          </p>
-                        )}
-
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', color: 'var(--hz-text-muted)', fontSize: '0.9rem' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                          {hackathon.teamName ? (
+                            <span>Registered as team: <strong style={{ color: 'var(--hz-text)' }}>{hackathon.teamName}</strong></span>
+                          ) : (
+                            <span>Registered as: <strong style={{ color: 'var(--hz-text)' }}>Solo Participant</strong></span>
+                          )}
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '1rem' }}>
                           <Link to={`/hackathons/${hackathon.id}`} style={{ textDecoration: 'none' }}>
-                            <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                            <Button variant="outline" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600' }}>
                               View Details
                             </Button>
                           </Link>
                           {hackathon.registrationStatus === 'approved' && (
                             <Link to="/submit" style={{ textDecoration: 'none' }}>
-                              <Button variant="primary" size="sm" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                              <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }}>
                                 Submit Project
                               </Button>
                             </Link>
@@ -130,263 +260,228 @@ export default function ParticipantDashboard() {
                         </div>
                       </div>
                     </div>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
+                  ))
+                )}
+              </div>
+            </section>
 
-          {/* Pending Invites */}
-          <div className="col-12 col-lg-4">
-            <h3 className="hz-heading-3 hz-mb-4">Pending Team Invites</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {teamInvites.length === 0 ? (
-                <Card padding="1.5rem" style={{ textAlign: 'center', background: 'transparent', border: '1px dashed var(--hz-border)' }}>
-                  <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.95rem' }}>
-                    You have no pending team invites at the moment.
-                  </p>
-                </Card>
-              ) : (
-                teamInvites.map(invite => (
-                  <Card key={invite.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s', borderLeft: '3px solid var(--hz-primary)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'}>
-                    <div style={{ marginBottom: '1rem' }}>
-                      <h4 className="hz-heading-4" style={{ margin: '0 0 0.25rem 0', fontSize: '1.05rem' }}>{invite.teamName || (invite.teamId ? `Team #${invite.teamId.slice(0, 6)}` : 'Team Invite')}</h4>
-                      {invite.email && (
-                        <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.25rem 0' }}>
-                          Sent to: {invite.email}
-                        </p>
-                      )}
-                      {invite.hackathon && (
-                        <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: '0 0 0.25rem 0' }}>
-                          For Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{invite.hackathon}</strong>
-                        </p>
-                      )}
-                      {invite.inviter && (
-                        <p className="hz-text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
-                          Invited by: <strong>{invite.inviter}</strong>
-                        </p>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <Button variant="primary" size="sm" style={{ flex: 1, padding: '0.4rem' }} onClick={() => handleAcceptInvite(invite.id)}>
-                        Accept
-                      </Button>
-                      <Button variant="outline" size="sm" style={{ flex: 1, padding: '0.4rem' }} onClick={() => handleDeclineInvite(invite.id)}>
-                        Decline
-                      </Button>
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Team Management Actions */}
-        <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-          <h3 className="hz-heading-3 hz-mb-4">Team Management</h3>
-          <div className="row g-3">
-            <div className="col-12 col-md-4">
-              <Card padding="1.5rem" style={{ transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.12)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <line x1="19" y1="8" x2="19" y2="14"></line>
-                      <line x1="22" y1="11" x2="16" y2="11"></line>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--hz-text)' }}>Create a Team</h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>Generate unique code & invite allies</p>
-                  </div>
-                </div>
-                <Link to="/teams/create" style={{ textDecoration: 'none' }}>
-                  <Button variant="primary" style={{ width: '100%', borderRadius: '8px' }}>
-                    Create Team
-                  </Button>
+            {/* My Submissions */}
+            <section>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Recent Submissions</h2>
+                <Link to="/submissions" style={{ textDecoration: 'none', color: 'var(--hz-primary)', fontSize: '0.9rem', fontWeight: '600' }}>
+                  View All &rarr;
                 </Link>
-              </Card>
-            </div>
-
-            <div className="col-12 col-md-4">
-              <Card padding="1.5rem" style={{ transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--hz-text)' }}>Join a Team</h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>Search open teams or enter code</p>
-                  </div>
-                </div>
-                <Link to="/teams/join" style={{ textDecoration: 'none' }}>
-                  <Button variant="outline" style={{ width: '100%', borderRadius: '8px' }}>
-                    Browse & Join
-                  </Button>
-                </Link>
-              </Card>
-            </div>
-
-            <div className="col-12 col-md-4">
-              <Card padding="1.5rem" style={{ transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                      <line x1="8" y1="21" x2="16" y2="21"></line>
-                      <line x1="12" y1="17" x2="12" y2="21"></line>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--hz-text)' }}>My Workspace</h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--hz-text-muted)' }}>Manage members & project tasks</p>
-                  </div>
-                </div>
-                <Link to="/teams/dashboard" style={{ textDecoration: 'none' }}>
-                  <Button variant="outline" style={{ width: '100%', borderRadius: '8px' }}>
-                    View Workspace
-                  </Button>
-                </Link>
-              </Card>
-            </div>
-          </div>
-        </div>
-
-        {/* Past Submissions */}
-        <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 className="hz-heading-3" style={{ margin: 0 }}>My Submissions</h3>
-            <Link to="/my-submissions" style={{ textDecoration: 'none' }}>
-              <Button variant="outline" size="sm" style={{ fontSize: '0.85rem' }}>
-                View All
-              </Button>
-            </Link>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {submissions.length === 0 ? (
-              <Card padding="2rem" style={{ textAlign: 'center', background: 'transparent', border: '1px dashed var(--hz-border)' }}>
-                <EmptyState
-                  icon={
-                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 0.5rem' }}>
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                      <line x1="12" y1="18" x2="12" y2="12"></line>
-                      <polyline points="9 15 12 12 15 15"></polyline>
-                    </svg>
-                  }
-                  title="No Submissions Found"
-                  description="You haven't submitted any projects for hackathons yet. Ready to submit your team's project?"
-                  action={
-                    <Link to="/submit" style={{ textDecoration: 'none', display: 'inline-block', marginTop: '0.75rem' }}>
-                      <Button variant="primary" size="sm">
-                        Submit a Project
-                      </Button>
-                    </Link>
-                  }
-                />
-              </Card>
-            ) : (
-              submissions.map(sub => {
-                const dateString = formatDate(sub.created_at || sub.createdAt || sub.submittedAt || sub.submitted_at || sub.created_date);
-                return (
-                  <Card key={sub.id} padding="1.25rem" style={{ transition: 'box-shadow 0.2s, transform 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-                      <div style={{ flex: 1, minWidth: '250px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
-                          <h4 className="hz-heading-4" style={{ margin: 0, fontSize: '1.1rem' }}>{sub.title || 'Untitled Project'}</h4>
-                          <Badge variant={sub.status === 'rejected' ? 'danger' : 'success'}>
-                            {sub.status || 'Submitted'}
-                          </Badge>
-                        </div>
-                        {sub.description && (
-                          <p className="hz-text-muted" style={{ fontSize: '0.875rem', margin: '0 0 0.5rem 0', lineHeight: '1.4' }}>
-                            {sub.description}
-                          </p>
-                        )}
-                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
-                          {(sub.hackathonName || sub.hackathonTitle || sub.hackathon) && (
-                            <span>Hackathon: <strong style={{ color: 'var(--hz-text)' }}>{sub.hackathonName || sub.hackathonTitle || sub.hackathon}</strong></span>
-                          )}
-                          {sub.teamName && (
-                            <span>Team: <strong style={{ color: 'var(--hz-text)' }}>{sub.teamName}</strong></span>
-                          )}
-                          {dateString !== '—' && (
-                            <span>Submitted: <strong style={{ color: 'var(--hz-text)' }}>{dateString}</strong></span>
-                          )}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        {sub.githubRepo && (
-                          <a href={sub.githubRepo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                            <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-                              GitHub Repo
-                            </Button>
-                          </a>
-                        )}
-                        {sub.demoVideoUrl && (
-                          <a href={sub.demoVideoUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                            <Button variant="outline" size="sm" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-                              Demo Video
-                            </Button>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Quick Links / CTA */}
-        <div style={{ marginTop: '1.5rem' }}>
-          <Card padding="0" style={{
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%)',
-            border: '1px solid rgba(139, 92, 246, 0.2)',
-            overflow: 'hidden',
-            position: 'relative',
-            borderRadius: '16px'
-          }}>
-            {/* Decorative background blobs */}
-            <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', background: 'rgba(139, 92, 246, 0.15)', borderRadius: '50%', filter: 'blur(40px)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '200px', height: '200px', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '50%', filter: 'blur(40px)', pointerEvents: 'none' }} />
-
-            <div style={{ position: 'relative', zIndex: 1, padding: '3rem 2rem', textAlign: 'center' }}>
-              <div style={{
-                width: '56px', height: '56px', borderRadius: '14px', background: 'var(--hz-bg)', border: '1px solid var(--hz-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-              }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
               </div>
 
-              <h4 className="hz-heading-3 hz-mb-2" style={{ fontWeight: 'var(--hz-font-weight-bold)' }}>
-                Ready for your next challenge?
-              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {submissions.length === 0 ? (
+                  <div style={{ padding: '3rem', borderRadius: '20px', border: '1px dashed var(--hz-border)', textAlign: 'center', background: 'var(--hz-surface)' }}>
+                    <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem', borderRadius: '12px', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--hz-primary)' }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>
+                    </div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>No Submissions Yet</h3>
+                    <p style={{ color: 'var(--hz-text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>You haven't submitted any projects. Time to build!</p>
+                    <Link to="/submit" style={{ textDecoration: 'none' }}>
+                      <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1.25rem' }}>Submit Project</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  submissions.map(sub => {
+                    const dateString = formatDate(sub.created_at || sub.createdAt || sub.submittedAt || sub.submitted_at || sub.created_date);
+                    return (
+                      <div key={sub.id} style={{ 
+                        background: 'var(--hz-surface)', 
+                        border: '1px solid var(--hz-border)', 
+                        borderRadius: '16px', 
+                        padding: '1.5rem',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '1.5rem',
+                        transition: 'transform 0.2s',
+                        cursor: 'default'
+                      }} onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                        <div style={{ flex: 1, minWidth: '250px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                            <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700', color: 'var(--hz-text)' }}>{sub.title || 'Untitled Project'}</h4>
+                            <Badge variant={sub.status === 'rejected' ? 'danger' : 'success'} style={{ borderRadius: '6px', padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
+                              {sub.status || 'Submitted'}
+                            </Badge>
+                          </div>
+                          <div style={{ color: 'var(--hz-text-muted)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                              {dateString}
+                            </span>
+                            <span>•</span>
+                            <span style={{ fontWeight: '500', color: 'var(--hz-text)' }}>{sub.hackathonName || sub.hackathonTitle || sub.hackathon || 'Hackathon'}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                          {sub.githubRepo && (
+                            <a href={sub.githubRepo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                              <Button variant="outline" style={{ borderRadius: '8px', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                                GitHub
+                              </Button>
+                            </a>
+                          )}
+                          {sub.demoVideoUrl && (
+                            <a href={sub.demoVideoUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                              <Button variant="outline" style={{ borderRadius: '8px', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                                Demo
+                              </Button>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </section>
+          </div>
 
-              <p className="hz-text-muted hz-mb-6" style={{ maxWidth: '450px', margin: '0 auto 2rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                Join the most exciting hackathons around the globe. Browse upcoming events, form a team, and build incredible projects.
-              </p>
+          {/* Right Column (Secondary / Feed) */}
+          <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            
+            {/* Announcements Glassmorphic Widget */}
+            <section style={{ 
+              background: 'var(--hz-surface)', 
+              borderRadius: '24px', 
+              border: '1px solid var(--hz-border)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: 'var(--hz-shadow-sm)'
+            }}>
+              <div style={{ padding: '1.5rem 1.5rem 1rem', borderBottom: '1px solid var(--hz-border)', background: 'rgba(99,102,241,0.03)' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: '0 0 1rem 0', color: 'var(--hz-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                  Announcements
+                </h2>
+                <select 
+                  value={selectedHackathonId} 
+                  onChange={(e) => setSelectedHackathonId(e.target.value)}
+                  style={{ 
+                    padding: '0.75rem 1rem', 
+                    borderRadius: '12px', 
+                    border: '1px solid var(--hz-border)', 
+                    background: 'var(--hz-bg)', 
+                    color: 'var(--hz-text)', 
+                    width: '100%', 
+                    outline: 'none',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    appearance: 'none',
+                    backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 1rem top 50%',
+                    backgroundSize: '0.65rem auto'
+                  }}
+                >
+                  {registeredHackathons.length === 0 && <option value="">No hackathons</option>}
+                  {registeredHackathons.map(h => (
+                    <option key={h.id} value={h.id}>{h.title || 'Untitled Hackathon'}</option>
+                  ))}
+                </select>
+              </div>
 
-              <Link to="/hackathons" style={{ textDecoration: 'none' }}>
-                <Button variant="primary" style={{ padding: '0.75rem 2rem', fontSize: '1rem', borderRadius: '999px', boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)' }}>
-                  Explore Hackathons
-                </Button>
-              </Link>
+              <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '500px', overflowY: 'auto' }}>
+                {loadingAnnouncements ? (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
+                    <div style={{ width: '24px', height: '24px', border: '2px solid var(--hz-border)', borderTopColor: 'var(--hz-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
+                    Loading...
+                  </div>
+                ) : announcements.length === 0 ? (
+                  <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--hz-text-muted)', margin: 0, fontSize: '0.9rem' }}>No announcements at this time. You're all caught up!</p>
+                  </div>
+                ) : (
+                  announcements.map(ann => (
+                    <div key={ann.id} style={{ 
+                      padding: '1.25rem', 
+                      background: 'var(--hz-bg)', 
+                      borderRadius: '16px', 
+                      border: '1px solid var(--hz-border)',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}>
+                      {/* Priority indicator line */}
+                      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: ann.priority === 'high' ? '#ef4444' : 'var(--hz-primary)' }}></div>
+                      
+                      <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: 'var(--hz-text)' }}>{ann.title}</h4>
+                        {ann.priority === 'high' && (
+                          <span style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '0.2rem 0.4rem', borderRadius: '4px' }}>Important</span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)', margin: '0 0 0.75rem 0', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                        {ann.content}
+                      </p>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--hz-text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: '500' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        {formatDate(ann.created_at)}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            {/* Explore CTA Widget */}
+            <div style={{ 
+              background: 'linear-gradient(135deg, var(--hz-primary) 0%, #8b5cf6 100%)', 
+              borderRadius: '24px', 
+              padding: '2.5rem 1.5rem', 
+              textAlign: 'center',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 12px 32px rgba(99,102,241,0.2)'
+            }}>
+              {/* Decorative blobs */}
+              <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.15)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
+              <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
+              
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: '800', margin: '0 0 0.75rem 0', color: 'white' }}>Find Your Next Challenge</h3>
+                <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.95rem', opacity: 0.9, lineHeight: 1.5 }}>Discover top-tier hackathons and collaborate with global talent.</p>
+                <Link to="/hackathons" style={{ textDecoration: 'none' }}>
+                  <button style={{ 
+                    background: 'white', 
+                    color: 'var(--hz-primary)', 
+                    border: 'none', 
+                    padding: '0.8rem 1.5rem', 
+                    borderRadius: '12px', 
+                    fontWeight: '700', 
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    transition: 'transform 0.2s',
+                    width: '100%'
+                  }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                    Explore Events
+                  </button>
+                </Link>
+              </div>
             </div>
-          </Card>
+            
+          </div>
         </div>
-
       </div>
+      
+      {/* Global Style for Spin Animation (if not present) */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -153,45 +153,37 @@ export default function HackathonDetail() {
   return (
     <div className="hz-page" style={{ padding: 0, paddingBottom: '4rem' }}>
 
-      {/* ── Hero Section ──────────────────────────────────────────────────────── */}
+      {/* ── Dynamic Gradient Hero ── */}
       <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '340px',
-        background: '#0f172a',
-        backgroundImage: `url("${image}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        paddingBottom: '2.5rem'
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
       }}>
-        {/* Dark overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to bottom, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.9) 100%)'
-        }
-      } />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          {image && (
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: `url("${image}")`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.15 }} />
+          )}
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
 
         <div className="hz-container" style={{ position: 'relative', zIndex: 1 }}>
           {/* Tags row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-              background: 'rgba(255,255,255,0.9)',
-              color: '#047857',
+              background: 'rgba(16,185,129,0.1)',
+              color: '#10b981', border: '1px solid #10b981',
               padding: '0.3rem 0.75rem', borderRadius: '999px',
-              fontSize: '11px', fontWeight: 'var(--hz-font-weight-bold)'
+              fontSize: '11px', fontWeight: '700'
             }}>
               <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
               {displayStatus}
             </span>
             <span style={{
               display: 'flex', alignItems: 'center', gap: '0.4rem',
-              color: 'rgba(255,255,255,0.85)',
-              fontSize: 'var(--hz-font-size-sm)',
-              fontWeight: 'var(--hz-font-weight-medium)'
+              color: 'var(--hz-text-muted)',
+              fontSize: '0.9rem',
+              fontWeight: '600'
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -203,28 +195,21 @@ export default function HackathonDetail() {
             </span>
           </div>
 
-          <h1 style={{
-            fontSize: 'clamp(2rem, 5vw, 3rem)',
-            fontWeight: 'var(--hz-font-weight-bold)',
-            color: '#fff',
-            margin: '0 0 1rem',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.1
-          }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
             {title}
           </h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)', marginTop: '0.5rem' }}>
             <div style={{
               width: '24px', height: '24px', borderRadius: '50%',
-              background: '#8b5cf6', color: '#fff',
+              background: 'var(--hz-primary)', color: '#fff',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '10px', fontWeight: 'bold'
             }}>
-              AF
+              {organizerName ? organizerName.charAt(0).toUpperCase() : 'AF'}
             </div>
-            <span style={{ fontSize: 'var(--hz-font-size-sm)' }}>
-              Organized by <strong>{organizerName}</strong>
+            <span style={{ fontSize: '0.95rem' }}>
+              Organized by <strong style={{ color: 'var(--hz-text)' }}>{organizerName}</strong>
             </span>
           </div>
         </div>
@@ -366,11 +351,7 @@ export default function HackathonDetail() {
                       Your previous idea was rejected. You may register again with a different idea.
                     </div>
                   )}
-<<<<<<< HEAD
-                  <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
-=======
                   <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '1.25rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                     Register for Hackathon
                   </Button>
                 </>

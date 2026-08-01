@@ -15,21 +15,13 @@ export default function ManageSubmissions() {
   const [registrations, setRegistrations] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
   // view: 'list' | 'details'
   const [view, setView] = useState('list');
   const [activeTab, setActiveTab] = useState('proposals'); // 'proposals' | 'submissions'
   const [selectedRegistration, setSelectedRegistration] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
   // Search and filter state
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -103,11 +95,7 @@ export default function ManageSubmissions() {
   });
 
   const filteredSubmissions = submissions.filter(s => {
-<<<<<<< HEAD
-    const matchesSearch = s.projectName?.toLowerCase().includes(search.toLowerCase()) || s.tagline?.toLowerCase().includes(search.toLowerCase());
-=======
     const matchesSearch = s.title?.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase());
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
     return matchesSearch;
   });
 
@@ -139,32 +127,15 @@ export default function ManageSubmissions() {
   };
 
   const renderListView = () => (
-<<<<<<< HEAD
-    <div style={{ animation: 'fadeIn 0.5s ease' }}>
-      
-      {/* Event Selection Header */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', background: 'var(--hz-surface)', padding: '1.5rem 2rem', borderRadius: '20px', border: '1px solid var(--hz-primary)', boxShadow: '0 8px 30px rgba(99,102,241,0.1)' }}>
-=======
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.5s ease' }}>
 
       {/* 1. Active Event Context Header */}
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', background: 'var(--hz-surface)', padding: '1.5rem 2rem', borderRadius: '24px', border: '1px solid var(--hz-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: 'var(--hz-text)' }}>Active Event Context</h2>
           <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '0.95rem' }}>Select which hackathon you are managing.</p>
         </div>
         <div style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'flex-end', minWidth: '250px', position: 'relative' }}>
-<<<<<<< HEAD
-          <select 
-            value={selectedHackathonId} 
-            onChange={handleHackathonChange}
-            className="hz-input"
-            style={{ 
-              padding: '0.75rem 2.5rem 0.75rem 1.25rem', 
-              borderRadius: '12px', 
-              border: '2px solid var(--hz-primary)', 
-=======
           <select
             value={selectedHackathonId}
             onChange={handleHackathonChange}
@@ -173,7 +144,6 @@ export default function ManageSubmissions() {
               padding: '0.75rem 2.5rem 0.75rem 1.25rem',
               borderRadius: '12px',
               border: '2px solid var(--hz-primary)',
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
               backgroundColor: 'var(--hz-bg)',
               fontWeight: '700',
               fontSize: '1rem',
@@ -195,18 +165,11 @@ export default function ManageSubmissions() {
         </div>
       </div>
 
-<<<<<<< HEAD
-      {/* Top KPI Row */}
-      <div className="row g-4 mb-5">
-        <div className="col-12 col-md-4">
-          <div style={{ padding: '2rem', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.1) 100%)', border: '1px solid rgba(99,102,241,0.2)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}>
-=======
       {/* 2. Top KPI Cards */}
       <div className="row g-4">
         {/* KPI 1 */}
         <div className="col-12 col-md-4">
           <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.1) 100%)', border: '1px solid rgba(99,102,241,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
             <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(99,102,241,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--hz-primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Total Registrations</span>
@@ -215,15 +178,10 @@ export default function ManageSubmissions() {
             <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : registrations.length}</div>
           </div>
         </div>
-<<<<<<< HEAD
-        <div className="col-12 col-md-4">
-          <div style={{ padding: '2rem', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(20,184,166,0.1) 100%)', border: '1px solid rgba(16,185,129,0.2)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}>
-=======
 
         {/* KPI 2 */}
         <div className="col-12 col-md-4">
           <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(20,184,166,0.1) 100%)', border: '1px solid rgba(16,185,129,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
             <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(16,185,129,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#10b981', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Total Participants</span>
@@ -232,15 +190,10 @@ export default function ManageSubmissions() {
             <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : registrations.reduce((acc, r) => acc + (r.regType === 'team' ? (Number(r.teamSize) || 1) : 1), 0)}</div>
           </div>
         </div>
-<<<<<<< HEAD
-        <div className="col-12 col-md-4">
-          <div style={{ padding: '2rem', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(239,68,68,0.1) 100%)', border: '1px solid rgba(245,158,11,0.2)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}>
-=======
 
         {/* KPI 3 */}
         <div className="col-12 col-md-4">
           <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(239,68,68,0.1) 100%)', border: '1px solid rgba(245,158,11,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
             <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(239,68,68,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#f59e0b', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Final Submissions</span>
@@ -251,36 +204,18 @@ export default function ManageSubmissions() {
         </div>
       </div>
 
-<<<<<<< HEAD
-      {/* Unified Content Section */}
-      <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
-        {/* Toolbar & Tabs */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--hz-border)' }}>
-          
-=======
       {/* 3. Main Content List */}
       <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
 
         {/* Toolbar & Tabs */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--hz-border)' }}>
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             {/* Pill Tabs */}
             <div style={{ display: 'flex', gap: '0.5rem', padding: '0.5rem', background: 'var(--hz-bg)', borderRadius: '16px', border: '1px solid var(--hz-border)' }}>
               <button
                 onClick={() => { setActiveTab('proposals'); setSearch(''); }}
                 style={{
-<<<<<<< HEAD
-                  padding: '0.75rem 1.5rem', 
-                  background: activeTab === 'proposals' ? 'var(--hz-primary)' : 'transparent', 
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: activeTab === 'proposals' ? '#fff' : 'var(--hz-text-muted)',
-                  fontWeight: '700', 
-                  fontSize: '0.95rem', 
-                  cursor: 'pointer', 
-=======
                   padding: '0.75rem 1.5rem',
                   background: activeTab === 'proposals' ? 'var(--hz-primary)' : 'transparent',
                   border: 'none',
@@ -289,7 +224,6 @@ export default function ManageSubmissions() {
                   fontWeight: '700',
                   fontSize: '0.95rem',
                   cursor: 'pointer',
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: activeTab === 'proposals' ? '0 4px 12px rgba(99,102,241,0.3)' : 'none'
                 }}
@@ -299,16 +233,6 @@ export default function ManageSubmissions() {
               <button
                 onClick={() => { setActiveTab('submissions'); setSearch(''); }}
                 style={{
-<<<<<<< HEAD
-                  padding: '0.75rem 1.5rem', 
-                  background: activeTab === 'submissions' ? 'var(--hz-primary)' : 'transparent', 
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: activeTab === 'submissions' ? '#fff' : 'var(--hz-text-muted)',
-                  fontWeight: '700', 
-                  fontSize: '0.95rem', 
-                  cursor: 'pointer', 
-=======
                   padding: '0.75rem 1.5rem',
                   background: activeTab === 'submissions' ? 'var(--hz-primary)' : 'transparent',
                   border: 'none',
@@ -317,7 +241,6 @@ export default function ManageSubmissions() {
                   fontWeight: '700',
                   fontSize: '0.95rem',
                   cursor: 'pointer',
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: activeTab === 'submissions' ? '0 4px 12px rgba(99,102,241,0.3)' : 'none'
                 }}
@@ -325,11 +248,8 @@ export default function ManageSubmissions() {
                 Final Submissions
               </button>
             </div>
-<<<<<<< HEAD
-            
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
             <Button variant="outline" onClick={exportCSV} style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', fontWeight: '600', display: 'flex', gap: '0.5rem', alignItems: 'center', background: 'var(--hz-surface)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Export CSV
@@ -341,39 +261,15 @@ export default function ManageSubmissions() {
               <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
-<<<<<<< HEAD
-              <input 
-                type="text" 
-                placeholder={`Search ${activeTab}...`} 
-                value={search} 
-=======
               <input
                 type="text"
                 placeholder={`Search ${activeTab}...`}
                 value={search}
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                 onChange={(e) => setSearch(e.target.value)}
                 className="hz-input"
                 style={{ width: '100%', padding: '0.75rem 1.25rem 0.75rem 2.75rem', borderRadius: '12px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)', outline: 'none' }}
               />
             </div>
-<<<<<<< HEAD
-            
-            {activeTab === 'proposals' && (
-              <div style={{ position: 'relative', minWidth: '150px' }}>
-                <select 
-                  value={filter} 
-                  onChange={(e) => setFilter(e.target.value)}
-                  className="hz-input"
-                  style={{ 
-                    padding: '0.75rem 2.5rem 0.75rem 1.25rem', 
-                    borderRadius: '12px', 
-                    border: '1px solid var(--hz-border)', 
-                    backgroundColor: 'var(--hz-bg)', 
-                    fontWeight: '600', 
-                    color: 'var(--hz-text)', 
-                    outline: 'none', 
-=======
 
             {activeTab === 'proposals' && (
               <div style={{ position: 'relative', minWidth: '150px' }}>
@@ -389,7 +285,6 @@ export default function ManageSubmissions() {
                     fontWeight: '600',
                     color: 'var(--hz-text)',
                     outline: 'none',
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                     width: '100%',
                     appearance: 'none',
                     WebkitAppearance: 'none',
@@ -407,212 +302,7 @@ export default function ManageSubmissions() {
           </div>
         </div>
 
-<<<<<<< HEAD
-      {/* Content Area */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--hz-text-muted)' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '4px solid var(--hz-border)', borderTopColor: 'var(--hz-primary)', animation: 'spin 1s linear infinite', margin: '0 auto 1rem auto' }}></div>
-          Loading data...
-        </div>
-      ) : activeTab === 'proposals' ? (
-        filteredRegistrations.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '6rem 2rem', background: 'var(--hz-surface)', border: '1px dashed var(--hz-border)', borderRadius: '24px' }}>
-            <div style={{ width: '64px', height: '64px', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            </div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: 'var(--hz-text)' }}>No registrations found</h3>
-            <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '1.1rem' }}>Adjust your filters or wait for more participants to join.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
-            {filteredRegistrations.map(reg => {
-              const displayName = reg.regType === 'team' ? reg.teamName : reg.participantName;
-              const sizeLabel = reg.regType === 'team' ? `${reg.teamSize} Members` : 'Solo';
-              const avatarChar = displayName ? displayName.charAt(0).toUpperCase() : '?';
-              const bgGradient = reg.regType === 'team' ? 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)' : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)';
-              const textColor = reg.regType === 'team' ? '#3730a3' : '#374151';
-              
-              return (
-                <div 
-                  key={reg.id} 
-                  onClick={() => openRegistrationDetails(reg)}
-                  style={{ 
-                    borderRadius: '20px', 
-                    background: 'var(--hz-surface)', 
-                    border: '1px solid var(--hz-border)', 
-                    padding: '1.5rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1.25rem',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.06)';
-                    e.currentTarget.style.borderColor = 'var(--hz-primary)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = 'var(--hz-border)';
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                      <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: bgGradient, color: textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '800', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                        {avatarChar}
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: 'var(--hz-text)' }}>{displayName}</h3>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                          <Badge style={{ background: reg.regType === 'team' ? 'rgba(99,102,241,0.1)' : 'rgba(107,114,128,0.1)', color: reg.regType === 'team' ? 'var(--hz-primary)' : 'var(--hz-text-muted)', border: 'none' }}>
-                            {reg.regType.toUpperCase()}
-                          </Badge>
-                          <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)', fontWeight: '500' }}>{sizeLabel}</span>
-                        </div>
-                      </div>
-                    </div>
-                    {getStatusBadge(reg.status)}
-                  </div>
-                  
-                  <div style={{ flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--hz-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.5' }}>
-                      {reg.idea || 'No pitch provided.'}
-                    </p>
-                  </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px dashed var(--hz-border)', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)', fontWeight: '500' }}>{formatDate(reg.createdAt)}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--hz-text-muted)', marginTop: '0.2rem' }}>Click card to review details</span>
-                    </div>
-                    <div style={{ 
-                      background: 'var(--hz-primary-light)', 
-                      color: 'var(--hz-primary)', 
-                      padding: '0.5rem 1rem', 
-                      borderRadius: '8px', 
-                      fontWeight: '700', 
-                      fontSize: '0.85rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      transition: 'background 0.2s'
-                    }}>
-                      Review Dossier <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )
-      ) : (
-        // Submissions Tab Content
-        filteredSubmissions.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '6rem 2rem', background: 'var(--hz-surface)', border: '1px dashed var(--hz-border)', borderRadius: '24px' }}>
-            <div style={{ width: '64px', height: '64px', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: 'var(--hz-text)' }}>No submissions found</h3>
-            <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '1.1rem' }}>No final projects have been submitted yet.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
-            {filteredSubmissions.map(sub => {
-              const displayName = sub.projectName;
-              const submitterName = sub.teamId ? sub.teamName : sub.participantName;
-              const typeLabel = sub.teamId ? 'TEAM' : 'SOLO';
-              const avatarChar = displayName ? displayName.charAt(0).toUpperCase() : '?';
-              
-              return (
-                <div 
-                  key={sub.id} 
-                  onClick={() => openSubmissionDetails(sub)}
-                  style={{ 
-                    borderRadius: '20px', 
-                    background: 'var(--hz-surface)', 
-                    border: '1px solid var(--hz-border)', 
-                    padding: '1.5rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1.25rem',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.06)';
-                    e.currentTarget.style.borderColor = 'var(--hz-primary)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = 'var(--hz-border)';
-                  }}
-                >
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #dcfce7 0%, #a7f3d0 100%)', color: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '800', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', flexShrink: 0 }}>
-                      {avatarChar}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: 'var(--hz-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</h3>
-                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--hz-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.tagline || 'No tagline'}</p>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--hz-text)' }}>By {submitterName}</span>
-                        <Badge style={{ background: 'var(--hz-bg)', color: 'var(--hz-text-muted)', border: '1px solid var(--hz-border)' }}>
-                          {typeLabel}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {sub.techStack && sub.techStack.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                      {sub.techStack.slice(0, 3).map((tech, idx) => (
-                        <span key={idx} style={{ background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', color: 'var(--hz-text)', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: '600' }}>
-                          {tech}
-                        </span>
-                      ))}
-                      {sub.techStack.length > 3 && (
-                        <span style={{ background: 'transparent', color: 'var(--hz-text-muted)', padding: '0.2rem 0.4rem', fontSize: '0.75rem', fontWeight: '600' }}>
-                          +{sub.techStack.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px dashed var(--hz-border)', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)', fontWeight: '500' }}>{formatDate(sub.createdAt)}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--hz-text-muted)', marginTop: '0.2rem' }}>Click card to evaluate</span>
-                    </div>
-                    <div style={{ 
-                      background: 'rgba(16, 185, 129, 0.1)', 
-                      color: '#10b981', 
-                      padding: '0.5rem 1rem', 
-                      borderRadius: '8px', 
-                      fontWeight: '700', 
-                      fontSize: '0.85rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      transition: 'background 0.2s'
-                    }}>
-                      Evaluate Project <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )
-      )}
-=======
         {/* Content Area */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--hz-text-muted)' }}>
@@ -745,7 +435,7 @@ export default function ManageSubmissions() {
             </div>
           )
         )}
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
       </div>
     </div>
   );
@@ -764,11 +454,8 @@ export default function ManageSubmissions() {
             </Button>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Registration Dossier</h2>
           </div>
-<<<<<<< HEAD
-          
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
           <div className="row g-4">
             <div className="col-12 col-lg-8">
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2.5rem', border: '1px solid var(--hz-border)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
@@ -792,11 +479,8 @@ export default function ManageSubmissions() {
                     {getStatusBadge(r.status)}
                   </div>
                 </div>
-<<<<<<< HEAD
-                
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
                 <div style={{ marginBottom: '2.5rem' }}>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -806,11 +490,8 @@ export default function ManageSubmissions() {
                     {r.idea || "No idea submitted."}
                   </div>
                 </div>
-<<<<<<< HEAD
-                
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
                 <div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -846,11 +527,7 @@ export default function ManageSubmissions() {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--hz-text)' }}>Approval Actions</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {r.status !== 'approved' && (
-<<<<<<< HEAD
-                    <button 
-=======
                     <button
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                       onClick={() => handleUpdateStatus(r.id, 'approved')}
                       style={{ width: '100%', padding: '1rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#059669'}
@@ -861,11 +538,7 @@ export default function ManageSubmissions() {
                     </button>
                   )}
                   {r.status !== 'rejected' && (
-<<<<<<< HEAD
-                    <button 
-=======
                     <button
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                       onClick={() => handleUpdateStatus(r.id, 'rejected')}
                       style={{ width: '100%', padding: '1rem', background: 'transparent', color: '#ef4444', border: '2px solid #ef4444', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                       onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; }}
@@ -876,11 +549,7 @@ export default function ManageSubmissions() {
                     </button>
                   )}
                   {r.status !== 'pending' && (
-<<<<<<< HEAD
-                    <button 
-=======
                     <button
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                       onClick={() => handleUpdateStatus(r.id, 'pending')}
                       style={{ width: '100%', padding: '1rem', background: 'var(--hz-bg)', color: 'var(--hz-text)', border: '1px solid var(--hz-border)', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s', marginTop: '0.5rem' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--hz-surface-hover)'}
@@ -896,11 +565,7 @@ export default function ManageSubmissions() {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--hz-text)' }}>Attached Documents</h3>
                 {r.proposalUrl ? (
                   <a href={r.proposalUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-<<<<<<< HEAD
-                    <div 
-=======
                     <div
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                       style={{ background: 'var(--hz-primary-light)', padding: '1.25rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-primary)', cursor: 'pointer', transition: 'transform 0.2s' }}
                       onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                       onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
@@ -933,26 +598,19 @@ export default function ManageSubmissions() {
       const submitterName = s.teamId ? s.teamName : s.participantName;
       const typeLabel = s.teamId ? 'TEAM' : 'SOLO';
 
-<<<<<<< HEAD
-=======
       const parsedTechStack = typeof s.techStack === 'string' ? s.techStack.split(',').map(t => t.trim()).filter(Boolean) : (s.techStack || []);
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Button variant="ghost" onClick={() => { setView('list'); setSelectedSubmission(null); }} style={{ padding: '0.5rem 1rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '12px', fontWeight: '600' }}>
               &larr; Back
             </Button>
-<<<<<<< HEAD
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Project Evaluation</h2>
-          </div>
-          
-=======
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--hz-text)' }}>Project Details</h2>
           </div>
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
           <div className="row g-4">
             <div className="col-12 col-lg-8">
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2.5rem', border: '1px solid var(--hz-border)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
@@ -960,18 +618,6 @@ export default function ManageSubmissions() {
                   <Badge style={{ background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', border: 'none', marginBottom: '1rem', fontWeight: '700', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
                     {typeLabel} PROJECT
                   </Badge>
-<<<<<<< HEAD
-                  <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 0.5rem 0', color: 'var(--hz-text)', letterSpacing: '-0.02em' }}>{s.projectName}</h1>
-                  <p style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: 'var(--hz-text-muted)', fontWeight: '500' }}>{s.tagline}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--hz-text-muted)', fontSize: '0.95rem' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--hz-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--hz-border)' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                    <span>Submitted by <strong style={{ color: 'var(--hz-text)' }}>{submitterName}</strong> on {formatDate(s.createdAt)}</span>
-                  </div>
-                </div>
-                
-=======
                   <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 0.5rem 0', color: 'var(--hz-text)', letterSpacing: '-0.02em' }}>{s.title}</h1>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--hz-text-muted)', fontSize: '0.95rem', marginTop: '1rem' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--hz-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--hz-border)' }}>
@@ -981,7 +627,7 @@ export default function ManageSubmissions() {
                   </div>
                 </div>
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
                 <div style={{ marginBottom: '2.5rem' }}>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -992,8 +638,6 @@ export default function ManageSubmissions() {
                   </div>
                 </div>
 
-<<<<<<< HEAD
-=======
                 {s.notes && (
                   <div style={{ marginBottom: '2.5rem' }}>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
@@ -1006,18 +650,14 @@ export default function ManageSubmissions() {
                   </div>
                 )}
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
                 <div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
                     Technology Stack
                   </h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-<<<<<<< HEAD
-                    {s.techStack && s.techStack.length > 0 ? s.techStack.map((tech, idx) => (
-=======
                     {parsedTechStack.length > 0 ? parsedTechStack.map((tech, idx) => (
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                       <div key={idx} style={{ background: 'var(--hz-surface)', border: '2px solid var(--hz-border)', color: 'var(--hz-text)', padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: '700', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                         {tech}
                       </div>
@@ -1026,24 +666,15 @@ export default function ManageSubmissions() {
                 </div>
               </div>
             </div>
-<<<<<<< HEAD
-            
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
             <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--hz-border)' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--hz-text)' }}>Project Links</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-<<<<<<< HEAD
-                  {s.githubUrl ? (
-                    <a href={s.githubUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                      <div 
-=======
                   {s.githubRepo ? (
                     <a href={s.githubRepo} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                       <div
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                         style={{ background: '#24292e', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#000'}
                         onMouseLeave={e => e.currentTarget.style.background = '#24292e'}
@@ -1056,30 +687,9 @@ export default function ManageSubmissions() {
                     <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Source Code</div>
                   )}
 
-<<<<<<< HEAD
-                  {s.liveUrl ? (
-                    <a href={s.liveUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                      <div 
-                        style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: 'opacity 0.2s' }}
-                        onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        Live Project
-                      </div>
-                    </a>
-                  ) : (
-                    <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Live URL</div>
-                  )}
-
-                  {s.videoUrl ? (
-                    <a href={s.videoUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                      <div 
-=======
                   {s.demoVideoUrl ? (
                     <a href={s.demoVideoUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                       <div
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                         style={{ background: 'transparent', border: '2px solid #ec4899', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#ec4899', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#fdf2f8'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -1091,8 +701,6 @@ export default function ManageSubmissions() {
                   ) : (
                     <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Video Demo</div>
                   )}
-<<<<<<< HEAD
-=======
 
                   {s.fileUrl ? (
                     <a href={s.fileUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
@@ -1108,7 +716,6 @@ export default function ManageSubmissions() {
                   ) : (
                     <div style={{ padding: '1rem', background: 'var(--hz-bg)', borderRadius: '12px', color: 'var(--hz-text-muted)', textAlign: 'center', border: '1px dashed var(--hz-border)', fontSize: '0.9rem' }}>No Attachment</div>
                   )}
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                 </div>
               </div>
             </div>
@@ -1133,28 +740,6 @@ export default function ManageSubmissions() {
         `}</style>
         {/* Page Header */}
         {view === 'list' && (
-<<<<<<< HEAD
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '1.25rem', 
-            marginBottom: '3rem',
-            animation: 'fadeIn 0.5s ease' 
-          }}>
-            <button 
-              type="button" 
-              onClick={() => navigate(-1)} 
-              style={{ 
-                background: 'var(--hz-surface)', 
-                border: '1px solid var(--hz-border)', 
-                cursor: 'pointer', 
-                width: '48px', 
-                height: '48px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                borderRadius: '50%', 
-=======
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -1175,7 +760,6 @@ export default function ManageSubmissions() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '50%',
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                 transition: 'all 0.2s',
                 color: 'var(--hz-text)'
@@ -1195,11 +779,8 @@ export default function ManageSubmissions() {
         {/* Content Router */}
         {view === 'list' && renderListView()}
         {view === 'details' && renderDetailsView()}
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
+
       </div>
     </div>
   );

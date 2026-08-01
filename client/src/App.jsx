@@ -15,9 +15,7 @@ import Profile from './pages/participant/Profile'
 import HackathonList from './pages/participant/HackathonList'
 import HackathonDetail from './pages/participant/HackathonDetail'
 import HackathonRegistration from './pages/hackathon/HackathonRegistration'
-import TeamCreate from './pages/hackathon/TeamCreate'
-import TeamJoin from './pages/hackathon/TeamJoin'
-import TeamDashboard from './pages/hackathon/TeamDashboard'
+import TeamHub from './pages/team/TeamHub'
 import ProjectSubmission from './pages/submission/ProjectSubmission'
 import MySubmissions from './pages/submission/MySubmissions'
 import EvaluationResults from './pages/submission/EvaluationResults'
@@ -62,9 +60,7 @@ export default function App() {
               <Route path="/hackathons" element={<ProtectedRoute allowedRoles={['participant']}><HackathonList /></ProtectedRoute>} />
               <Route path="/hackathons/:id" element={<ProtectedRoute allowedRoles={['participant']}><HackathonDetail /></ProtectedRoute>} />
 
-              <Route path="/teams/create" element={<ProtectedRoute allowedRoles={['participant']}><TeamCreate /></ProtectedRoute>} />
-              <Route path="/teams/join" element={<ProtectedRoute allowedRoles={['participant']}><TeamJoin /></ProtectedRoute>} />
-              <Route path="/teams/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><TeamDashboard /></ProtectedRoute>} />
+              <Route path="/teams/*" element={<ProtectedRoute allowedRoles={['participant']}><TeamHub /></ProtectedRoute>} />
 
               <Route path="/submit" element={<ProtectedRoute allowedRoles={['participant']}><ProjectSubmission /></ProtectedRoute>} />
               <Route path="/submissions" element={<ProtectedRoute allowedRoles={['participant']}><MySubmissions /></ProtectedRoute>} />

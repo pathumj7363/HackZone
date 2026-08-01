@@ -72,6 +72,7 @@ export default function HackathonList() {
   const [activeFilter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [imgErrors, setImgErrors] = useState({});
+  const [sortBy, setSortBy] = useState('popularity');
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -89,7 +90,7 @@ export default function HackathonList() {
       });
   }, []);
 
-  // Filter logic
+  // Filter & Sort logic
   const filtered = hackathons.filter(h => {
     const matchSearch = !search ||
       h.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -101,93 +102,137 @@ export default function HackathonList() {
           activeFilter === 'Active' ? s === 'IN PROGRESS' :
             activeFilter === 'Ended' ? s === 'ENDED' : true;
     return matchSearch && matchFilter;
+  }).sort((a, b) => {
+    if (sortBy === 'popularity') {
+      const getCount = (h) => h.participantCount || parseInt(h.participants) || 0;
+      return getCount(b) - getCount(a);
+    } else if (sortBy === 'date_desc') {
+      return new Date(b.startDate || b.created_at || 0) - new Date(a.startDate || a.created_at || 0);
+    } else if (sortBy === 'date_asc') {
+      return new Date(a.startDate || a.created_at || 0) - new Date(b.startDate || b.created_at || 0);
+    }
+    return 0;
   });
 
   return (
-    <div className="hz-page">
-      <div className="hz-container">
-
-        {/* ── Page Header ───────────────────────────────────────────────── */}
-        <div style={{ marginBottom: 'var(--hz-space-6)' }}>
-          <h1 className="hz-heading-2" style={{ marginBottom: '0.4rem', fontWeight: 'var(--hz-font-weight-medium)' }}>
-            Explore Hackathons
+    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+      
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
+            Discover Hackathons
           </h1>
-          <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-base)' }}>
-            Discover the world's most innovative challenges and join global teams of builders.
+          <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px', margin: 0 }}>
+            Find the perfect challenge, form a brilliant team, and build something extraordinary that pushes the boundaries of technology.
           </p>
         </div>
+      </div>
 
-        {/* ── Filter Bar ────────────────────────────────────────────────── */}
+      <div className="hz-container">
+        {/* ── Search & Filter Command Bar ───────────────────────────────── */}
         <div style={{
-          display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem',
-          padding: '0.75rem 1rem',
-          background: 'var(--hz-bg)',
+          display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem',
+          padding: '0.75rem',
+          background: 'var(--hz-surface)',
           border: '1px solid var(--hz-border)',
-          borderRadius: 'var(--hz-radius)',
-          marginBottom: 'var(--hz-space-8)'
+          borderRadius: '16px',
+          marginBottom: '3rem',
+          boxShadow: 'var(--hz-shadow-sm)'
         }}>
           {/* Search */}
           <div style={{
-            flex: '1 1 260px', display: 'flex', alignItems: 'center', gap: '0.5rem',
-            background: 'var(--hz-surface)',
-            borderRadius: 'var(--hz-radius-full)',
-            padding: '0.5rem 1rem'
+            flex: '1 1 300px', display: 'flex', alignItems: 'center', gap: '0.75rem',
+            background: 'var(--hz-bg)',
+            borderRadius: '12px',
+            padding: '0.6rem 1.25rem',
+            border: '1px solid var(--hz-border)'
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input
               type="text"
-              placeholder="Search hackathons, themes, or tech stacks..."
+              placeholder="Search hackathons by name, theme, or location..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{
-                border: 'none', background: 'transparent', outline: 'none',
-                width: '100%', fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text)'
+                border: 'none', background: 'transparent', outline: 'none', boxShadow: 'none',
+                width: '100%', fontSize: '0.95rem', color: 'var(--hz-text)'
               }}
+              onFocus={e => e.target.style.outline = 'none'}
             />
           </div>
 
-          {/* Filter pills */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {FILTERS.map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                style={{
-                  background: activeFilter === f ? 'var(--hz-primary)' : 'var(--hz-surface)',
-                  color: activeFilter === f ? '#fff' : 'var(--hz-text-secondary)',
-                  border: 'none',
-                  borderRadius: 'var(--hz-radius-full)',
-                  padding: '0.45rem 1.1rem',
-                  fontSize: 'var(--hz-font-size-sm)',
-                  fontWeight: 'var(--hz-font-weight-medium)',
-                  cursor: 'pointer',
-                  transition: 'all var(--hz-transition)'
-                }}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {/* Filter pills */}
+            <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--hz-bg)', padding: '0.35rem', borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
+              {FILTERS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  style={{
+                    background: activeFilter === f ? 'var(--hz-primary)' : 'transparent',
+                    color: activeFilter === f ? '#fff' : 'var(--hz-text-secondary)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.4rem 1.25rem',
+                    fontSize: '0.85rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: activeFilter === f ? '0 2px 8px rgba(99,102,241,0.3)' : 'none'
+                  }}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
 
-          {/* Sort */}
-          <div style={{ marginLeft: 'auto' }}>
+            {/* Sort */}
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-              border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius-sm)',
-              padding: '0.45rem 0.75rem', fontSize: 'var(--hz-font-size-sm)',
-              color: 'var(--hz-text)', cursor: 'pointer', background: 'var(--hz-bg)'
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              border: '1px solid var(--hz-border)', borderRadius: '12px',
+              padding: '0.4rem 1rem', fontSize: '0.85rem', fontWeight: '500',
+              color: 'var(--hz-text)', background: 'var(--hz-bg)', position: 'relative'
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}>
                 <line x1="21" y1="10" x2="3" y2="10"></line>
                 <line x1="21" y1="6" x2="3" y2="6"></line>
                 <line x1="21" y1="14" x2="3" y2="14"></line>
                 <line x1="21" y1="18" x2="3" y2="18"></line>
               </svg>
-              <span>Sort by: <strong>Popularity</strong></span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--hz-primary)',
+                  fontWeight: '700',
+                  outline: 'none',
+                  boxShadow: 'none',
+                  cursor: 'pointer',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  paddingRight: '1.5rem',
+                  fontSize: '0.85rem'
+                }}
+                onFocus={e => e.target.style.outline = 'none'}
+              >
+                <option value="popularity">Popularity</option>
+                <option value="date_desc">Newest First</option>
+                <option value="date_asc">Oldest First</option>
+              </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', right: '0.75rem', pointerEvents: 'none' }}>
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
@@ -196,13 +241,19 @@ export default function HackathonList() {
 
         {/* ── Grid ─────────────────────────────────────────────────────── */}
         {loading ? (
-          <LoadingSpinner size="lg" centered label="Loading hackathons..." />
+          <div style={{ padding: '4rem 0', display: 'flex', justifyContent: 'center' }}>
+            <LoadingSpinner size="lg" centered label="Finding hackathons..." />
+          </div>
         ) : (
           <>
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-                <p className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-base)' }}>
-                  No hackathons found matching your search.
+              <div style={{ textAlign: 'center', padding: '6rem 0', background: 'var(--hz-surface)', borderRadius: '24px', border: '1px dashed var(--hz-border)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(99,102,241,0.1)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--hz-text)', marginBottom: '0.5rem' }}>No hackathons found</h3>
+                <p className="hz-text-muted" style={{ fontSize: '0.95rem', maxWidth: '400px', margin: '0 auto' }}>
+                  We couldn't find any hackathons matching your search criteria. Try adjusting your filters.
                 </p>
               </div>
             ) : (
@@ -214,32 +265,47 @@ export default function HackathonList() {
                   const displayLocation = h.location || 'Virtual';
                   const displayParticipants = h.participants || '0 Participants';
                   return (
-                    <div key={h.id} className="col-12 col-md-6 col-lg-4">
+                    <div key={h.id} className="col-12 col-md-6 col-lg-4" style={{ display: 'flex' }}>
                       <div style={{
-                        background: 'var(--hz-bg)',
+                        background: 'var(--hz-surface)',
                         border: '1px solid var(--hz-border)',
-                        borderRadius: '16px',
+                        borderRadius: '24px',
                         overflow: 'hidden',
                         display: 'flex', flexDirection: 'column',
-                        height: '100%',
-                        transition: 'box-shadow var(--hz-transition), transform var(--hz-transition)'
+                        width: '100%',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: 'var(--hz-shadow-sm)'
                       }}
-                        onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--hz-shadow-md)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
+                        onMouseEnter={e => { 
+                          e.currentTarget.style.transform = 'translateY(-6px)'; 
+                          e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.08)';
+                          e.currentTarget.style.borderColor = 'var(--hz-primary)';
+                          const img = e.currentTarget.querySelector('.hack-img');
+                          if (img) img.style.transform = 'scale(1.08)';
+                        }}
+                        onMouseLeave={e => { 
+                          e.currentTarget.style.transform = 'none'; 
+                          e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)'; 
+                          e.currentTarget.style.borderColor = 'var(--hz-border)';
+                          const img = e.currentTarget.querySelector('.hack-img');
+                          if (img) img.style.transform = 'scale(1)';
+                        }}
                       >
-                        {/* Image */}
-                        <div style={{ height: '180px', position: 'relative', background: '#1e293b', overflow: 'hidden' }}>
+                        {/* Image Container */}
+                        <div style={{ height: '200px', position: 'relative', background: '#1e293b', overflow: 'hidden' }}>
                           {!hasImgError ? (
                             <img
+                              className="hack-img"
                               src={h.image}
                               alt={h.title}
                               onError={() => setImgErrors(p => ({ ...p, [h.id]: true }))}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
                             />
                           ) : (
                             /* Fallback gradient if image fails */
-                            <div style={{
+                            <div className="hack-img" style={{
                               width: '100%', height: '100%',
+                              transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                               background: ['linear-gradient(135deg,#0f2027,#203a43,#2c5364)',
                                 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
                                 'linear-gradient(135deg,#240b36,#c31432)',
@@ -249,95 +315,91 @@ export default function HackathonList() {
                             }} />
                           )}
 
-                          {/* Dark overlay */}
-                          <div style={{
-                            position: 'absolute', inset: 0,
-                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 60%)'
-                          }} />
+                          {/* Dark overlays for text readability */}
+                          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 100%)' }} />
 
-                          {/* Status Badge */}
+                          {/* Status Badge (Glassmorphic) */}
                           <div style={{
-                            position: 'absolute', top: '12px', right: '12px',
-                            background: sc.bg,
-                            color: sc.color,
-                            padding: '0.3rem 0.75rem',
+                            position: 'absolute', top: '16px', right: '16px',
+                            background: 'rgba(255,255,255,0.15)',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            color: '#fff',
+                            padding: '0.35rem 0.85rem',
                             borderRadius: '999px',
-                            fontSize: '11px',
-                            fontWeight: 'var(--hz-font-weight-bold)',
-                            letterSpacing: '0.06em',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.25)'
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            letterSpacing: '0.05em',
+                            display: 'flex', alignItems: 'center', gap: '0.35rem',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                           }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sc.bg, display: 'inline-block', boxShadow: `0 0 6px ${sc.bg}` }}></span>
                             {sc.label}
+                          </div>
+                          
+                          {/* Prize Overlay (Optional mock) */}
+                          <div style={{ position: 'absolute', bottom: '16px', left: '16px', color: 'white', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '700', fontSize: '1rem', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                             $10,000+ Prizes
                           </div>
                         </div>
 
-                        {/* Body */}
-                        <div style={{ padding: '1.125rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                          <h3 style={{
-                            margin: '0 0 0.875rem',
-                            fontSize: 'var(--hz-font-size-lg)',
-                            fontWeight: 'var(--hz-font-weight-semibold)',
-                            color: 'var(--hz-text)'
-                          }}>
+                        {/* Card Body */}
+                        <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <h3 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: '800', color: 'var(--hz-text)', lineHeight: 1.3 }}>
                             {h.title}
                           </h3>
 
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: 'auto' }}>
-                            {/* Date */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)', fontSize: 'var(--hz-font-size-sm)' }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                              </svg>
-                              <span>{displayDateRange}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: 'auto' }}>
+                            {/* Metadata items */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--hz-text-muted)', fontSize: '0.9rem', fontWeight: '500' }}>
+                              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'var(--hz-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--hz-primary)' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                              </div>
+                              <span style={{ color: 'var(--hz-text)' }}>{displayDateRange}</span>
                             </div>
-                            {/* Location */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)', fontSize: 'var(--hz-font-size-sm)' }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                              </svg>
-                              <span>{displayLocation}</span>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--hz-text-muted)', fontSize: '0.9rem', fontWeight: '500' }}>
+                              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'var(--hz-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                              </div>
+                              <span style={{ color: 'var(--hz-text)' }}>{displayLocation}</span>
                             </div>
-                            {/* Participants */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)', fontSize: 'var(--hz-font-size-sm)' }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                              </svg>
-                              <span>{h.participantCount || displayParticipants || '0 Participants'}</span>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--hz-text-muted)', fontSize: '0.9rem', fontWeight: '500' }}>
+                              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'var(--hz-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                              </div>
+                              <span style={{ color: 'var(--hz-text)' }}>{h.participantCount || displayParticipants || '0 Participants'}</span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Footer */}
+                        {/* Card Footer */}
                         <div style={{
-                          padding: '0.875rem 1.125rem',
+                          padding: '1.25rem 1.5rem',
                           borderTop: '1px solid var(--hz-border)',
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                           background: 'var(--hz-bg)'
                         }}>
-                          <AvatarStack index={idx} extraLabel={h.avatarCount} />
+                          <AvatarStack index={idx} extraLabel={h.avatarCount || '+12'} />
                           <Link to={`/hackathons/${h.id}`} style={{ textDecoration: 'none' }}>
                             <button style={{
                               background: 'var(--hz-primary)',
                               color: '#fff',
                               border: 'none',
-                              borderRadius: 'var(--hz-radius-sm)',
-                              padding: '0.4rem 1rem',
-                              fontSize: 'var(--hz-font-size-sm)',
-                              fontWeight: 'var(--hz-font-weight-medium)',
+                              borderRadius: '10px',
+                              padding: '0.6rem 1.25rem',
+                              fontSize: '0.85rem',
+                              fontWeight: '700',
                               cursor: 'pointer',
-                              transition: 'opacity var(--hz-transition)'
+                              transition: 'all 0.2s',
+                              boxShadow: '0 4px 12px rgba(99,102,241,0.25)'
                             }}
-                              onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-                              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                              onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'none'; }}
                             >
-                              View details
+                              Details
                             </button>
                           </Link>
                         </div>
@@ -350,24 +412,25 @@ export default function HackathonList() {
 
             {/* Load More */}
             {filtered.length > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
                 <button style={{
-                  background: 'var(--hz-bg)',
+                  background: 'var(--hz-surface)',
                   color: 'var(--hz-text)',
                   border: '1px solid var(--hz-border)',
-                  borderRadius: 'var(--hz-radius-sm)',
-                  padding: '0.625rem 1.75rem',
-                  fontSize: 'var(--hz-font-size-sm)',
-                  fontWeight: 'var(--hz-font-weight-medium)',
+                  borderRadius: '12px',
+                  padding: '0.85rem 2rem',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
                   cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  transition: 'border-color var(--hz-transition)'
+                  transition: 'all 0.2s',
+                  boxShadow: 'var(--hz-shadow-sm)'
                 }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--hz-border)'}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--hz-primary)'; e.currentTarget.style.color = 'var(--hz-primary)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--hz-border)'; e.currentTarget.style.color = 'var(--hz-text)'; e.currentTarget.style.transform = 'none'; }}
                 >
                   Load more hackathons
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </button>
