@@ -7,9 +7,9 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
-import TeamManager from '../../components/team/TeamManager';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
+import { formatDate } from '../../utils/date';
 
 // Avatar color palette for generated avatars
 const AVATAR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b', '#ec4899'];
@@ -310,7 +310,7 @@ export default function TeamDashboard() {
                     </span>
                     {hasSubmitted && (
                       <span className="hz-text-muted" style={{ fontSize: 'var(--hz-font-size-xs)' }}>
-                        • Submitted on {new Date(latestSubmission.created_at).toLocaleDateString()}
+                        • Submitted on {formatDate(latestSubmission.created_at || latestSubmission.createdAt || latestSubmission.submittedAt || latestSubmission.submitted_at)}
                       </span>
                     )}
                   </div>

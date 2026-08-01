@@ -58,10 +58,13 @@ export const getAssignedSubmissions = async (req, res) => {
       technicalComplexityScore: sub.technicalComplexityScore,
       designScore: sub.designScore,
       usabilityScore: sub.usabilityScore,
+<<<<<<< HEAD
+=======
       judgeEvaluationAreas: (() => {
         if (!sub.judgeEvaluationAreas) return [];
         try { return typeof sub.judgeEvaluationAreas === 'string' ? JSON.parse(sub.judgeEvaluationAreas) : sub.judgeEvaluationAreas; } catch(e) { return []; }
       })(),
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
       evaluation: sub.innovationScore != null ? {
         innovation: sub.innovationScore,
         technicalExecution: sub.technicalComplexityScore,

@@ -69,6 +69,8 @@ export default function JudgeDashboard() {
                 <div>
                   <h4 style={{ margin: '0 0 0.25rem' }}>{invite.hackathonTitle || `Hackathon #${invite.hackathonId}`}</h4>
                   <p className="hz-text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>You have been invited to judge this hackathon.</p>
+<<<<<<< HEAD
+=======
                   {invite.evaluationAreas && invite.evaluationAreas.length > 0 && (
                     <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--hz-text)' }}>Assigned Areas:</span>
@@ -77,6 +79,7 @@ export default function JudgeDashboard() {
                       ))}
                     </div>
                   )}
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Button variant="outline" onClick={() => handleRespond(invite.id, 'declined')}>Decline</Button>
