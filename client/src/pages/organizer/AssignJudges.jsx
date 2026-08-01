@@ -1,33 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './AssignJudges.css';
 import { getMyHackathonsApi } from '../../api/hackathon.api';
-import { getJudgesApi } from '../../api/user.api';
-import { getHackathonSubmissionsApi } from '../../api/submission.api';
-import { inviteJudgeApi, getHackathonInvitationsApi } from '../../api/invitation.api';
-import { toast } from 'react-toastify';
 
 export default function AssignJudges() {
   const [hackathons, setHackathons] = useState([]);
   const [selectedHackathonId, setSelectedHackathonId] = useState('');
-
-  const [projects, setProjects] = useState([]);
-  const [judges, setJudges] = useState([]);
-  const [invitations, setInvitations] = useState([]);
-  const [inviteEmail, setInviteEmail] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // To assign a judge, we need to pick a project.
-  const [selectedProjectMap, setSelectedProjectMap] = useState({});
-
   useEffect(() => {
-    // Fetch hackathons and judges on mount
-    Promise.all([
-      getMyHackathonsApi(),
-      getJudgesApi()
-    ]).then(([hackathonsData, judgesData]) => {
+    // Fetch hackathons on mount
+    getMyHackathonsApi().then((hackathonsData) => {
       setHackathons(hackathonsData || []);
-      setJudges(judgesData || []);
       if (hackathonsData && hackathonsData.length > 0) {
         setSelectedHackathonId(hackathonsData[0].id);
       }
@@ -38,212 +22,181 @@ export default function AssignJudges() {
     });
   }, []);
 
-  useEffect(() => {
-    if (selectedHackathonId) {
-      loadProjectsAndInvites(selectedHackathonId);
-    } else {
-      setProjects([]);
-      setInvitations([]);
-    }
-  }, [selectedHackathonId]);
+  const selectedHackathon = hackathons.find(h => h.id === selectedHackathonId);
+  let judges = selectedHackathon?.judges || [];
+  if (typeof judges === 'string') {
+    try { judges = JSON.parse(judges); } catch(e) { judges = []; }
+  }
+  if (!Array.isArray(judges)) judges = [];
 
-  const loadProjectsAndInvites = async (hackathonId) => {
-    try {
-      const [projectsData, invitesData] = await Promise.all([
-        getHackathonSubmissionsApi(hackathonId),
-        getHackathonInvitationsApi(hackathonId)
-      ]);
-      setProjects(projectsData || []);
-      setInvitations(invitesData || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleInviteJudge = async (emailToInvite) => {
-    if (!emailToInvite || !selectedHackathonId) {
-      toast.error('Please enter an email and select a hackathon.');
-      return;
-    }
-
-    try {
-      await inviteJudgeApi(selectedHackathonId, emailToInvite);
-      toast.success('Invitation sent successfully!');
-      setInviteEmail('');
-      await loadProjectsAndInvites(selectedHackathonId);
-    } catch (err) {
-      toast.error(err.response?.data?.error || err.error || 'Failed to send invitation');
-    }
-  };
-
-  const totalAssigned = invitations.filter(i => i.status === 'accepted').length;
-  const pendingCount = invitations.filter(i => i.status === 'pending').length;
+  const safeString = (val) => (val != null ? String(val).toLowerCase() : '');
+  const lowerSearch = searchTerm.toLowerCase();
 
   const filteredJudges = judges.filter(j => {
-    const tags = j.expertiseTags ? (typeof j.expertiseTags === 'string' ? JSON.parse(j.expertiseTags) : j.expertiseTags) : [];
-    return j.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    if (!j) return false;
+    if (safeString(j.name).includes(lowerSearch)) return true;
+    if (safeString(j.email).includes(lowerSearch)) return true;
+    if (Array.isArray(j.evaluationAreas)) {
+      if (j.evaluationAreas.some(area => safeString(area).includes(lowerSearch))) return true;
+    }
+    return false;
   });
+
+  // Calculate KPIs
+  const totalJudges = judges.length;
+  
+  const allAreas = new Set();
+  judges.forEach(j => {
+    if (j.evaluationAreas) {
+      j.evaluationAreas.forEach(area => allAreas.add(area));
+    }
+  });
+  const totalAreasCovered = allAreas.size;
+
+  const judgesWithoutAreas = judges.filter(j => !j.evaluationAreas || j.evaluationAreas.length === 0).length;
+
+  const getAvatarClass = (index) => {
+    const mod = index % 3;
+    if (mod === 1) return 'aj-judge-avatar-alt';
+    if (mod === 2) return 'aj-judge-avatar-alt2';
+    return '';
+  };
 
   return (
     <div className="aj-container">
-      {/* Header */}
-      <div className="aj-header-row">
-        <div>
-          <h1 className="aj-title">Assign Judges</h1>
-          <p className="aj-subtitle">Manage expert assignments for project evaluations.</p>
+      {/* Header Area */}
+      <div className="aj-header-area">
+        <div className="aj-title-wrapper">
+          <h1 className="aj-title">Assigned Judges</h1>
+          <p className="aj-subtitle">Monitor and manage the expert panel for your events.</p>
         </div>
 
-        <div className="aj-stats-card">
-          <div className="aj-stat-box">
-            <div className="aj-stat-icon" style={{ color: '#4f46e5' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-            </div>
-            <div className="aj-stat-content">
-              <span className="aj-stat-label">ASSIGNMENTS</span>
-              <span className="aj-stat-value primary">{totalAssigned}</span>
-            </div>
-          </div>
-          <div className="aj-stat-box">
-            <div className="aj-stat-icon" style={{ color: '#0f172a' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-            </div>
-            <div className="aj-stat-content">
-              <span className="aj-stat-label">ACCEPTED JUDGES</span>
-              <span className="aj-stat-value">{totalAssigned}</span>
-            </div>
-          </div>
-          <div className="aj-stat-box">
-            <div className="aj-stat-icon" style={{ color: '#f59e0b' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            </div>
-            <div className="aj-stat-content">
-              <span className="aj-stat-label">PENDING INVITES</span>
-              <span className="aj-stat-value" style={{ color: '#f59e0b' }}>{pendingCount}</span>
-            </div>
-          </div>
+        <div className="aj-selector-wrapper">
+          <label className="aj-selector-label">Select Hackathon</label>
+          <select
+            className="aj-hackathon-select"
+            value={selectedHackathonId}
+            onChange={(e) => setSelectedHackathonId(e.target.value)}
+          >
+            {hackathons.map(h => (
+              <option key={h.id} value={h.id}>{h.title}</option>
+            ))}
+            {hackathons.length === 0 && !loading && (
+               <option value="">No events found</option>
+            )}
+          </select>
         </div>
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <select
-          className="aj-search-input"
-          value={selectedHackathonId}
-          onChange={(e) => setSelectedHackathonId(e.target.value)}
-          style={{ maxWidth: '300px' }}
-        >
-          {hackathons.map(h => (
-            <option key={h.id} value={h.id}>{h.title}</option>
-          ))}
-        </select>
-      </div>
+      {loading ? (
+        <div className="aj-loader">
+          <div className="aj-spinner"></div>
+          <span>Loading your hackathon data...</span>
+        </div>
+      ) : (
+        <>
+          {/* KPI Row */}
+          <div className="aj-kpi-row">
+            <div className="aj-kpi-card" style={{ '--kpi-color': '#6366f1', '--kpi-bg': 'rgba(99, 102, 241, 0.1)' }}>
+              <div className="aj-kpi-icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div className="aj-kpi-content">
+                <span className="aj-kpi-value">{totalJudges}</span>
+                <span className="aj-kpi-label">Total Experts</span>
+              </div>
+            </div>
 
-      {/* Main Grid */}
-      <div className="aj-main-grid">
+            <div className="aj-kpi-card" style={{ '--kpi-color': '#10b981', '--kpi-bg': 'rgba(16, 185, 129, 0.1)' }}>
+              <div className="aj-kpi-icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              </div>
+              <div className="aj-kpi-content">
+                <span className="aj-kpi-value">{totalAreasCovered}</span>
+                <span className="aj-kpi-label">Evaluation Domains</span>
+              </div>
+            </div>
 
-        {/* Left Column: Available Judges */}
-        <div className="aj-card">
-          <div className="aj-card-header">
-            <h2 className="aj-card-title">Available Judges</h2>
-            <div className="aj-search-wrap">
-              <svg className="aj-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div className="aj-kpi-card" style={{ '--kpi-color': judgesWithoutAreas > 0 ? '#f59e0b' : '#3b82f6', '--kpi-bg': judgesWithoutAreas > 0 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)' }}>
+              <div className="aj-kpi-icon-wrapper">
+                {judgesWithoutAreas > 0 ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                )}
+              </div>
+              <div className="aj-kpi-content">
+                <span className="aj-kpi-value">{judgesWithoutAreas}</span>
+                <span className="aj-kpi-label">Pending Area Assignment</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Judges List Section */}
+          <div className="aj-content-header">
+            <h2 className="aj-content-title">
+              Panel Members
+              <span className="aj-content-badge">{filteredJudges.length} Active</span>
+            </h2>
+            
+            <div className="aj-search-bar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input
                 type="text"
-                className="aj-search-input"
-                placeholder="Search experts..."
+                placeholder="Search by name, email, or area..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="aj-judge-list">
-            {filteredJudges.map(judge => {
-              const tags = judge.expertiseTags ? (typeof judge.expertiseTags === 'string' ? JSON.parse(judge.expertiseTags) : judge.expertiseTags) : [];
-              const initials = judge.name ? judge.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
-
-              return (
-                <div key={judge.id} className="aj-judge-item">
-                  <div className="aj-judge-top">
-                    <div className="aj-judge-info">
-                      {judge.img ? (
-                        <img src={judge.img} alt={judge.name} className="aj-avatar" />
-                      ) : (
-                        <div className="aj-avatar" style={{ background: '#e0e7ff' }}>{initials}</div>
-                      )}
-                      <div>
-                        <h3 className="aj-judge-name">{judge.name}</h3>
-                        <p className="aj-judge-role">{judge.occupation || 'Judge'}</p>
-                      </div>
-                    </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <button className="aj-btn-outline" onClick={() => handleInviteJudge(judge.email)}>Send Invite</button>
-                      </div>
-                    </div>
-                    <div className="aj-tags">
-                      {tags.map(tag => (
-                        <span key={tag} className="aj-tag">{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Right Column: Sent Invitations */}
-        <div className="aj-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div className="aj-card-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
-            <h2 className="aj-card-title">Invite New Judge</h2>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input 
-                type="email"
-                className="aj-search-input"
-                placeholder="Judge's email address..."
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                style={{ flex: 1 }}
-              />
-              <button className="aj-btn-outline" style={{ background: '#4f46e5', color: 'white', border: 'none' }} onClick={() => handleInviteJudge(inviteEmail)}>
-                Invite
-              </button>
-            </div>
-          </div>
-
-          <div className="aj-card-header" style={{ marginTop: '1rem', borderTop: '1px solid var(--hz-border)', paddingTop: '1.5rem' }}>
-            <h2 className="aj-card-title">Sent Invitations</h2>
-          </div>
-
-          <div className="aj-projects-wrap" style={{ flex: 1 }}>
-            {invitations.length === 0 && <p className="aj-empty-text" style={{ padding: '2rem' }}>No invitations sent yet.</p>}
-
-            {invitations.map(invite => (
-              <div key={invite.id} className="aj-project-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h3 className="aj-project-title">{invite.judgeName || invite.email}</h3>
-                  <div className="aj-project-meta">
-                    <span>{invite.judgeRole || 'Email Invite'}</span>
-                  </div>
-                </div>
-                <div>
-                  <span style={{ 
-                    padding: '4px 12px', 
-                    borderRadius: '12px', 
-                    fontSize: '0.8rem', 
-                    fontWeight: 'bold',
-                    background: invite.status === 'accepted' ? '#10b98122' : invite.status === 'declined' ? '#ef444422' : '#f59e0b22',
-                    color: invite.status === 'accepted' ? '#10b981' : invite.status === 'declined' ? '#ef4444' : '#f59e0b'
-                  }}>
-                    {invite.status.toUpperCase()}
-                  </span>
-                </div>
+          <div className="aj-judges-grid">
+            {filteredJudges.length === 0 ? (
+              <div className="aj-empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+                <p>{judges.length === 0 ? 'No experts have been invited to this hackathon yet.' : 'No judges match your current search criteria.'}</p>
               </div>
-            ))}
+            ) : (
+              filteredJudges.map((judge, index) => {
+                const initials = judge.name 
+                  ? judge.name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() 
+                  : '?';
+
+                const areas = judge.evaluationAreas || [];
+
+                return (
+                  <div key={index} className="aj-judge-card">
+                    <div className="aj-judge-header">
+                      <div className={`aj-judge-avatar ${getAvatarClass(index)}`}>
+                        {initials}
+                      </div>
+                      <div className="aj-judge-info">
+                        <h3>{judge.name || 'Unnamed Judge'}</h3>
+                        <p>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                          {judge.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="aj-judge-body">
+                      <div className="aj-areas-title">Assigned Domains</div>
+                      <div className="aj-areas-list">
+                        {areas.length > 0 ? (
+                          areas.map(area => (
+                            <span key={area} className="aj-area-pill">{area}</span>
+                          ))
+                        ) : (
+                          <span className="aj-area-pill empty">Needs Review</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
-
-        </div>
-
-      </div>
+        </>
+      )}
     </div>
   );
 }

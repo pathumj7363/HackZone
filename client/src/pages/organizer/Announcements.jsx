@@ -1,15 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Card from '../../components/ui/Card';
+import './Announcements.css';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
 import TextArea from '../../components/ui/TextArea';
+import { getMyHackathonsApi } from '../../api/hackathon.api';
+import { 
+  createAnnouncementApi, 
+  getAnnouncementsByHackathonApi, 
+  updateAnnouncementApi, 
+  deleteAnnouncementApi 
+} from '../../api/announcement.api';
 
 export default function Announcements() {
   const navigate = useNavigate();
+  const [hackathons, setHackathons] = useState([]);
+  const [selectedHackathonId, setSelectedHackathonId] = useState('');
+  
   const [announcements, setAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingHackathons, setLoadingHackathons] = useState(true);
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   
   // view: 'list' | 'form'
   const [view, setView] = useState('list');
@@ -29,67 +41,64 @@ export default function Announcements() {
   };
   const [formData, setFormData] = useState(initialForm);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchAnnouncements();
-  }, []);
+  // Error/Success state (simple custom toast logic)
+  const [message, setMessage] = useState({ text: '', type: '' });
 
-  const fetchAnnouncements = () => {
-    setLoading(true);
-    // Mock fetching announcements
-    setTimeout(() => {
-      const mockData = [
-        {
-          id: 'a1',
-          title: 'Hackathon Schedule Update',
-          content: 'The opening ceremony has been moved to 10:00 AM EST. Please make sure to tune in on time!',
-          date: '2026-06-03T09:00:00Z',
-          audience: 'all',
-          priority: 'high',
-          status: 'published'
-        },
-        {
-          id: 'a2',
-          title: 'Judges Briefing Room Link',
-          content: 'Here is the link to the judges briefing room for the upcoming evaluation phase: https://meet.hackzone.com/judges-brief',
-          date: '2026-06-02T14:30:00Z',
-          audience: 'judges',
-          priority: 'normal',
-          status: 'published'
-        },
-        {
-          id: 'a3',
-          title: 'New API Sponsor Added!',
-          content: 'We are thrilled to announce that OpenAI has joined as an API sponsor. Participants can claim their credits now.',
-          date: '2026-06-01T11:15:00Z',
-          audience: 'participants',
-          priority: 'normal',
-          status: 'published'
-        },
-        {
-          id: 'a4',
-          title: 'Submission Guidelines Draft',
-          content: 'Make sure your submission includes a 2-minute demo video and a GitHub repository link with a comprehensive README.',
-          date: '2026-05-30T16:00:00Z',
-          audience: 'participants',
-          priority: 'normal',
-          status: 'draft'
-        }
-      ];
-      setAnnouncements(mockData);
-      setLoading(false);
-    }, 600);
+  const showMessage = (text, type = 'success') => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
   };
 
-  const handleAction = (id, action) => {
-    setAnnouncements(announcements.map(a => {
-      if (a.id === id) {
-        if (action === 'publish') return { ...a, status: 'published' };
-        if (action === 'draft') return { ...a, status: 'draft' };
-        if (action === 'delete') return null;
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    getMyHackathonsApi().then(data => {
+      setHackathons(data || []);
+      if (data && data.length > 0) {
+        setSelectedHackathonId(data[0].id);
       }
-      return a;
-    }).filter(Boolean));
+      setLoadingHackathons(false);
+    }).catch(err => {
+      console.error('Failed to load hackathons', err);
+      setLoadingHackathons(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedHackathonId) {
+      fetchAnnouncements(selectedHackathonId);
+    } else {
+      setAnnouncements([]);
+    }
+  }, [selectedHackathonId]);
+
+  const fetchAnnouncements = async (hackId) => {
+    setLoadingAnnouncements(true);
+    try {
+      const data = await getAnnouncementsByHackathonApi(hackId);
+      setAnnouncements(data || []);
+    } catch (err) {
+      console.error(err);
+      showMessage('Failed to load announcements', 'error');
+    } finally {
+      setLoadingAnnouncements(false);
+    }
+  };
+
+  const handleAction = async (id, action) => {
+    try {
+      if (action === 'delete') {
+        await deleteAnnouncementApi(id);
+        showMessage('Announcement deleted');
+      } else {
+        const status = action === 'publish' ? 'published' : 'draft';
+        await updateAnnouncementApi(id, { status });
+        showMessage(`Announcement ${status}`);
+      }
+      fetchAnnouncements(selectedHackathonId);
+    } catch (err) {
+      console.error(err);
+      showMessage('Action failed', 'error');
+    }
   };
 
   const handleFormChange = (e) => {
@@ -97,24 +106,32 @@ export default function Announcements() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (selectedAnnouncement) {
-      // Edit mode
-      setAnnouncements(announcements.map(a => a.id === selectedAnnouncement.id ? { ...a, ...formData } : a));
-    } else {
-      // Create mode
-      const newAnnouncement = {
-        id: `a${Date.now()}`,
-        ...formData,
-        date: new Date().toISOString()
-      };
-      setAnnouncements([newAnnouncement, ...announcements]);
+    setSubmitting(true);
+    try {
+      if (selectedAnnouncement) {
+        await updateAnnouncementApi(selectedAnnouncement.id, formData);
+        showMessage('Announcement updated');
+      } else {
+        await createAnnouncementApi({ ...formData, hackathonId: selectedHackathonId });
+        showMessage('Announcement created');
+      }
+      setView('list');
+      fetchAnnouncements(selectedHackathonId);
+    } catch (err) {
+      console.error(err);
+      showMessage('Failed to save announcement', 'error');
+    } finally {
+      setSubmitting(false);
     }
-    setView('list');
   };
 
   const openForm = (announcement = null) => {
+    if (!selectedHackathonId) {
+      showMessage('Please select a hackathon first', 'error');
+      return;
+    }
     setSelectedAnnouncement(announcement);
     if (announcement) {
       setFormData({
@@ -130,8 +147,11 @@ export default function Announcements() {
     setView('form');
   };
 
+  const safeString = (val) => (val != null ? String(val).toLowerCase() : '');
+  const lowerSearch = search.toLowerCase();
+
   const filteredAnnouncements = announcements.filter(a => {
-    const matchesSearch = a.title.toLowerCase().includes(search.toLowerCase()) || a.content.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = safeString(a.title).includes(lowerSearch) || safeString(a.content).includes(lowerSearch);
     const matchesFilter = filterAudience === 'all' || a.audience === filterAudience;
     return matchesSearch && matchesFilter;
   });
@@ -167,119 +187,113 @@ export default function Announcements() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
-  // Views
   const renderListView = () => (
     <>
       {/* Top KPI Row */}
-      <div className="row g-4 mb-4">
-        <div className="col-12 col-md-4">
-          <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--hz-text-muted)', letterSpacing: '0.05em' }}>TOTAL ANNOUNCEMENTS</span>
-            </div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : announcements.length}</div>
-          </Card>
+      <div className="an-kpi-row">
+        <div className="an-kpi-card" style={{ '--kpi-color': '#6366f1', '--kpi-bg': 'rgba(99, 102, 241, 0.1)' }}>
+          <div className="an-kpi-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+          </div>
+          <div className="an-kpi-content">
+            <span className="an-kpi-value">{loadingAnnouncements ? '-' : announcements.length}</span>
+            <span className="an-kpi-label">Total Announcements</span>
+          </div>
         </div>
-        <div className="col-12 col-md-4">
-          <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--hz-text-muted)', letterSpacing: '0.05em' }}>PUBLISHED</span>
-            </div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: 'var(--hz-text)' }}>{loading ? '-' : announcements.filter(a => a.status === 'published').length}</div>
-          </Card>
+
+        <div className="an-kpi-card" style={{ '--kpi-color': '#10b981', '--kpi-bg': 'rgba(16, 185, 129, 0.1)' }}>
+          <div className="an-kpi-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div className="an-kpi-content">
+            <span className="an-kpi-value">{loadingAnnouncements ? '-' : announcements.filter(a => a.status === 'published').length}</span>
+            <span className="an-kpi-label">Published</span>
+          </div>
         </div>
-        <div className="col-12 col-md-4">
-          <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--hz-text-muted)', letterSpacing: '0.05em' }}>DRAFTS</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1, color: announcements.filter(a => a.status === 'draft').length > 0 ? '#d97706' : 'var(--hz-text)' }}>
-                {loading ? '-' : announcements.filter(a => a.status === 'draft').length}
-              </span>
-            </div>
-          </Card>
+
+        <div className="an-kpi-card" style={{ '--kpi-color': announcements.filter(a => a.status === 'draft').length > 0 ? '#f59e0b' : '#64748b', '--kpi-bg': announcements.filter(a => a.status === 'draft').length > 0 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(100, 116, 139, 0.1)' }}>
+          <div className="an-kpi-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <div className="an-kpi-content">
+            <span className="an-kpi-value">{loadingAnnouncements ? '-' : announcements.filter(a => a.status === 'draft').length}</span>
+            <span className="an-kpi-label">Drafts</span>
+          </div>
         </div>
       </div>
 
       {/* Toolbar */}
-      <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ flex: '1 1 300px', display: 'flex', gap: '1rem' }}>
-          <Input 
+      <div className="an-toolbar">
+        <div className="an-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input 
             type="text" 
             placeholder="Search announcements..." 
             value={search} 
             onChange={(e) => setSearch(e.target.value)}
-            style={{ margin: 0, padding: '0.6rem 1rem', flex: 1 }}
           />
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <select 
             value={filterAudience} 
             onChange={(e) => setFilterAudience(e.target.value)}
-            className="hz-input"
-            style={{ padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--hz-border)', minWidth: '150px' }}
+            style={{ padding: '0.8rem 1.25rem', borderRadius: '12px', border: '1px solid var(--hz-border)', minWidth: '160px', background: 'var(--hz-surface)', color: 'var(--hz-text)', outline: 'none' }}
           >
             <option value="all">All Audiences</option>
             <option value="participants">Participants</option>
             <option value="judges">Judges</option>
           </select>
-          <Button variant="primary" onClick={() => openForm(null)}>New Announcement</Button>
+          <Button variant="primary" onClick={() => openForm(null)} style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', whiteSpace: 'nowrap' }}>+ New Announcement</Button>
         </div>
-      </Card>
+      </div>
 
       {/* Announcements List */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--hz-text-muted)' }}>Loading announcements...</div>
+      {loadingAnnouncements ? (
+        <div className="an-loader">
+          <div className="an-loader-spinner"></div>
+          <div>Loading announcements...</div>
+        </div>
       ) : filteredAnnouncements.length === 0 ? (
-        <Card padding style={{ textAlign: 'center', padding: '4rem 2rem', border: '1px solid var(--hz-border)', borderRadius: '12px' }}>
+        <div className="an-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5, marginBottom: '1rem' }}><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
           <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: 'var(--hz-text)' }}>No announcements found</h3>
-          <p style={{ margin: 0, color: 'var(--hz-text-muted)' }}>Try adjusting your search or filter criteria.</p>
-        </Card>
+          <p style={{ margin: 0, color: 'var(--hz-text-muted)' }}>{announcements.length === 0 ? 'Create your first announcement to notify users.' : 'Try adjusting your search or filters.'}</p>
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {filteredAnnouncements.map(announcement => (
-            <Card key={announcement.id} style={{ borderRadius: '12px', border: '1px solid var(--hz-border)', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s', ':hover': { borderColor: 'var(--hz-primary)' } }}>
-              <div style={{ padding: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '1.5rem', backgroundColor: announcement.status === 'draft' ? 'var(--hz-bg)' : 'transparent' }}>
-                
-                {/* Content Section */}
-                <div style={{ flex: '1 1 400px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0, color: 'var(--hz-text)' }}>
-                      {announcement.title}
-                    </h3>
-                    {getStatusBadge(announcement.status)}
-                    {getPriorityBadge(announcement.priority)}
-                  </div>
-                  <p style={{ fontSize: '1rem', color: 'var(--hz-text-muted)', marginBottom: '1rem', lineHeight: '1.5' }}>
-                    {announcement.content}
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      {formatDate(announcement.date)}
-                    </span>
-                    <span>•</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                      Audience: {getAudienceLabel(announcement.audience)}
-                    </span>
-                  </div>
+            <div key={announcement.id} className={`an-card ${announcement.status === 'draft' ? 'draft' : ''}`}>
+              <div className="an-card-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <h3 className="an-card-title">{announcement.title}</h3>
+                  {getStatusBadge(announcement.status)}
+                  {getPriorityBadge(announcement.priority)}
                 </div>
-
-                {/* Actions Section */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: '0 0 auto', minWidth: '120px' }}>
+                <div className="an-card-actions">
                   <Button variant="ghost" size="sm" onClick={() => openForm(announcement)}>Edit</Button>
                   {announcement.status === 'draft' ? (
                     <Button variant="outline" size="sm" style={{ color: '#166534', borderColor: '#bbf7d0' }} onClick={() => handleAction(announcement.id, 'publish')}>Publish</Button>
                   ) : (
                     <Button variant="outline" size="sm" onClick={() => handleAction(announcement.id, 'draft')}>Move to Draft</Button>
                   )}
-                  <Button variant="ghost" size="sm" style={{ color: '#b91c1c' }} onClick={() => handleAction(announcement.id, 'delete')}>Delete</Button>
+                  <Button variant="ghost" size="sm" style={{ color: '#ef4444' }} onClick={() => handleAction(announcement.id, 'delete')}>Delete</Button>
                 </div>
-
               </div>
-            </Card>
+              
+              <div className="an-card-content">{announcement.content}</div>
+              
+              <div className="an-card-meta">
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  {formatDate(announcement.created_at)}
+                </span>
+                <span>•</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  Audience: <strong style={{ color: 'var(--hz-text)' }}>{getAudienceLabel(announcement.audience)}</strong>
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -287,11 +301,15 @@ export default function Announcements() {
   );
 
   const renderFormView = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <Button variant="ghost" onClick={() => setView('list')} style={{ alignSelf: 'flex-start' }}>&larr; Back to Announcements</Button>
-      <Card padding style={{ borderRadius: '12px', border: '1px solid var(--hz-border)', maxWidth: '700px', margin: '0 auto', width: '100%' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>{selectedAnnouncement ? 'Edit Announcement' : 'Create Announcement'}</h2>
-        <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="an-form-container">
+      <Button variant="ghost" onClick={() => setView('list')} style={{ alignSelf: 'flex-start', marginBottom: '1.5rem', display: 'inline-flex' }}>
+        &larr; Back to Announcements
+      </Button>
+      <div className="an-form-card">
+        <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '2rem', color: 'var(--hz-text)' }}>
+          {selectedAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
+        </h2>
+        <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
           <Input 
             label="Announcement Title" 
@@ -312,68 +330,86 @@ export default function Announcements() {
             required
           />
           
-          <div className="row g-3">
-            <div className="col-12 col-md-4">
-              <div className="hz-field">
-                <label className="hz-label">Audience</label>
-                <select name="audience" value={formData.audience} onChange={handleFormChange} className="hz-input" style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--hz-border)' }}>
-                  <option value="all">All Users</option>
-                  <option value="participants">Participants Only</option>
-                  <option value="judges">Judges Only</option>
-                </select>
-              </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--hz-text)' }}>Target Audience</label>
+              <select name="audience" value={formData.audience} onChange={handleFormChange} style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--hz-border)', background: 'var(--hz-surface)', color: 'var(--hz-text)', outline: 'none' }}>
+                <option value="all">All Users (Participants & Judges)</option>
+                <option value="participants">Participants Only</option>
+                <option value="judges">Judges Only</option>
+              </select>
             </div>
-            <div className="col-12 col-md-4">
-              <div className="hz-field">
-                <label className="hz-label">Priority</label>
-                <select name="priority" value={formData.priority} onChange={handleFormChange} className="hz-input" style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--hz-border)' }}>
-                  <option value="normal">Normal</option>
-                  <option value="high">High</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--hz-text)' }}>Priority</label>
+              <select name="priority" value={formData.priority} onChange={handleFormChange} style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--hz-border)', background: 'var(--hz-surface)', color: 'var(--hz-text)', outline: 'none' }}>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="low">Low</option>
+              </select>
             </div>
-            <div className="col-12 col-md-4">
-              <div className="hz-field">
-                <label className="hz-label">Status</label>
-                <select name="status" value={formData.status} onChange={handleFormChange} className="hz-input" style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--hz-border)' }}>
-                  <option value="published">Publish Now</option>
-                  <option value="draft">Save as Draft</option>
-                </select>
-              </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--hz-text)' }}>Status</label>
+              <select name="status" value={formData.status} onChange={handleFormChange} style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--hz-border)', background: 'var(--hz-surface)', color: 'var(--hz-text)', outline: 'none' }}>
+                <option value="published">Publish Now</option>
+                <option value="draft">Save as Draft</option>
+              </select>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--hz-border)' }}>
-            <Button type="button" variant="outline" style={{ flex: 1 }} onClick={() => setView('list')}>Cancel</Button>
-            <Button type="submit" variant="primary" style={{ flex: 1 }}>{selectedAnnouncement ? 'Save Changes' : 'Create Announcement'}</Button>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--hz-border)' }}>
+            <Button type="button" variant="outline" style={{ flex: 1, padding: '0.875rem', borderRadius: '12px' }} onClick={() => setView('list')} disabled={submitting}>Cancel</Button>
+            <Button type="submit" variant="primary" style={{ flex: 2, padding: '0.875rem', borderRadius: '12px' }} disabled={submitting}>
+              {submitting ? 'Saving...' : (selectedAnnouncement ? 'Save Changes' : 'Create Announcement')}
+            </Button>
           </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 
   return (
-    <div className="hz-page" style={{ minHeight: '100vh', paddingBottom: '3rem' }}>
-      <div className="hz-container">
-        {/* Page Header */}
-        {view === 'list' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-            <button type="button" onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: 'var(--hz-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            </button>
-            <div>
-              <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', margin: '0 0 0.25rem 0', letterSpacing: '-0.02em', color: 'var(--hz-text)' }}>Announcements</h1>
-              <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '1rem' }}>Broadcast messages to participants, judges, or all users.</p>
-            </div>
+    <div className="an-container">
+      {message.text && (
+        <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 1000, background: message.type === 'error' ? '#ef4444' : '#10b981', color: 'white', padding: '1rem 2rem', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: '600', animation: 'fadeIn 0.3s ease' }}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Header Area */}
+      <div className="an-header-area">
+        {view === 'list' ? (
+          <div className="an-title-wrapper">
+            <h1 className="an-title">Announcements</h1>
+            <p className="an-subtitle">Broadcast messages and updates to your hackathon attendees.</p>
+          </div>
+        ) : (
+          <div className="an-title-wrapper">
+            <h1 className="an-title" style={{ fontSize: '1.75rem' }}>Message Editor</h1>
           </div>
         )}
 
-        {/* Content Router */}
-        {view === 'list' && renderListView()}
-        {view === 'form' && renderFormView()}
-        
+        <div className="an-selector-wrapper">
+          <label className="an-selector-label">Select Hackathon</label>
+          <select
+            className="an-select"
+            value={selectedHackathonId}
+            onChange={(e) => setSelectedHackathonId(e.target.value)}
+            disabled={view === 'form'}
+          >
+            {loadingHackathons ? (
+              <option value="">Loading...</option>
+            ) : hackathons.map(h => (
+              <option key={h.id} value={h.id}>{h.title}</option>
+            ))}
+            {!loadingHackathons && hackathons.length === 0 && (
+               <option value="">No events found</option>
+            )}
+          </select>
+        </div>
       </div>
+
+      {view === 'list' && renderListView()}
+      {view === 'form' && renderFormView()}
     </div>
   );
 }
