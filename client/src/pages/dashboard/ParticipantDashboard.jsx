@@ -64,35 +64,45 @@ export default function ParticipantDashboard() {
   const submissionsCount = submissions.length;
   const newAnnouncementsCount = announcements.length; // Simplified for now
 
-  return (
     <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
-      <div className="hz-container">
-        
-        {/* Header Section */}
-        <div style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem' }}>
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+        </div>
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
           <div>
-            <h1 style={{ 
-              fontSize: '2.8rem', 
-              fontWeight: '800', 
-              margin: '0 0 0.5rem 0', 
-              letterSpacing: '-0.03em', 
-              background: 'linear-gradient(135deg, var(--hz-text) 0%, var(--hz-text-muted) 100%)', 
-              WebkitBackgroundClip: 'text', 
-              WebkitTextFillColor: 'transparent' 
-            }}>
+            <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
               Overview
             </h1>
-            <p style={{ color: 'var(--hz-text-muted)', fontSize: '1.1rem', margin: 0, fontWeight: '500' }}>
-              Welcome back, <span style={{ color: 'var(--hz-primary)', fontWeight: '600' }}>{user?.name || 'Participant'}</span>! Let's build something amazing.
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px', margin: 0 }}>
+              Welcome back, <span style={{ color: 'var(--hz-primary)', fontWeight: '700' }}>{user?.name || 'Participant'}</span>! Let's build something amazing.
             </p>
           </div>
           <Link to="/hackathons" style={{ textDecoration: 'none' }}>
-            <Button variant="primary" style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', display: 'flex', gap: '0.5rem', alignItems: 'center', boxShadow: '0 4px 14px rgba(99,102,241,0.3)' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              background: 'var(--hz-primary)', color: '#fff', border: 'none',
+              borderRadius: '12px', padding: '0.85rem 1.5rem',
+              fontSize: '1rem', fontWeight: '700', cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(99,102,241,0.4)', transition: 'all 0.2s',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               Find Hackathons
-            </Button>
+            </button>
           </Link>
         </div>
+      </div>
+
+      <div className="hz-container">
 
         {/* Top KPIs - Bento Style */}
         <div className="row g-4" style={{ marginBottom: '2.5rem' }}>

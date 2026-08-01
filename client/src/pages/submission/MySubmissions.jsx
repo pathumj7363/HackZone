@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getMySubmissionsApi } from '../../api/submission.api';
-import EmptyState from '../../components/ui/EmptyState';
-import Button from '../../components/ui/Button';
-
 import { formatDate } from '../../utils/date';
 
-// ── Status badge styles ────────────────────────────────────────────────────
+// --- UI Helpers ---
 const STATUS_STYLES = {
-  submitted:    { background: 'var(--hz-primary)', color: '#fff',                    border: 'none' },
-  draft:        { background: 'transparent',        color: 'var(--hz-text-secondary)', border: '1.5px solid var(--hz-border)' },
-  reviewed:     { background: 'transparent',        color: '#10b981',                 border: '1.5px solid #10b981' },
-  scored:       { background: 'transparent',        color: '#10b981',                 border: '1.5px solid #10b981' },
-  rejected:     { background: 'transparent',        color: '#ef4444',                 border: '1.5px solid #ef4444' },
-  'under review': { background: 'transparent',      color: '#f59e0b',                 border: '1.5px solid #f59e0b' },
+  submitted:    { bg: 'rgba(16,185,129,0.15)', text: '#10b981', border: '#10b981' },
+  draft:        { bg: 'var(--hz-surface)',     text: 'var(--hz-text-secondary)', border: 'var(--hz-border)' },
+  reviewed:     { bg: 'rgba(99,102,241,0.15)', text: '#6366f1', border: '#6366f1' },
+  scored:       { bg: 'rgba(99,102,241,0.15)', text: '#6366f1', border: '#6366f1' },
+  rejected:     { bg: 'rgba(239,68,68,0.15)',  text: '#ef4444', border: '#ef4444' },
+  'under review': { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', border: '#f59e0b' },
 };
 
 function StatusBadge({ status }) {
@@ -21,13 +18,15 @@ function StatusBadge({ status }) {
   const styles = STATUS_STYLES[key] || STATUS_STYLES['submitted'];
   return (
     <span style={{
-      ...styles,
-      display: 'inline-block',
-      padding: '0.3rem 0.85rem',
+      background: styles.bg,
+      color: styles.text,
+      border: `1px solid ${styles.border}`,
+      padding: '0.4rem 1rem',
       borderRadius: '999px',
-      fontSize: 'var(--hz-font-size-xs)',
-      fontWeight: 'var(--hz-font-weight-semibold)',
-      letterSpacing: '0.03em',
+      fontSize: '0.8rem',
+      fontWeight: '700',
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
       whiteSpace: 'nowrap'
     }}>
       {status || 'Submitted'}
@@ -35,25 +34,25 @@ function StatusBadge({ status }) {
   );
 }
 
-// Project icon gradient per index
 const PROJECT_GRADIENTS = [
-  'linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%)',
-  'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-  'linear-gradient(135deg, #134e4a 0%, #0d9488 100%)',
-  'linear-gradient(135deg, #3b0764 0%, #7c3aed 100%)',
-  'linear-gradient(135deg, #7c2d12 0%, #ea580c 100%)',
+  'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)',
+  'linear-gradient(135deg, #10b981 0%, #064e3b 100%)',
+  'linear-gradient(135deg, #f59e0b 0%, #78350f 100%)',
+  'linear-gradient(135deg, #ec4899 0%, #831843 100%)',
+  'linear-gradient(135deg, #8b5cf6 0%, #4c1d95 100%)',
 ];
 
 function ProjectIcon({ index }) {
   return (
     <div style={{
-      width: '42px', height: '42px',
-      borderRadius: '10px',
+      width: '54px', height: '54px',
+      borderRadius: '16px',
       background: PROJECT_GRADIENTS[index % PROJECT_GRADIENTS.length],
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       flexShrink: 0,
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
     }}>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
         <polyline points="14 2 14 8 20 8"></polyline>
         <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -67,6 +66,8 @@ export default function MySubmissions() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading]         = useState(true);
   const [filterOpen, setFilterOpen]   = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('All');
+  const navigate = useNavigate();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -83,303 +84,247 @@ export default function MySubmissions() {
       });
   }, []);
 
-  // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="hz-page">
-        <div className="hz-container" style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
-          <div className="hz-spinner hz-spinner--lg"></div>
-        </div>
+      <div className="hz-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="hz-spinner hz-spinner--lg"></div>
       </div>
     );
   }
 
   return (
-    <div className="hz-page">
-      <div className="hz-container">
-
-        {/* ── Page Header ─────────────────────────────────────────────── */}
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: '1rem',
-          marginBottom: 'var(--hz-space-6)'
-        }}>
+    <div className="hz-page" style={{ paddingBottom: '5rem', background: 'var(--hz-bg)' }}>
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-40%', right: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(50px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', left: '-5%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(50px)' }}></div>
+        </div>
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
           <div>
-            <h1 style={{
-              fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
-              fontWeight: 'var(--hz-font-weight-bold)',
-              color: 'var(--hz-text)',
-              margin: '0 0 0.4rem',
-              letterSpacing: '-0.02em'
-            }}>
+            <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
               My Submissions
             </h1>
-            <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-base)' }}>
-              Manage your project entries and track your progress across active hackathons.
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '500px', margin: 0 }}>
+              Track your hackathon projects, view judges' feedback, and manage your portfolio of innovation.
             </p>
           </div>
-
-          {/* Filter by hackathon */}
-          <div style={{ position: 'relative' }}>
+          <div>
             <button
-              onClick={() => setFilterOpen(o => !o)}
+              onClick={() => navigate('/submit')}
               style={{
-                display: 'flex', alignItems: 'center', gap: '0.625rem',
-                background: 'var(--hz-bg)',
-                border: '1px solid var(--hz-border)',
-                borderRadius: 'var(--hz-radius-sm)',
-                padding: '0.5rem 1rem',
-                fontSize: 'var(--hz-font-size-sm)',
-                fontWeight: 'var(--hz-font-weight-medium)',
-                color: 'var(--hz-text)',
-                cursor: 'pointer',
-                transition: 'border-color var(--hz-transition)'
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                background: 'var(--hz-primary)', color: '#fff', border: 'none',
+                borderRadius: '12px', padding: '0.85rem 1.5rem',
+                fontSize: '1rem', fontWeight: '700', cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(99,102,241,0.4)', transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
               }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--hz-border)'}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'none'}
             >
-              Filter by hackathon
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="21" y1="6" x2="3" y2="6"></line>
-                <line x1="15" y1="12" x2="9" y2="12"></line>
-                <line x1="11" y1="18" x2="13" y2="18"></line>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
+              New Submission
             </button>
           </div>
         </div>
+      </div>
 
-        {/* ── Submissions Table Card ───────────────────────────────────── */}
-        <div style={{
-          border: '1px solid var(--hz-border)',
-          borderRadius: 'var(--hz-radius)',
-          background: 'var(--hz-bg)',
-          overflow: 'hidden',
-          marginBottom: '1.5rem'
-        }}>
-          {/* Table header row */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '2fr 1.5fr 140px 140px 130px',
-            padding: '0.75rem 1.25rem',
-            background: 'var(--hz-surface)',
-            borderBottom: '1px solid var(--hz-border)',
-          }}>
-            {['PROJECT', 'HACKATHON', 'STATUS', 'UPDATED', 'ACTIONS'].map((col, i) => (
-              <div key={col} style={{
-                fontSize: 'var(--hz-font-size-xs)',
-                fontWeight: 'var(--hz-font-weight-bold)',
-                color: 'var(--hz-text-muted)',
-                letterSpacing: '0.08em',
-                textAlign: i >= 4 ? 'right' : 'left'
-              }}>
-                {col}
-              </div>
-            ))}
-          </div>
-
-          {/* Table rows */}
-          {submissions.length === 0 ? (
-            <div style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
-              <EmptyState
-                icon={
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 0.5rem' }}>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                    <polyline points="9 15 12 12 15 15"></polyline>
-                  </svg>
-                }
-                title="No Submissions Yet"
-                description="You haven't submitted any project entries across your hackathons yet. Start building and ship your project!"
-                action={
-                  <Link to="/submit" style={{ textDecoration: 'none', display: 'inline-block', marginTop: '0.75rem' }}>
-                    <Button variant="primary" size="sm">
-                      Submit your first project
-                    </Button>
-                  </Link>
-                }
-              />
-            </div>
-          ) : (
-            submissions.map((s, i) => (
-              <div
-                key={s.id || i}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 1.5fr 140px 140px 130px',
-                  padding: '1rem 1.25rem',
-                  borderBottom: i < submissions.length - 1 ? '1px solid var(--hz-border)' : 'none',
-                  alignItems: 'center',
-                  transition: 'background var(--hz-transition)'
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--hz-surface)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+      <div className="hz-container">
+        
+        {/* Filter Bar */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', position: 'relative' }}>
+          
+          {/* Active Filter Chip */}
+          {selectedFilter !== 'All' && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              background: 'var(--hz-primary)', border: '1px solid var(--hz-primary)',
+              color: '#fff', padding: '0.4rem 1rem', borderRadius: '999px',
+              fontSize: '0.9rem', fontWeight: '700', boxShadow: '0 4px 12px rgba(99,102,241,0.3)'
+            }}>
+              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>
+                {selectedFilter}
+              </span>
+              <button 
+                onClick={() => setSelectedFilter('All')}
+                style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                title="Clear Filter"
               >
-                {/* Project */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: 0 }}>
-                  <ProjectIcon index={i} />
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{
-                      margin: '0 0 0.15rem',
-                      fontSize: 'var(--hz-font-size-sm)',
-                      fontWeight: 'var(--hz-font-weight-bold)',
-                      color: 'var(--hz-text)',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                    }}>
-                      {s.title || 'Untitled Project'}
-                    </p>
-                    <p style={{
-                      margin: 0,
-                      fontSize: 'var(--hz-font-size-xs)',
-                      color: 'var(--hz-text-muted)',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                    }}>
-                      {s.subtitle || s.description || ''}
-                    </p>
-                  </div>
-                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+          )}
 
-                {/* Hackathon */}
-                <div style={{
-                  fontSize: 'var(--hz-font-size-sm)',
-                  color: 'var(--hz-text-secondary)',
-                  fontWeight: 'var(--hz-font-weight-medium)',
-                  paddingRight: '1rem',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                }}>
-                  {s.hackathonName || s.hackathon || (s.hackathonId ? `Hackathon #${s.hackathonId}` : '—')}
-                </div>
-
-                {/* Status */}
-                <div>
-                  <StatusBadge status={s.status} />
-                </div>
-
-                {/* Updated */}
-                <div style={{
-                  fontSize: 'var(--hz-font-size-sm)',
-                  color: 'var(--hz-text-muted)',
-                }}>
-                  {s.updated || formatDate(s.submittedAt || s.created_at || s.createdAt || s.submitted_at || s.updatedAt)}
-                </div>
-
-                {/* Actions */}
-                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                  <button style={{
-                    background: 'transparent',
-                    border: '1.5px solid var(--hz-border)',
-                    borderRadius: 'var(--hz-radius-sm)',
-                    padding: '0.35rem 0.875rem',
-                    fontSize: 'var(--hz-font-size-sm)',
-                    fontWeight: 'var(--hz-font-weight-medium)',
-                    color: 'var(--hz-text)',
-                    cursor: 'pointer',
-                    transition: 'all var(--hz-transition)'
+          <button
+            onClick={() => setFilterOpen(o => !o)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              background: filterOpen ? 'var(--hz-primary-light)' : 'var(--hz-surface)', 
+              border: `1px solid ${filterOpen || selectedFilter !== 'All' ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+              borderRadius: '12px', padding: '0.6rem 1.25rem',
+              fontSize: '0.9rem', fontWeight: '600', color: filterOpen || selectedFilter !== 'All' ? 'var(--hz-primary)' : 'var(--hz-text)',
+              cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--hz-shadow-sm)'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            Filter By Hackathon
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: filterOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          
+          {filterOpen && (
+            <div style={{
+              position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0, zIndex: 10,
+              background: 'var(--hz-surface)', border: '1px solid var(--hz-border)',
+              borderRadius: '12px', padding: '0.5rem', minWidth: '220px',
+              boxShadow: 'var(--hz-shadow-lg)', display: 'flex', flexDirection: 'column', gap: '0.25rem'
+            }}>
+              {['All', ...new Set(submissions.map(s => s.hackathonName || s.hackathon || (s.hackathonId ? `Hackathon #${s.hackathonId}` : 'Unknown')))].map(hName => (
+                <button
+                  key={hName}
+                  onClick={() => { setSelectedFilter(hName); setFilterOpen(false); }}
+                  style={{
+                    background: selectedFilter === hName ? 'var(--hz-primary)' : 'transparent',
+                    color: selectedFilter === hName ? '#fff' : 'var(--hz-text)',
+                    border: 'none', padding: '0.6rem 1rem', borderRadius: '8px',
+                    textAlign: 'left', fontSize: '0.9rem', fontWeight: selectedFilter === hName ? '700' : '500',
+                    cursor: 'pointer', transition: 'background 0.2s',
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--hz-primary)'; e.currentTarget.style.color = 'var(--hz-primary)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--hz-border)'; e.currentTarget.style.color = 'var(--hz-text)'; }}
-                  >
-                    View
-                  </button>
-                  <button style={{
-                    background: 'var(--hz-primary)',
-                    border: '1.5px solid var(--hz-primary)',
-                    borderRadius: 'var(--hz-radius-sm)',
-                    padding: '0.35rem 0.875rem',
-                    fontSize: 'var(--hz-font-size-sm)',
-                    fontWeight: 'var(--hz-font-weight-medium)',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    transition: 'opacity var(--hz-transition)'
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                  >
-                    Edit
-                  </button>
-                </div>
-              </div>
-            ))
+                  onMouseEnter={e => { if (selectedFilter !== hName) e.currentTarget.style.background = 'var(--hz-bg)'; }}
+                  onMouseLeave={e => { if (selectedFilter !== hName) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {hName}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* ── CTA / Empty Prompt (dashed box) ─────────────────────────── */}
-        <div style={{
-          border: '2px dashed var(--hz-border)',
-          borderRadius: 'var(--hz-radius)',
-          padding: '3rem 2rem',
-          textAlign: 'center',
-          background: 'var(--hz-surface)'
-        }}>
-          {/* Illustration */}
+        {submissions.length === 0 ? (
+          /* ── Empty State ── */
           <div style={{
-            width: '180px', height: '140px',
-            margin: '0 auto 1.75rem',
-            background: 'linear-gradient(145deg, #d1d5db 0%, #9ca3af 100%)',
-            borderRadius: '12px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            position: 'relative',
-            overflow: 'hidden'
+            background: 'var(--hz-surface)',
+            border: '2px dashed var(--hz-border)',
+            borderRadius: '24px',
+            padding: '5rem 2rem',
+            textAlign: 'center',
+            boxShadow: 'var(--hz-shadow-sm)'
           }}>
-            {/* Monitor illustration */}
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <svg width="90" height="80" viewBox="0 0 90 80" fill="none">
-                {/* Monitor body */}
-                <rect x="10" y="8" width="70" height="48" rx="5" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5"/>
-                {/* Screen */}
-                <rect x="16" y="14" width="58" height="36" rx="2" fill="#e5e7eb"/>
-                {/* Stand */}
-                <rect x="37" y="56" width="16" height="8" rx="2" fill="rgba(255,255,255,0.8)"/>
-                <rect x="28" y="64" width="34" height="4" rx="2" fill="rgba(255,255,255,0.8)"/>
-                {/* Paper airplane */}
-                <path d="M60 20 L72 16 L68 28 Z" fill="rgba(99,102,241,0.8)" />
-                <path d="M60 20 L68 28 L64 22 Z" fill="rgba(79,70,229,0.9)" />
+            <div style={{
+              width: '100px', height: '100px', margin: '0 auto 2rem',
+              background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(16,185,129,0.1) 100%)',
+              borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1px solid rgba(99,102,241,0.2)'
+            }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <polyline points="9 15 12 12 15 15"></polyline>
               </svg>
             </div>
-          </div>
-
-          <h2 style={{
-            fontSize: 'var(--hz-font-size-xl)',
-            fontWeight: 'var(--hz-font-weight-bold)',
-            color: 'var(--hz-text)',
-            margin: '0 0 0.5rem'
-          }}>
-            Looking to start something new?
-          </h2>
-          <p className="hz-text-muted" style={{
-            fontSize: 'var(--hz-font-size-sm)',
-            maxWidth: '400px',
-            margin: '0 auto 1.75rem',
-            lineHeight: '1.6'
-          }}>
-            Your dashboard is currently empty. Explore active hackathons and start building your next innovation today.
-          </p>
-
-          <Link to="/submit" style={{ textDecoration: 'none' }}>
-            <button style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: 'var(--hz-primary)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 'var(--hz-radius-sm)',
-              padding: '0.75rem 2rem',
-              fontSize: 'var(--hz-font-size-sm)',
-              fontWeight: 'var(--hz-font-weight-semibold)',
-              cursor: 'pointer',
-              transition: 'opacity var(--hz-transition)'
-            }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.87'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-              Submit your first project
+            <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--hz-text)', margin: '0 0 1rem' }}>
+              No Submissions Yet
+            </h2>
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-muted)', maxWidth: '450px', margin: '0 auto 2.5rem', lineHeight: 1.6 }}>
+              You haven't submitted any projects yet. Time to unleash your creativity and build something awesome!
+            </p>
+            <button onClick={() => navigate('/submit')} style={{
+              background: 'var(--hz-primary)', color: '#fff', border: 'none',
+              borderRadius: '12px', padding: '0.85rem 2.5rem',
+              fontSize: '1rem', fontWeight: '700', cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(99,102,241,0.4)', transition: 'all 0.2s'
+            }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+              Submit Your First Project
             </button>
-          </Link>
-        </div>
+          </div>
+        ) : (
+          /* ── Submissions List ── */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {(selectedFilter === 'All' ? submissions : submissions.filter(s => (s.hackathonName || s.hackathon || (s.hackathonId ? `Hackathon #${s.hackathonId}` : 'Unknown')) === selectedFilter)).map((s, i) => (
+              <div key={s.id || i} style={{
+                background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '20px',
+                padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '2rem',
+                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)', cursor: 'pointer',
+                boxShadow: 'var(--hz-shadow-sm)'
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = 'var(--hz-shadow-md)';
+                  e.currentTarget.style.borderColor = 'var(--hz-primary)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'var(--hz-shadow-sm)';
+                  e.currentTarget.style.borderColor = 'var(--hz-border)';
+                }}
+              >
+                
+                {/* Project Icon */}
+                <div style={{ flexShrink: 0 }}>
+                  <ProjectIcon index={i} />
+                </div>
 
+                {/* Project Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'var(--hz-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {s.title || 'Untitled Project'}
+                    </h3>
+                    <StatusBadge status={s.status} />
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--hz-text-muted)', margin: '0 0 0.75rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {s.subtitle || s.description || 'No description provided.'}
+                  </p>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-secondary)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                      <span style={{ fontSize: '0.85rem', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {s.hackathonName || s.hackathon || (s.hackathonId ? `Hackathon #${s.hackathonId}` : '—')}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-muted)' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                      <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>
+                        {s.updated || formatDate(s.submittedAt || s.created_at || s.createdAt || s.updatedAt)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Action */}
+                <div style={{ flexShrink: 0, paddingLeft: '1rem', borderLeft: '1px solid var(--hz-border)' }}>
+                  <button style={{
+                    background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', color: 'var(--hz-primary)', fontSize: '0.9rem', fontWeight: '700',
+                    display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.6rem 1.2rem', borderRadius: '10px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--hz-primary)'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--hz-bg)'; e.currentTarget.style.color = 'var(--hz-primary)'; }}
+                  >
+                    View Details
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

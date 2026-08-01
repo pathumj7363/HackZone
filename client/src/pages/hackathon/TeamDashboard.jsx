@@ -10,6 +10,7 @@ import Input from '../../components/ui/Input';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { formatDate } from '../../utils/date';
+import TeamManager from '../../components/team/TeamManager';
 
 // Avatar color palette for generated avatars
 const AVATAR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b', '#ec4899'];

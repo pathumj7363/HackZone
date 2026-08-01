@@ -1,4 +1,4 @@
-import { getUsersByRole, updateJudgeProfile } from '../models/user.model.js';
+import { getUsersByRole, updateJudgeProfile, searchUsers } from '../models/user.model.js';
 
 /**
  * GET /judges
@@ -96,6 +96,24 @@ export const updateJudgeProfileController = async (req, res) => {
     }
   } catch (error) {
     console.error('[updateJudgeProfileController] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /search
+ * Searches users by name or email
+ */
+export const searchUsersController = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.length < 2) {
+      return res.status(200).json({ data: [] });
+    }
+    const users = await searchUsers(q);
+    return res.status(200).json({ data: users });
+  } catch (error) {
+    console.error('[searchUsersController] Error searching users:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

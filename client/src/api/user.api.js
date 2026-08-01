@@ -9,3 +9,13 @@ export const getJudgesApi = async (search = '') => {
     throw error.response?.data || { error: 'Network error occurred' };
   }
 };
+
+export const searchUsersApi = async (query = '') => {
+  try {
+    const response = await API.get('/users/search', { params: { q: query } });
+    return response.data.data;
+  } catch (error) {
+    console.error('Error searching users:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};

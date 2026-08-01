@@ -114,3 +114,25 @@ export const getUsersByRole = async (role) => {
     throw error;
   }
 };
+
+/**
+ * Search users by name or email
+ * @param {string} searchQuery 
+ * @returns {Promise<Array>} List of matching users
+ */
+export const searchUsers = async (searchQuery) => {
+  try {
+    const query = `
+      SELECT id, name, email, role 
+      FROM users 
+      WHERE (name LIKE ? OR email LIKE ?) AND role != 'admin'
+      LIMIT 20
+    `;
+    const likeParam = `%${searchQuery}%`;
+    const [rows] = await pool.query(query, [likeParam, likeParam]);
+    return rows;
+  } catch (error) {
+    console.error('Error searching users:', error);
+    throw error;
+  }
+};
