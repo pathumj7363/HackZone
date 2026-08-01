@@ -18,6 +18,12 @@ import crypto from 'crypto';
       )
     `;
     await pool.query(createInvitationsQuery);
+<<<<<<< HEAD
+=======
+    try {
+      await pool.query("ALTER TABLE judge_invitations ADD COLUMN evaluationAreas JSON;");
+    } catch(e) {}
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
     console.log("✅ Verified judge_invitations table");
   } catch (err) {
     console.error("Error creating judge_invitations table:", err);
@@ -27,6 +33,7 @@ import crypto from 'crypto';
 /**
  * Create a new invitation for a judge to a hackathon
  */
+<<<<<<< HEAD
 export const createJudgeInvitation = async (hackathonId, email, userId = null) => {
   const id = crypto.randomUUID();
   const query = `
@@ -39,6 +46,29 @@ export const createJudgeInvitation = async (hackathonId, email, userId = null) =
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
       throw new Error('An invitation has already been sent to this email for this hackathon.');
+=======
+export const createJudgeInvitation = async (hackathonId, email, userId = null, evaluationAreas = null) => {
+  const evalAreasJson = evaluationAreas ? JSON.stringify(evaluationAreas) : null;
+
+  const [existing] = await pool.query('SELECT id FROM judge_invitations WHERE hackathonId = ? AND email = ?', [hackathonId, email]);
+  
+  if (existing.length > 0) {
+    await pool.query('UPDATE judge_invitations SET evaluationAreas = ? WHERE id = ?', [evalAreasJson, existing[0].id]);
+    return { id: existing[0].id, hackathonId, email, userId, status: 'pending', evaluationAreas, isNew: false };
+  }
+
+  const id = crypto.randomUUID();
+  const query = `
+    INSERT INTO judge_invitations (id, hackathonId, email, userId, status, evaluationAreas)
+    VALUES (?, ?, ?, ?, 'pending', ?)
+  `;
+  try {
+    await pool.query(query, [id, hackathonId, email, userId, evalAreasJson]);
+    return { id, hackathonId, email, userId, status: 'pending', evaluationAreas, isNew: true };
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return { isNew: false }; // Handled by SELECT, but just in case of race condition
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
     }
     throw err;
   }
@@ -56,7 +86,16 @@ export const getInvitationsByHackathon = async (hackathonId) => {
     ORDER BY i.created_at DESC
   `;
   const [rows] = await pool.query(query, [hackathonId]);
+<<<<<<< HEAD
   return rows;
+=======
+  return rows.map(r => {
+    if (typeof r.evaluationAreas === 'string') {
+      try { r.evaluationAreas = JSON.parse(r.evaluationAreas); } catch(e){}
+    }
+    return r;
+  });
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
 };
 
 /**
@@ -76,7 +115,16 @@ export const getPendingInvitationsForUser = async (email, userId) => {
     ORDER BY i.created_at DESC
   `;
   const [rows] = await pool.query(query, [email, userId]);
+<<<<<<< HEAD
   return rows;
+=======
+  return rows.map(r => {
+    if (typeof r.evaluationAreas === 'string') {
+      try { r.evaluationAreas = JSON.parse(r.evaluationAreas); } catch(e){}
+    }
+    return r;
+  });
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
 };
 
 /**

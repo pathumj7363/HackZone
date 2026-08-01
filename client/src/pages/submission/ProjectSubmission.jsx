@@ -5,17 +5,22 @@ import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import TextArea from '../../components/ui/TextArea';
 import Button from '../../components/ui/Button';
+import { getMyRegisteredHackathonsApi } from '../../api/hackathon.api';
 
-const STEPS = ['Project Info', 'Links & Files', 'Review & Submit'];
+const STEPS = ['Select Hackathon', 'Project Info', 'Links & Files', 'Review & Submit'];
 
 export default function ProjectSubmission() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [fetchingHackathons, setFetchingHackathons] = useState(true);
+  const [hackathons, setHackathons] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
   // Form state
   const [form, setForm] = useState({
+    hackathonId: '',
+    teamId: '',
     title: '',
     description: '',
     techStack: '',
@@ -23,10 +28,18 @@ export default function ProjectSubmission() {
     demoUrl: '',
     videoUrl: '',
     notes: '',
+    file: null,
   });
   const [errors, setErrors] = useState({});
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  useEffect(() => { 
+    window.scrollTo(0, 0); 
+    getMyRegisteredHackathonsApi().then(data => {
+      const approved = (data || []).filter(h => h.registrationStatus === 'approved');
+      setHackathons(approved);
+      setFetchingHackathons(false);
+    }).catch(() => setFetchingHackathons(false));
+  }, []);
 
   const set = (field) => (e) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -36,10 +49,13 @@ export default function ProjectSubmission() {
   const validateStep = () => {
     const newErrors = {};
     if (step === 0) {
+      if (!form.hackathonId) newErrors.hackathonId = 'Please select a hackathon.';
+    }
+    if (step === 1) {
       if (!form.title.trim()) newErrors.title = 'Project title is required.';
       if (!form.description.trim()) newErrors.description = 'Description is required.';
     }
-    if (step === 1) {
+    if (step === 2) {
       if (!form.repoUrl.trim()) newErrors.repoUrl = 'GitHub repository URL is required.';
     }
     setErrors(newErrors);
@@ -57,15 +73,21 @@ export default function ProjectSubmission() {
     if (!validateStep()) return;
     setLoading(true);
     try {
-      await submitProjectApi({
-        title: form.title,
-        description: form.description,
-        techStack: form.techStack,
-        repoUrl: form.repoUrl,
-        demoUrl: form.demoUrl,
-        videoUrl: form.videoUrl,
-        notes: form.notes,
-      });
+      const formData = new FormData();
+      formData.append('hackathonId', form.hackathonId);
+      if (form.teamId) formData.append('teamId', form.teamId);
+      formData.append('title', form.title);
+      formData.append('description', form.description);
+      formData.append('techStack', form.techStack);
+      formData.append('repoUrl', form.repoUrl);
+      formData.append('demoUrl', form.demoUrl);
+      formData.append('videoUrl', form.videoUrl);
+      formData.append('notes', form.notes);
+      if (form.file) {
+        formData.append('file', form.file);
+      }
+
+      await submitProjectApi(formData);
       setSubmitted(true);
     } catch {
       setErrors({ submit: 'Submission failed. Please try again.' });
@@ -179,8 +201,68 @@ export default function ProjectSubmission() {
             <form onSubmit={handleSubmit} noValidate>
               <Card padding>
 
-                {/* STEP 0 — Project Info */}
+                {/* STEP 0 — Select Hackathon */}
                 {step === 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div>
+                      <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
+                        Select Hackathon
+                      </h2>
+                      <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-sm)' }}>
+                        Choose the hackathon you are submitting this project for.
+                      </p>
+                    </div>
+                    
+                    {fetchingHackathons ? (
+                      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
+                        <span className="hz-spinner" style={{ marginRight: '0.5rem' }}></span> Loading...
+                      </div>
+                    ) : hackathons.length === 0 ? (
+                      <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: 'var(--hz-radius)' }}>
+                        <p style={{ margin: 0, color: 'var(--hz-text-muted)' }}>You have no approved hackathon registrations to submit a project for.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {hackathons.map(h => (
+                          <div 
+                            key={h.id}
+                            onClick={() => {
+                              setForm(prev => ({ ...prev, hackathonId: h.id, teamId: h.teamId }));
+                              if (errors.hackathonId) setErrors(prev => ({ ...prev, hackathonId: '' }));
+                            }}
+                            style={{ 
+                              padding: '1.25rem', 
+                              borderRadius: 'var(--hz-radius)', 
+                              border: `2px solid ${form.hackathonId === h.id ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
+                              background: form.hackathonId === h.id ? 'var(--hz-primary-light)' : 'var(--hz-surface)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <div>
+                              <strong style={{ display: 'block', fontSize: '1.1rem', color: form.hackathonId === h.id ? 'var(--hz-primary-dark)' : 'var(--hz-text)', marginBottom: '0.25rem' }}>{h.title}</strong>
+                              <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>
+                                Submitting as: {h.regType === 'team' ? `Team (${h.teamName})` : 'Solo Participant'}
+                              </span>
+                            </div>
+                            {form.hackathonId === h.id && (
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            )}
+                          </div>
+                        ))}
+                        {errors.hackathonId && <p className="hz-field-error" style={{ margin: 0 }}>{errors.hackathonId}</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* STEP 1 — Project Info */}
+                {step === 1 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div>
                       <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
@@ -226,8 +308,8 @@ export default function ProjectSubmission() {
                   </div>
                 )}
 
-                {/* STEP 1 — Links & Files */}
-                {step === 1 && (
+                {/* STEP 2 — Links & Files */}
+                {step === 2 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div>
                       <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
@@ -269,23 +351,29 @@ export default function ProjectSubmission() {
                       helperText="Optional — a short walkthrough video (YouTube, Loom, etc.)"
                     />
 
-                    {/* File upload area (UI only) */}
+                    {/* File upload area */}
                     <div>
                       <label className="hz-label" style={{ display: 'block', marginBottom: '0.5rem' }}>
                         Attachments <span style={{ color: 'var(--hz-text-muted)', fontWeight: 'normal' }}>(optional)</span>
                       </label>
-                      <div style={{
+                      <label style={{
                         border: '2px dashed var(--hz-border)',
                         borderRadius: 'var(--hz-radius)',
                         padding: '2rem',
                         textAlign: 'center',
                         background: 'var(--hz-surface)',
                         cursor: 'pointer',
+                        display: 'block',
                         transition: 'border-color var(--hz-transition)'
                       }}
                         onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
                         onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--hz-border)'}
                       >
+                        <input 
+                          type="file" 
+                          style={{ display: 'none' }} 
+                          onChange={(e) => setForm(prev => ({ ...prev, file: e.target.files[0] }))} 
+                        />
                         <div style={{
                           width: '44px', height: '44px', borderRadius: '50%',
                           background: 'var(--hz-primary-light)',
@@ -299,18 +387,20 @@ export default function ProjectSubmission() {
                           </svg>
                         </div>
                         <p style={{ margin: '0 0 0.25rem', fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-medium)', color: 'var(--hz-text)' }}>
-                          Drag &amp; drop files here, or <span style={{ color: 'var(--hz-primary)', fontWeight: 'var(--hz-font-weight-bold)' }}>browse</span>
+                          {form.file ? form.file.name : (
+                            <>Drag &amp; drop files here, or <span style={{ color: 'var(--hz-primary)', fontWeight: 'var(--hz-font-weight-bold)' }}>browse</span></>
+                          )}
                         </p>
                         <p className="hz-text-muted" style={{ margin: 0, fontSize: 'var(--hz-font-size-xs)' }}>
                           PDF, ZIP, PNG — max 20 MB
                         </p>
-                      </div>
+                      </label>
                     </div>
                   </div>
                 )}
 
-                {/* STEP 2 — Review */}
-                {step === 2 && (
+                {/* STEP 3 — Review */}
+                {step === 3 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div>
                       <h2 style={{ fontSize: 'var(--hz-font-size-xl)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 0.25rem' }}>
@@ -323,6 +413,7 @@ export default function ProjectSubmission() {
 
                     {/* Summary rows */}
                     {[
+                      { label: 'Hackathon', value: hackathons.find(h => h.id === form.hackathonId)?.title || '—' },
                       { label: 'Project Title', value: form.title || '—' },
                       { label: 'Tech Stack', value: form.techStack || '—' },
                       { label: 'GitHub Repo', value: form.repoUrl || '—' },

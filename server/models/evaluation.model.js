@@ -263,7 +263,12 @@ export const getSubmissionsForJudge = async (judgeId) => {
         e.innovationScore,
         e.technicalComplexityScore,
         e.designScore,
+<<<<<<< HEAD
         e.usabilityScore
+=======
+        e.usabilityScore,
+        i.evaluationAreas as judgeEvaluationAreas
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
       FROM submissions s
       JOIN hackathons h ON s.hackathonId = h.id
       LEFT JOIN teams t ON s.teamId = t.id

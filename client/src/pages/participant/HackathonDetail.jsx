@@ -113,7 +113,11 @@ export default function HackathonDetail() {
 
   const title = hackathon.title || "Untitled Hackathon";
   const dateRange = hackathon.dateRange || "";
-  const organizer = "Organizer"; // Add organizer name fetch later if needed
+  const orgData = hackathon.sponsors && Array.isArray(hackathon.sponsors) && hackathon.sponsors.length > 0 ? hackathon.sponsors[0] : null;
+  const organizerName = orgData?.name || "Platform Organizer";
+  const organizerDesc = orgData?.description || "Hosted on the HackZone Platform. Contact organizers through the official Discord server.";
+  const organizerWebsite = orgData?.website || null;
+  const judges = hackathon.judges && Array.isArray(hackathon.judges) ? hackathon.judges : [];
   const image = hackathon.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
   const displayStatus = hackathon.status || "COMING SOON";
   const description = hackathon.description || "No description provided.";
@@ -220,7 +224,7 @@ export default function HackathonDetail() {
               AF
             </div>
             <span style={{ fontSize: 'var(--hz-font-size-sm)' }}>
-              Organized by <strong>{organizer}</strong>
+              Organized by <strong>{organizerName}</strong>
             </span>
           </div>
         </div>
@@ -230,8 +234,8 @@ export default function HackathonDetail() {
         <div className="row g-4">
 
           {/* ── Left Column (Main Content) ────────────────────────────────────── */}
-          <div className="col-12 col-lg-8">
-            <Card padding style={{ marginBottom: '1.5rem' }}>
+          <div className="col-12 col-lg-8 d-flex flex-column gap-4">
+            <Card padding>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1rem' }}>
                 About this Hackathon
               </h2>
@@ -267,7 +271,7 @@ export default function HackathonDetail() {
             </Card>
 
             {/* Prizes */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               {prizesList.map((prize, i) => (
                 <Card key={i} padding style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div style={{
@@ -292,7 +296,7 @@ export default function HackathonDetail() {
             </div>
 
             {/* Key Milestones */}
-            <Card padding>
+            <Card padding style={{ flex: 1 }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.5rem' }}>
                 Key Milestones
               </h3>
@@ -362,21 +366,13 @@ export default function HackathonDetail() {
                       Your previous idea was rejected. You may register again with a different idea.
                     </div>
                   )}
+<<<<<<< HEAD
                   <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
+=======
+                  <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '1.25rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
+>>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                     Register for Hackathon
                   </Button>
-
-                  <Link to="/teams/create" style={{ textDecoration: 'none', display: 'block', marginBottom: '1.25rem' }}>
-                    <Button variant="outline" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <line x1="19" y1="8" x2="19" y2="14"></line>
-                        <line x1="22" y1="11" x2="16" y2="11"></line>
-                      </svg>
-                      Create a Team
-                    </Button>
-                  </Link>
                 </>
               )}
 
@@ -385,67 +381,106 @@ export default function HackathonDetail() {
               </p>
             </Card>
 
-            {/* Deadline Checklist */}
-            <Card padding>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
-                Deadline Checklist
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {checklist.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      {item.done ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                      ) : (
-                        <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid var(--hz-border)' }} />
-                      )}
+            {/* Evaluation Areas */}
+            {hackathon.evaluationAreas && hackathon.evaluationAreas.length > 0 && (
+              <Card padding>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
+                  Evaluation Areas
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {hackathon.evaluationAreas.map((area, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'var(--hz-surface)', borderRadius: '8px' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      </div>
                       <span style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text)', fontWeight: 'var(--hz-font-weight-medium)' }}>
-                        {item.label}
+                        {area}
                       </span>
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: 'var(--hz-font-weight-bold)', color: item.color || 'var(--hz-text-muted)' }}>
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Organizer Info */}
-            <div style={{ background: '#f8fafc', borderRadius: 'var(--hz-radius)', padding: '1.25rem', border: '1px solid var(--hz-border)' }}>
-              <div style={{ fontSize: '10px', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
-                ORGANIZED BY
-              </div>
+            <Card padding style={judges.length === 0 ? { flex: 1 } : {}}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
+                Organized By
+              </h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '8px',
-                  background: '#0f172a', color: '#fff',
+                  background: 'var(--hz-primary-light)', color: 'var(--hz-primary)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 20h.01"></path>
-                    <path d="M7 20v-4"></path>
-                    <path d="M12 20v-8"></path>
-                    <path d="M17 20V8"></path>
-                    <path d="M22 4v16"></path>
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                    <path d="M9 22v-4h6v4"></path>
+                    <path d="M8 6h.01"></path>
+                    <path d="M16 6h.01"></path>
+                    <path d="M12 6h.01"></path>
+                    <path d="M12 10h.01"></path>
+                    <path d="M12 14h.01"></path>
+                    <path d="M16 10h.01"></path>
+                    <path d="M16 14h.01"></path>
+                    <path d="M8 10h.01"></path>
+                    <path d="M8 14h.01"></path>
                   </svg>
                 </div>
                 <div>
                   <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>
-                    {organizer}
+                    {organizerName}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--hz-text-muted)' }}>
-                    Platform Organizer
-                  </div>
+                  {organizerWebsite && (
+                    <a href={organizerWebsite.startsWith('http') ? organizerWebsite : `https://${organizerWebsite}`} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--hz-primary)', textDecoration: 'none' }}>
+                      Visit Website &rarr;
+                    </a>
+                  )}
                 </div>
               </div>
-              <p style={{ fontSize: '11px', color: 'var(--hz-text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                Hosted on the HackZone Platform. Contact organizers through the official Discord server.
+              <p style={{ fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-secondary)', lineHeight: '1.5', margin: orgData?.email ? '0 0 1rem' : 0 }}>
+                {organizerDesc}
               </p>
-            </div>
+              {orgData?.email && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--hz-font-size-sm)', color: 'var(--hz-text-muted)' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <a href={`mailto:${orgData.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{orgData.email}</a>
+                </div>
+              )}
+            </Card>
+
+            {/* Judges Panel */}
+            {judges.length > 0 && (
+              <Card padding style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)', margin: '0 0 1.25rem' }}>
+                  Judging Panel
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {judges.map((judge, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                        {judge.name ? judge.name.charAt(0).toUpperCase() : 'J'}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 'var(--hz-font-size-sm)', fontWeight: 'var(--hz-font-weight-bold)', color: 'var(--hz-text)' }}>{judge.name}</div>
+                        {(judge.evaluationAreas && judge.evaluationAreas.length > 0) && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                            {judge.evaluationAreas.map(area => (
+                              <span key={area} style={{ fontSize: '10px', background: 'var(--hz-surface-raised)', color: 'var(--hz-text-secondary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--hz-border)' }}>
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
           </div>
         </div>

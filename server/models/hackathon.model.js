@@ -52,7 +52,8 @@ import pool from '../database/db.js';
     "ALTER TABLE hackathons ADD COLUMN image TEXT;",
     "ALTER TABLE hackathon_registrations ADD COLUMN idea TEXT;",
     "ALTER TABLE hackathon_registrations ADD COLUMN proposalUrl VARCHAR(255);",
-    "ALTER TABLE hackathon_registrations ADD COLUMN status VARCHAR(50) DEFAULT 'pending';"
+    "ALTER TABLE hackathon_registrations ADD COLUMN status VARCHAR(50) DEFAULT 'pending';",
+    "ALTER TABLE hackathons ADD COLUMN evaluationAreas JSON;"
   ];
   for (let q of queries) {
     try {
@@ -76,7 +77,7 @@ export const createHackathon = async (hackathonData) => {
     const {
       id, title, description, startDate, endDate, rules,
       prizes, sponsors, judges, organizerId, status,
-      location, theme, maxTeamSize, prizePool, image
+      location, theme, maxTeamSize, prizePool, image, evaluationAreas
     } = hackathonData;
 
     if (!id || !title || !organizerId) {
@@ -86,14 +87,15 @@ export const createHackathon = async (hackathonData) => {
     const prizesJson = prizes ? JSON.stringify(prizes) : null;
     const sponsorsJson = sponsors ? JSON.stringify(sponsors) : null;
     const judgesJson = judges ? JSON.stringify(judges) : null;
+    const evaluationAreasJson = evaluationAreas ? JSON.stringify(evaluationAreas) : null;
     const hackathonStatus = status || 'draft';
 
     const query = `
       INSERT INTO hackathons (
         id, title, description, startDate, endDate, rules, 
         prizes, sponsors, judges, organizerId, status,
-        location, theme, maxTeamSize, prizePool, image
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        location, theme, maxTeamSize, prizePool, image, evaluationAreas
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.query(query, [
@@ -112,7 +114,8 @@ export const createHackathon = async (hackathonData) => {
       theme || null,
       maxTeamSize || 4,
       prizePool || null,
-      image || null
+      image || null,
+      evaluationAreasJson
     ]);
 
     return hackathonData;
@@ -159,6 +162,7 @@ export const getHackathonById = async (id) => {
     if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
     if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
     if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
+    if (hackathon.evaluationAreas) hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
 
     return hackathon;
   } catch (error) {
@@ -183,6 +187,7 @@ export const getHackathonsByOrganizerId = async (organizerId) => {
       if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
       if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
       if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
+      if (hackathon.evaluationAreas) hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
       return hackathon;
     });
   } catch (error) {
@@ -223,6 +228,7 @@ export const getRegisteredHackathonsByUserId = async (userId) => {
       if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
       if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
       if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
+      if (hackathon.evaluationAreas) hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
       return hackathon;
     });
   } catch (error) {
@@ -288,6 +294,7 @@ export const updateHackathon = async (id, updateData) => {
     if (updateData.maxTeamSize !== undefined) { fields.push('maxTeamSize = ?'); values.push(updateData.maxTeamSize); }
     if (updateData.prizePool !== undefined) { fields.push('prizePool = ?'); values.push(updateData.prizePool); }
     if (updateData.image !== undefined) { fields.push('image = ?'); values.push(updateData.image); }
+    if (updateData.evaluationAreas !== undefined) { fields.push('evaluationAreas = ?'); values.push(JSON.stringify(updateData.evaluationAreas)); }
 
     if (fields.length === 0) return true;
 
@@ -368,4 +375,44 @@ export const getOrganizerStats = async (organizerId) => {
     pendingReviews: reviewsCount,
     recentActivity: recentActivity
   };
+};
+
+/**
+ * Delete a hackathon by ID.
+ * @param {string} id 
+ * @returns {Promise<boolean>}
+ */
+export const deleteHackathonById = async (id) => {
+  try {
+    // Manually delete related data to avoid foreign key constraint errors
+    
+    // 1. Delete evaluations
+    try { await pool.query('DELETE FROM evaluations WHERE hackathonId = ?', [id]); } catch(e) {}
+    
+    // 2. Delete submissions
+    try { await pool.query('DELETE FROM submissions WHERE hackathonId = ?', [id]); } catch(e) {}
+    
+    // 3. Delete team invites and members, then teams
+    try {
+      const [teams] = await pool.query('SELECT id FROM teams WHERE hackathonId = ?', [id]);
+      if (teams.length > 0) {
+        const teamIds = teams.map(t => t.id);
+        const placeholders = teamIds.map(() => '?').join(',');
+        await pool.query(`DELETE FROM team_invites WHERE teamId IN (${placeholders})`, teamIds);
+        await pool.query(`DELETE FROM team_members WHERE teamId IN (${placeholders})`, teamIds);
+        await pool.query('DELETE FROM teams WHERE hackathonId = ?', [id]);
+      }
+    } catch(e) {}
+    
+    // 4. Delete registrations and judge invitations (just in case ON DELETE CASCADE is missing)
+    try { await pool.query('DELETE FROM hackathon_registrations WHERE hackathonId = ?', [id]); } catch(e) {}
+    try { await pool.query('DELETE FROM judge_invitations WHERE hackathonId = ?', [id]); } catch(e) {}
+
+    // Finally, delete the hackathon itself
+    const [result] = await pool.query('DELETE FROM hackathons WHERE id = ?', [id]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error deleting hackathon:', error);
+    throw error;
+  }
 };
