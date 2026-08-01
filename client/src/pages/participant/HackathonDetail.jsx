@@ -366,11 +366,7 @@ export default function HackathonDetail() {
                       Your previous idea was rejected. You may register again with a different idea.
                     </div>
                   )}
-<<<<<<< HEAD
-                  <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '0.75rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
-=======
                   <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '1.25rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
->>>>>>> 6220725fbcd06ef1b8d44f89a8966d19d274abe5
                     Register for Hackathon
                   </Button>
                 </>
