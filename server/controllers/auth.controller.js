@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import { findUserByEmail, createUser, updateJudgeProfile, updateOrganizerProfile } from '../models/user.model.js';
 
 // Generates a JWT token for the user
-const generateToken = (userId, role) => {
+const generateToken = (userId, role, email) => {
   return jwt.sign(
-    { id: userId, role: role },
+    { id: userId, role: role, email: email },
     process.env.JWT_SECRET || 'hackzone_super_secret_key',
     { expiresIn: '30d' }
   );
@@ -44,7 +44,7 @@ export const register = async (req, res) => {
     }
 
     // 5. Generate token
-    const token = generateToken(newUser.id, newUser.role);
+    const token = generateToken(newUser.id, newUser.role, newUser.email);
 
     // 6. Return exact JSON format expected by frontend
     res.status(201).json({
@@ -85,7 +85,7 @@ export const login = async (req, res) => {
     }
 
     // 4. Generate token
-    const token = generateToken(user.id, user.role);
+    const token = generateToken(user.id, user.role, user.email);
 
     // 5. Return exact JSON format expected by frontend
     res.status(200).json({

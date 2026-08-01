@@ -74,11 +74,11 @@ export default function EvaluateProject() {
           {value}/10
         </Badge>
       </div>
-      <input 
-        type="range" 
-        min="0" max="10" 
-        value={value} 
-        onChange={e => onChange(Number(e.target.value))} 
+      <input
+        type="range"
+        min="0" max="10"
+        value={value}
+        onChange={e => onChange(Number(e.target.value))}
         style={{ width: '100%', accentColor: 'var(--hz-primary)', cursor: 'pointer' }}
       />
     </div>
@@ -105,7 +105,7 @@ export default function EvaluateProject() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', alignItems: 'start' }}>
-        
+
         {/* Left Column: Project Details */}
         <Card padding style={{ border: '1px solid var(--hz-border)' }}>
           <h3 className="hz-heading-3" style={{ marginBottom: '1rem' }}>Project Details</h3>
@@ -134,8 +134,8 @@ export default function EvaluateProject() {
 
           <p className="hz-text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '1rem' }}>Demo Video</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-            <div 
-              onClick={() => { if(project.demoVideoUrl) setShowVideoModal(true) }}
+            <div
+              onClick={() => { if (project.demoVideoUrl) setShowVideoModal(true) }}
               style={{ position: 'relative', borderRadius: 'var(--hz-radius-sm)', overflow: 'hidden', cursor: project.demoVideoUrl ? 'pointer' : 'default', background: '#0f172a', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={project.demoVideoUrl ? "white" : "gray"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
@@ -167,7 +167,7 @@ export default function EvaluateProject() {
 
             <div style={{ marginTop: '2rem', marginBottom: '1.5rem' }}>
               <h4 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>Written Feedback</h4>
-              <TextArea 
+              <TextArea
                 placeholder="Provide constructive feedback for the team..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}

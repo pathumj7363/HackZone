@@ -1,7 +1,7 @@
 import express from 'express';
-import { 
-  getAssignedSubmissions, 
-  submitEvaluation, 
+import {
+  getAssignedSubmissions,
+  submitEvaluation,
   editEvaluation,
   getLeaderboard,
   assignJudge,
