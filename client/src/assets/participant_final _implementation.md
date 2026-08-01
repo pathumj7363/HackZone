@@ -99,7 +99,7 @@ After checking the current repository state, none of these participant-specific 
   - **Commit:** `fix(pages): handle data formatting and null values`
 - [x] **Task 39:** Perform full end-to-end test (Login -> See Hackathons -> Check Invites -> View Submissions).
   - **Commit:** `test(e2e): verify complete participant workflow`
-- [ ] **Task 40:** Final code review, cleanup console logs, and polish the participant module.
+- [x] **Task 40:** Final code review, cleanup console logs, and polish the participant module.
   - **Commit:** `chore: cleanup logs and polish participant module`
 
 ---
