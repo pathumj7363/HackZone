@@ -43,161 +43,230 @@ export default function AssignedProjects() {
   });
 
   return (
-    <div className="hz-page hz-container">
-      <PageHeader 
-        title="Assigned Projects" 
-        subtitle="Review and evaluate your assigned submissions."
-      />
-
-      <Card padding style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '1rem', alignItems: 'flex-end' }}>
-          <Input 
-            placeholder="Search projects or teams..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)}
-            style={{ paddingLeft: '2.5rem', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Ccircle cx=\'11\' cy=\'11\' r=\'8\'%3E%3C/circle%3E%3Cline x1=\'21\' y1=\'21\' x2=\'16.65\' y2=\'16.65\'%3E%3C/line%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: '10px center' }}
-          />
-          <Select 
-            options={[
-              { label: 'All Hackathons', value: '' },
-              { label: 'Global AI Innovate 2024', value: 'Global AI Innovate 2024' },
-              { label: 'FinTech Frontier Hack', value: 'FinTech Frontier Hack' }
-            ]}
-            value={hackathonFilter}
-            onChange={e => setHackathonFilter(e.target.value)}
-            style={{ minWidth: '200px' }}
-          />
-          <Select 
-            options={[
-              { label: 'All Statuses', value: '' },
-              { label: 'Not Started', value: 'Not Started' },
-              { label: 'Pending', value: 'Pending' },
-              { label: 'In Progress', value: 'In Progress' },
-              { label: 'Completed', value: 'Completed' }
-            ]}
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            style={{ minWidth: '160px' }}
-          />
+    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', minHeight: '100vh', transition: 'background 0.3s' }}>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      
+      {/* ── Dynamic Gradient Hero ── */}
+      <div style={{
+        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
+        borderBottom: '1px solid var(--hz-border)'
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
         </div>
-      </Card>
-
-      <Card style={{ marginBottom: '2rem', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--hz-border)', background: 'var(--hz-surface)', fontSize: '0.75rem', color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <th style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>Project</th>
-                <th style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>Team</th>
-                <th style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>Hackathon</th>
-                <th style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>Submitted</th>
-                <th style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>Status</th>
-                <th style={{ padding: '1rem 1.5rem', fontWeight: 600, textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '3rem', textAlign: 'center' }}>
-                    <LoadingSpinner size="md" />
-                  </td>
-                </tr>
-              ) : filteredProjects.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '3rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
-                    No projects found matching your criteria.
-                  </td>
-                </tr>
-              ) : (
-                filteredProjects.map(p => {
-                   let badgeVariant = 'neutral';
-                   if (p.status === 'Completed') badgeVariant = 'success';
-                   else if (p.status === 'In Progress') badgeVariant = 'primary';
-
-                   return (
-                    <tr key={p.id} style={{ borderBottom: '1px solid var(--hz-border)', transition: 'background 0.2s' }}>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'var(--hz-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                          </div>
-                          <span style={{ fontWeight: 600, color: 'var(--hz-text)' }}>{p.title}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem', color: 'var(--hz-text-secondary)', fontSize: '0.875rem' }}>{p.teamName}</td>
-                      <td style={{ padding: '1rem 1.5rem', color: 'var(--hz-text-secondary)', fontSize: '0.875rem' }}>{p.hackathon}</td>
-                      <td style={{ padding: '1rem 1.5rem', color: 'var(--hz-text-secondary)', fontSize: '0.875rem' }}>{p.submittedAt}</td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        <Badge variant={badgeVariant}>{p.status}</Badge>
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                        <button 
-                          onClick={() => navigate(`/judge/evaluate/${p.id}`)}
-                          style={{ background: 'none', border: 'none', color: 'var(--hz-primary)', fontWeight: 500, cursor: 'pointer', fontSize: '0.875rem' }}
-                        >
-                          Open
-                        </button>
-                      </td>
-                    </tr>
-                   );
-                })
-              )}
-            </tbody>
-          </table>
+        
+        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
+          <div>
+            <h1 style={{ fontSize: '3rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)', letterSpacing: '-0.03em' }}>
+              Assigned Projects
+            </h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--hz-text-secondary)', maxWidth: '600px', margin: 0 }}>
+              Review and evaluate your assigned submissions.
+            </p>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative', minWidth: '250px' }}>
+              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              <input 
+                type="text"
+                placeholder="Search projects or teams..." 
+                value={search} 
+                onChange={e => setSearch(e.target.value)}
+                className="hz-input"
+                style={{ width: '100%', padding: '0.75rem 1.25rem 0.75rem 2.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none' }}
+              />
+            </div>
+            <select 
+              value={hackathonFilter}
+              onChange={e => setHackathonFilter(e.target.value)}
+              className="hz-input"
+              style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none', appearance: 'none' }}
+            >
+              <option value="" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>All Hackathons</option>
+              <option value="Global AI Innovate 2024" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Global AI Innovate 2024</option>
+              <option value="FinTech Frontier Hack" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>FinTech Frontier Hack</option>
+            </select>
+            <select 
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="hz-input"
+              style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none', appearance: 'none' }}
+            >
+              <option value="" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>All Statuses</option>
+              <option value="Not Started" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Not Started</option>
+              <option value="Pending" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Pending</option>
+              <option value="In Progress" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>In Progress</option>
+              <option value="Completed" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Completed</option>
+            </select>
+          </div>
         </div>
-        {!loading && (
-          <div style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--hz-border)', background: 'var(--hz-surface-raised)' }}>
-            <span className="hz-text-muted" style={{ fontSize: '0.875rem' }}>
-              Showing {filteredProjects.length} of {projects.length} projects
-            </span>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Button variant="outline" size="sm" style={{ padding: '0.25rem 0.5rem' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              </Button>
-              <Button variant="outline" size="sm" style={{ padding: '0.25rem 0.5rem' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </Button>
+      </div>
+
+      <div className="hz-container" style={{ animation: 'fadeIn 0.5s ease' }}>
+        
+        {/* Metric Cards Row */}
+        <div className="row g-4 mb-5">
+          <div className="col-12 col-md-4">
+            <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.1) 100%)', border: '1px solid rgba(99,102,241,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(99,102,241,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--hz-primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>EVALUATED</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)', display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                {completedProjectsCount.toString().padStart(2, '0')} <span style={{ fontSize: '1.25rem', color: 'var(--hz-text-muted)', fontWeight: 600 }}>/ {projects.length}</span>
+              </div>
             </div>
           </div>
-        )}
-      </Card>
+          
+          <div className="col-12 col-md-4">
+            <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(239,68,68,0.1) 100%)', border: '1px solid rgba(245,158,11,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(239,68,68,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#f59e0b', letterSpacing: '0.1em', textTransform: 'uppercase' }}>DEADLINE</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)', display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                2 Days <span style={{ fontSize: '1.25rem', color: 'var(--hz-text-muted)', fontWeight: 600 }}>remaining</span>
+              </div>
+            </div>
+          </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-        <Card padding style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <p className="hz-label" style={{ marginBottom: '0.25rem' }}>EVALUATED</p>
-            <h2 className="hz-heading-2" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-              {completedProjectsCount.toString().padStart(2, '0')} <span style={{ fontSize: '1rem', color: 'var(--hz-text-muted)', fontWeight: 400 }}>/ {projects.length}</span>
-            </h2>
+          <div className="col-12 col-md-4">
+            <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(20,184,166,0.1) 100%)', border: '1px solid rgba(16,185,129,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(16,185,129,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#10b981', letterSpacing: '0.1em', textTransform: 'uppercase' }}>SCORING AVG</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+              </div>
+              <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)' }}>{avgScoreDisplay}</div>
+            </div>
           </div>
-          <div style={{ color: 'var(--hz-primary)' }}>
-             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-          </div>
-        </Card>
+        </div>
 
-        <Card padding style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <p className="hz-label" style={{ marginBottom: '0.25rem' }}>DEADLINE</p>
-            <h2 className="hz-heading-2" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-              2 Days <span style={{ fontSize: '1rem', color: 'var(--hz-text-muted)', fontWeight: 400 }}>remaining</span>
-            </h2>
-          </div>
-          <div style={{ color: 'var(--hz-warning)' }}>
-             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          </div>
-        </Card>
+        {/* Projects Table */}
+        <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto', margin: '-2rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '900px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--hz-border)', background: 'rgba(255,255,255,0.02)' }}>
+                  <th style={{ padding: '1.5rem', fontWeight: 700, color: 'var(--hz-text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Project</th>
+                  <th style={{ padding: '1.5rem', fontWeight: 700, color: 'var(--hz-text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Team</th>
+                  <th style={{ padding: '1.5rem', fontWeight: 700, color: 'var(--hz-text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hackathon</th>
+                  <th style={{ padding: '1.5rem', fontWeight: 700, color: 'var(--hz-text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Submitted</th>
+                  <th style={{ padding: '1.5rem', fontWeight: 700, color: 'var(--hz-text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                  <th style={{ padding: '1.5rem', fontWeight: 700, color: 'var(--hz-text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '5rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '4px solid var(--hz-border)', borderTopColor: 'var(--hz-primary)', animation: 'spin 1s linear infinite', margin: '0 auto 1rem auto' }}></div>
+                      Loading assigned projects...
+                    </td>
+                  </tr>
+                ) : filteredProjects.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '6rem 2rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
+                      <div style={{ width: '64px', height: '64px', background: 'var(--hz-bg)', border: '1px dashed var(--hz-border)', color: 'var(--hz-text-secondary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '32px', height: '32px' }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                      </div>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: 'var(--hz-text)' }}>No projects found</h3>
+                      <p style={{ margin: 0 }}>Try adjusting your search or filters.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredProjects.map((p, index) => {
+                     let badgeVariant = 'neutral';
+                     let badgeColor = 'var(--hz-text)';
+                     let badgeBg = 'var(--hz-bg)';
+                     if (p.status === 'Completed') {
+                       badgeVariant = 'success';
+                       badgeColor = '#10b981';
+                       badgeBg = 'rgba(16,185,129,0.1)';
+                     }
+                     else if (p.status === 'In Progress') {
+                       badgeVariant = 'primary';
+                       badgeColor = 'var(--hz-primary)';
+                       badgeBg = 'rgba(99,102,241,0.1)';
+                     }
 
-        <Card padding style={{ background: 'var(--hz-primary)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.8)' }}>SCORING AVG</p>
-            <h2 className="hz-heading-2" style={{ color: 'white', display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-              {avgScoreDisplay}
-            </h2>
+                     return (
+                      <tr key={p.id} style={{ 
+                        borderBottom: index === filteredProjects.length - 1 ? 'none' : '1px solid var(--hz-border)', 
+                        transition: 'background 0.2s' 
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--hz-bg)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '1.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                            </div>
+                            <span style={{ fontWeight: 800, color: 'var(--hz-text)', fontSize: '1.1rem' }}>{p.title}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '1.5rem', color: 'var(--hz-text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>{p.teamName}</td>
+                        <td style={{ padding: '1.5rem', color: 'var(--hz-text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>{p.hackathon}</td>
+                        <td style={{ padding: '1.5rem', color: 'var(--hz-text-muted)', fontSize: '0.95rem' }}>{p.submittedAt}</td>
+                        <td style={{ padding: '1.5rem' }}>
+                          <span style={{ 
+                            display: 'inline-flex', alignItems: 'center', padding: '0.4rem 0.8rem', 
+                            borderRadius: '12px', fontSize: '0.85rem', fontWeight: 700, 
+                            color: badgeColor, background: badgeBg 
+                          }}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1.5rem', textAlign: 'right' }}>
+                          <Button 
+                            variant="primary"
+                            onClick={() => navigate(`/judge/evaluate/${p.id}`)}
+                            style={{ 
+                              padding: '0.6rem 1.25rem', borderRadius: '10px', fontSize: '0.9rem',
+                              background: p.status === 'Completed' ? 'var(--hz-bg)' : 'var(--hz-primary)',
+                              color: p.status === 'Completed' ? 'var(--hz-text)' : '#fff',
+                              border: p.status === 'Completed' ? '1px solid var(--hz-border)' : 'none'
+                            }}
+                          >
+                            {p.status === 'Completed' ? 'View Review' : 'Evaluate'}
+                          </Button>
+                        </td>
+                      </tr>
+                     );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
-          <div style={{ color: 'white' }}>
-             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-          </div>
-        </Card>
+          
+          {!loading && (
+            <div style={{ padding: '1.5rem 0 0', marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--hz-border)' }}>
+              <span className="hz-text-muted" style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+                Showing {filteredProjects.length} of {projects.length} projects
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Button variant="outline" size="sm" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </Button>
+                <Button variant="outline" size="sm" style={{ padding: '0.5rem 0.75rem', borderRadius: '8px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

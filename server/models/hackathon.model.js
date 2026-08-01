@@ -309,8 +309,16 @@ export const updateHackathon = async (id, updateData) => {
   }
 };
 
-export const getOrganizerStats = async (organizerId) => {
-  const [hackathons] = await pool.query(`SELECT id FROM hackathons WHERE organizerId = ?`, [organizerId]);
+export const getOrganizerStats = async (organizerId, hackathonId = null) => {
+  let query = `SELECT id FROM hackathons WHERE organizerId = ?`;
+  let params = [organizerId];
+
+  if (hackathonId) {
+    query += ` AND id = ?`;
+    params.push(hackathonId);
+  }
+
+  const [hackathons] = await pool.query(query, params);
   if (!hackathons.length) {
     return { totalTeams: 0, totalSubmissions: 0, activeJudges: 0, pendingReviews: 0, recentActivity: [] };
   }
@@ -368,12 +376,33 @@ export const getOrganizerStats = async (organizerId) => {
     // Ignore
   }
 
+  // Submissions over time (grouped by date)
+  let submissionsOverTime = [];
+  try {
+    const [timeSeriesRes] = await pool.query(`
+      SELECT DATE(created_at) as date, COUNT(id) as count
+      FROM submissions
+      WHERE hackathonId IN (${placeholders})
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `, hackathonIds);
+    
+    // Format the date string to be more readable
+    submissionsOverTime = timeSeriesRes.map(row => ({
+      date: new Date(row.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      count: row.count
+    }));
+  } catch(e) {
+    console.error('Error fetching time series:', e);
+  }
+
   return {
     totalTeams: teamsRes[0].count,
     totalSubmissions: submissionsRes[0].count,
     activeJudges: judgesCount,
     pendingReviews: reviewsCount,
-    recentActivity: recentActivity
+    recentActivity: recentActivity,
+    submissionsOverTime: submissionsOverTime
   };
 };
 

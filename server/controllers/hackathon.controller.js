@@ -428,7 +428,8 @@ export const getOrganizerStats = async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const stats = await getOrganizerStatsModel(organizerId);
+    const hackathonId = req.query.hackathonId || null;
+    const stats = await getOrganizerStatsModel(organizerId, hackathonId);
     return res.status(200).json({ data: stats });
   } catch (error) {
     console.error('[getOrganizerStats] Error:', error);

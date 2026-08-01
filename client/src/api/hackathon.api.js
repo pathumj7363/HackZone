@@ -61,9 +61,10 @@ export const updateRegistrationStatusApi = async (hackathonId, registrationId, s
   }
 };
 
-export const getOrganizerStatsApi = async () => {
+export const getOrganizerStatsApi = async (hackathonId = null) => {
   try {
-    const response = await api.get('/hackathons/organizer/stats');
+    const url = hackathonId ? `/hackathons/organizer/stats?hackathonId=${hackathonId}` : '/hackathons/organizer/stats';
+    const response = await api.get(url);
     return response.data.data;
   } catch (error) {
     console.error('Error fetching organizer stats:', error);
