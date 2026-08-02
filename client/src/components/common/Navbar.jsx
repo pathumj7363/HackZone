@@ -95,6 +95,7 @@ export default function Navbar() {
           { to: '/hackathons', label: 'Hackathons' },
           { to: '/teams', label: 'Team Hub' },
           { to: '/submissions', label: 'Submissions' },
+          { to: '/participant/scoreboard', label: 'Scoreboard' },
         ];
         break;
       case 'organizer':
@@ -104,6 +105,7 @@ export default function Navbar() {
           { to: '/organizer/submissions', label: 'Registrations & Submissions' },
           { to: '/organizer/judges', label: 'Judges' },
           { to: '/organizer/announce', label: 'Announcements' },
+          { to: '/organizer/scoreboard', label: 'Scoreboard' },
         ];
         break;
       case 'judge':

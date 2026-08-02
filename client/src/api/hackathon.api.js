@@ -76,3 +76,13 @@ export const getMyRegisteredHackathonsApi = async () => {
   const response = await api.get('/hackathons/participant/registered');
   return response.data?.data ?? response.data;
 };
+
+export const getScoreboardApi = async (hackathonId) => {
+  const response = await api.get(`/hackathons/${hackathonId}/scoreboard`);
+  return response.data?.data ?? response.data;
+};
+
+export const publishScoreboardApi = async (hackathonId) => {
+  const response = await api.put(`/hackathons/${hackathonId}/publish`);
+  return response.data;
+};

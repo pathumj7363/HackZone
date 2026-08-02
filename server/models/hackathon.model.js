@@ -53,7 +53,8 @@ import pool from '../database/db.js';
     "ALTER TABLE hackathon_registrations ADD COLUMN idea TEXT;",
     "ALTER TABLE hackathon_registrations ADD COLUMN proposalUrl VARCHAR(255);",
     "ALTER TABLE hackathon_registrations ADD COLUMN status VARCHAR(50) DEFAULT 'pending';",
-    "ALTER TABLE hackathons ADD COLUMN evaluationAreas JSON;"
+    "ALTER TABLE hackathons ADD COLUMN evaluationAreas JSON;",
+    "ALTER TABLE hackathons ADD COLUMN resultsPublished BOOLEAN DEFAULT FALSE;"
   ];
   for (let q of queries) {
     try {
@@ -442,6 +443,131 @@ export const deleteHackathonById = async (id) => {
     return result.affectedRows > 0;
   } catch (error) {
     console.error('Error deleting hackathon:', error);
+    throw error;
+  }
+};
+
+export const publishHackathonResults = async (id) => {
+  try {
+    const query = `UPDATE hackathons SET resultsPublished = TRUE WHERE id = ?`;
+    const [result] = await pool.query(query, [id]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error publishing results:', error);
+    throw error;
+  }
+};
+
+export const getHackathonScoreboard = async (hackathonId) => {
+  try {
+    // We fetch all submissions, their team name, and compute their final average score.
+    // Assuming evaluations are stored per submission in 'evaluations' table.
+    // The average score is calculated based on 'dynamicScores' or 'innovationScore'.
+    
+    // 1. Get all submissions for the hackathon
+    const [submissions] = await pool.query(`
+      SELECT s.id, s.title, COALESCE(t.name, u.name) as teamName, s.userId
+      FROM submissions s
+      LEFT JOIN teams t ON s.teamId = t.id
+      LEFT JOIN users u ON s.userId = u.id
+      WHERE s.hackathonId = ?
+    `, [hackathonId]);
+
+    // 2. Get all evaluations for the hackathon
+    const [evaluations] = await pool.query(`
+      SELECT submissionId, dynamicScores, innovationScore, technicalComplexityScore, designScore, usabilityScore
+      FROM evaluations
+      WHERE hackathonId = ?
+    `, [hackathonId]);
+
+    // Group evaluations by submissionId
+    const evalsBySub = {};
+    evaluations.forEach(ev => {
+      if (!evalsBySub[ev.submissionId]) evalsBySub[ev.submissionId] = [];
+      evalsBySub[ev.submissionId].push(ev);
+    });
+
+    // 3. Compute average score for each submission
+    const scoreboard = [];
+    let fullyEvaluatedCount = 0;
+
+    for (const sub of submissions) {
+      const subEvals = evalsBySub[sub.id] || [];
+      
+      let totalScore = 0;
+      let scoreCount = 0;
+      
+      // Calculate final score using same logic as OrganizerSubmissionPreview
+      subEvals.forEach(evalRecord => {
+        let parsedScores = [];
+        if (evalRecord.dynamicScores) {
+          try {
+            parsedScores = typeof evalRecord.dynamicScores === 'string' ? JSON.parse(evalRecord.dynamicScores) : evalRecord.dynamicScores;
+          } catch(e){}
+        } else if (evalRecord.innovationScore) {
+          parsedScores = [
+            { score: evalRecord.innovationScore },
+            { score: evalRecord.technicalComplexityScore },
+            { score: evalRecord.designScore },
+            { score: evalRecord.usabilityScore }
+          ];
+        }
+        
+        parsedScores.forEach(sc => {
+          const val = Number(sc.score);
+          if (!isNaN(val)) {
+            totalScore += val;
+            scoreCount++;
+          }
+        });
+      });
+      
+      const averageScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+      
+      if (subEvals.length > 0 && subEvals.every(ev => ev.dynamicScores != null || ev.innovationScore != null)) {
+        fullyEvaluatedCount++; // Note: this is a simple approximation. True completion depends on assigned areas.
+      }
+      
+      // We consider it "fully evaluated" if it has an average score for simplicity in this context, 
+      // but the exact KPI logic can be done on the controller.
+      
+      scoreboard.push({
+        submissionId: sub.id,
+        userId: sub.userId,
+        title: sub.title,
+        teamName: sub.teamName || 'Unknown',
+        averageScore: averageScore,
+        evaluationsCount: subEvals.length
+      });
+    }
+
+    // Sort by averageScore descending
+    scoreboard.sort((a, b) => b.averageScore - a.averageScore);
+
+    // Assign places (handling ties)
+    let currentPlace = 1;
+    let currentScore = -1;
+    let tieCount = 0;
+
+    scoreboard.forEach((item, index) => {
+      if (item.averageScore !== currentScore) {
+        currentPlace = currentPlace + tieCount;
+        currentScore = item.averageScore;
+        tieCount = 1;
+      } else {
+        tieCount++;
+      }
+      item.place = currentPlace;
+    });
+
+    return {
+      scoreboard,
+      totalProjects: submissions.length,
+      evaluatedProjects: fullyEvaluatedCount
+    };
+    
+  } catch (error) {
+    console.error('Error fetching scoreboard:', error);
     throw error;
   }
 };

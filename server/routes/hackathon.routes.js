@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { registerHackathon, getHackathons, getHackathonDetail, createHackathon, updateHackathon, getMyHackathons, getMyRegisteredHackathons, getHackathonRegistrations, updateHackathonRegistrationStatus, getOrganizerStats, deleteHackathon } from '../controllers/hackathon.controller.js';
+import { registerHackathon, getHackathons, getHackathonDetail, createHackathon, updateHackathon, getMyHackathons, getMyRegisteredHackathons, getHackathonRegistrations, updateHackathonRegistrationStatus, getOrganizerStats, deleteHackathon, getScoreboard, publishResults } from '../controllers/hackathon.controller.js';
 import { verifyToken, isOrganizer } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -27,5 +27,7 @@ router.delete('/:id', verifyToken, isOrganizer, deleteHackathon);
 router.post('/register', verifyToken, upload.single('proposal'), registerHackathon);
 router.get('/:id/registrations', verifyToken, isOrganizer, getHackathonRegistrations);
 router.put('/:id/registrations/:registrationId/status', verifyToken, isOrganizer, updateHackathonRegistrationStatus);
+router.get('/:id/scoreboard', verifyToken, getScoreboard);
+router.put('/:id/publish', verifyToken, isOrganizer, publishResults);
 
 export default router;
