@@ -10,7 +10,7 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import RoleSelect from './pages/auth/RoleSelect'
 import ParticipantDashboard from './pages/dashboard/ParticipantDashboard'
-import Profile from './pages/participant/Profile'
+import UnifiedProfile from './pages/profile/UnifiedProfile'
 import HackathonList from './pages/participant/HackathonList'
 import HackathonDetail from './pages/participant/HackathonDetail'
 import HackathonRegistration from './pages/hackathon/HackathonRegistration'
@@ -30,7 +30,6 @@ import JudgeDashboard from './pages/judge/JudgeDashboard'
 import AssignedProjects from './pages/judge/AssignedProjects'
 import EvaluateProject from './pages/judge/EvaluateProject'
 import JudgeLeaderboard from './pages/judge/JudgeLeaderboard'
-import JudgeProfile from './pages/judge/Profile'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageUsers from './pages/admin/ManageUsers'
 import NotFound from './components/common/NotFound'
@@ -56,8 +55,11 @@ export default function App() {
             <Route path="/hackathons/:id/register" element={<ProtectedRoute allowedRoles={['participant']}><HackathonRegistration /></ProtectedRoute>} />
 
             <Route element={<AppLayout />}>
+              {/* Unified Profile Route */}
+              <Route path="/profile" element={<ProtectedRoute allowedRoles={['participant', 'judge', 'organizer']}><UnifiedProfile /></ProtectedRoute>} />
+              <Route path="/profile/:id" element={<ProtectedRoute allowedRoles={['participant', 'judge', 'organizer']}><UnifiedProfile /></ProtectedRoute>} />
+
               <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><ParticipantDashboard /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute allowedRoles={['participant']}><Profile /></ProtectedRoute>} />
               <Route path="/hackathons" element={<ProtectedRoute allowedRoles={['participant']}><HackathonList /></ProtectedRoute>} />
               <Route path="/hackathons/:id" element={<ProtectedRoute allowedRoles={['participant']}><HackathonDetail /></ProtectedRoute>} />
 
@@ -80,7 +82,6 @@ export default function App() {
               <Route path="/judge/dashboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeDashboard /></ProtectedRoute>} />
               <Route path="/judge/projects" element={<ProtectedRoute allowedRoles={['judge']}><AssignedProjects /></ProtectedRoute>} />
               <Route path="/judge/evaluate/:id" element={<ProtectedRoute allowedRoles={['judge']}><EvaluateProject /></ProtectedRoute>} />
-              <Route path="/judge/profile" element={<ProtectedRoute allowedRoles={['judge']}><JudgeProfile /></ProtectedRoute>} />
               <Route path="/judge/leaderboard/:hackathonId" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
               <Route path="/judge/leaderboard" element={<ProtectedRoute allowedRoles={['judge', 'organizer']}><JudgeLeaderboard /></ProtectedRoute>} />
             </Route>

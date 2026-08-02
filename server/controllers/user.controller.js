@@ -1,4 +1,4 @@
-import { getUsersByRole, updateJudgeProfile, searchUsers } from '../models/user.model.js';
+import { getUsersByRole, updateJudgeProfile, searchUsers, updateParticipantProfile, updateOrganizerProfile, getUserById } from '../models/user.model.js';
 
 /**
  * GET /judges
@@ -114,6 +114,151 @@ export const searchUsersController = async (req, res) => {
     return res.status(200).json({ data: users });
   } catch (error) {
     console.error('[searchUsersController] Error searching users:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /profile/participant
+ * Updates the current participant's profile
+ */
+export const updateParticipantProfileController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { skills, githubUrl, linkedInUrl, bio } = req.body;
+
+    if (req.user.role !== 'participant') {
+      return res.status(403).json({ error: 'Only participants can update this profile' });
+    }
+
+    const success = await updateParticipantProfile(userId, { skills, githubUrl, linkedInUrl, bio });
+
+    if (success) {
+      return res.status(200).json({ message: 'Participant profile updated successfully' });
+    } else {
+      return res.status(400).json({ error: 'Failed to update participant profile' });
+    }
+  } catch (error) {
+    console.error('[updateParticipantProfileController] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /profile/organizer
+ * Updates the current organizer's profile
+ */
+export const updateOrganizerProfileController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { organizationName, websiteUrl, isVerified } = req.body;
+
+    if (req.user.role !== 'organizer') {
+      return res.status(403).json({ error: 'Only organizers can update this profile' });
+    }
+
+    const success = await updateOrganizerProfile(userId, { organizationName, websiteUrl, isVerified });
+
+    if (success) {
+      return res.status(200).json({ message: 'Organizer profile updated successfully' });
+    } else {
+      return res.status(400).json({ error: 'Failed to update organizer profile' });
+    }
+  } catch (error) {
+    console.error('[updateOrganizerProfileController] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /profile/me
+ * Gets the full profile for the logged in user
+ */
+export const getMyProfileController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const { password_hash, ...safeUser } = user;
+    
+    // Parse JSON fields if necessary
+    try { if (safeUser.expertiseTags && typeof safeUser.expertiseTags === 'string') safeUser.expertiseTags = JSON.parse(safeUser.expertiseTags); } catch(e){}
+    try { if (safeUser.skills && typeof safeUser.skills === 'string') safeUser.skills = JSON.parse(safeUser.skills); } catch(e){}
+
+    return res.status(200).json({ data: safeUser });
+  } catch (error) {
+    console.error('[getMyProfileController] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /profile/:id
+ * Gets public profile details for a user (no sensitive info)
+ */
+export const getPublicProfileController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await getUserById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Construct public profile
+    const publicProfile = {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      profilePicture: user.profilePicture
+    };
+    
+    // Include role-specific public fields
+    if (user.role === 'participant') {
+      publicProfile.bio = user.bio;
+      publicProfile.githubUrl = user.githubUrl;
+      publicProfile.linkedInUrl = user.linkedInUrl;
+      try { publicProfile.skills = typeof user.skills === 'string' ? JSON.parse(user.skills) : user.skills; } catch(e){}
+    } else if (user.role === 'judge') {
+      publicProfile.occupation = user.occupation;
+      publicProfile.linkedInUrl = user.linkedInUrl;
+      try { publicProfile.expertiseTags = typeof user.expertiseTags === 'string' ? JSON.parse(user.expertiseTags) : user.expertiseTags; } catch(e){}
+    } else if (user.role === 'organizer') {
+      publicProfile.organizationName = user.organizationName;
+      publicProfile.websiteUrl = user.websiteUrl;
+      publicProfile.isVerified = user.isVerified;
+    }
+    
+    return res.status(200).json({ data: publicProfile });
+  } catch (error) {
+    console.error('[getPublicProfileController] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * POST /profile/avatar
+ * Uploads a profile picture
+ */
+export const uploadProfilePictureController = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    const { updateProfilePicture } = await import('../models/user.model.js');
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    
+    const success = await updateProfilePicture(req.user.id, avatarUrl);
+    
+    if (success) {
+      return res.status(200).json({ message: 'Profile picture updated', profilePicture: avatarUrl });
+    } else {
+      return res.status(400).json({ error: 'Failed to update profile picture' });
+    }
+  } catch (error) {
+    console.error('[uploadProfilePictureController] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
