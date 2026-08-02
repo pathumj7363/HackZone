@@ -6,7 +6,8 @@ import {
   getLeaderboardData,
   assignJudgeToSubmission,
   removeJudgeFromSubmission,
-  getSubmissionsForJudge
+  getSubmissionsForJudge,
+  getSubmissionReportDetails
 } from '../models/evaluation.model.js';
 import pool from '../database/db.js';
 import crypto from 'crypto';
@@ -19,8 +20,20 @@ const updateSubmissionAverage = async (submissionId) => {
 
     let totalScore = 0;
     evals.forEach(e => {
-      // Average score per evaluation
-      const evalAvg = (e.innovationScore + e.technicalComplexityScore + e.designScore + e.usabilityScore) / 4;
+      let evalAvg = 0;
+      if (e.dynamicScores) {
+        let scoresArray = [];
+        try {
+          scoresArray = typeof e.dynamicScores === 'string' ? JSON.parse(e.dynamicScores) : e.dynamicScores;
+        } catch(err) {}
+        if (Array.isArray(scoresArray) && scoresArray.length > 0) {
+          const sum = scoresArray.reduce((acc, curr) => acc + (Number(curr.score) || 0), 0);
+          evalAvg = sum / scoresArray.length;
+        }
+      } else {
+        // Fallback for legacy static scores, scale up to 100
+        evalAvg = ((e.innovationScore + e.technicalComplexityScore + e.designScore + e.usabilityScore) / 4) * 10;
+      }
       totalScore += evalAvg;
     });
 
@@ -48,25 +61,38 @@ export const getAssignedSubmissions = async (req, res) => {
       submissionId: sub.submissionId,
       title: sub.submissionTitle,
       submissionTitle: sub.submissionTitle,
+      description: sub.description,
+      techStack: sub.techStack,
+      notes: sub.notes,
+      fileUrl: sub.fileUrl,
       githubRepo: sub.githubRepo,
       demoVideoUrl: sub.demoVideoUrl,
       teamName: sub.teamName || 'Unknown Team',
       hackathonId: sub.hackathonId,
       hackathon: sub.hackathon,
-      status: sub.innovationScore != null ? 'Completed' : 'Pending',
+      status: (sub.dynamicScores != null || sub.innovationScore != null) ? 'Completed' : 'Pending',
       innovationScore: sub.innovationScore,
       technicalComplexityScore: sub.technicalComplexityScore,
       designScore: sub.designScore,
       usabilityScore: sub.usabilityScore,
+      feedback: sub.feedback,
+      dynamicScores: (() => {
+        if (!sub.dynamicScores) return null;
+        try { return typeof sub.dynamicScores === 'string' ? JSON.parse(sub.dynamicScores) : sub.dynamicScores; } catch(e) { return null; }
+      })(),
       judgeEvaluationAreas: (() => {
         if (!sub.judgeEvaluationAreas) return [];
         try { return typeof sub.judgeEvaluationAreas === 'string' ? JSON.parse(sub.judgeEvaluationAreas) : sub.judgeEvaluationAreas; } catch(e) { return []; }
       })(),
-      evaluation: sub.innovationScore != null ? {
+      evaluation: (sub.dynamicScores != null || sub.innovationScore != null) ? {
         innovation: sub.innovationScore,
         technicalExecution: sub.technicalComplexityScore,
         marketReadiness: sub.designScore,
-        presentation: sub.usabilityScore
+        presentation: sub.usabilityScore,
+        dynamicScores: (() => {
+          if (!sub.dynamicScores) return null;
+          try { return typeof sub.dynamicScores === 'string' ? JSON.parse(sub.dynamicScores) : sub.dynamicScores; } catch(e) { return null; }
+        })()
       } : null
     }));
     
@@ -179,5 +205,19 @@ export const unassignJudge = async (req, res) => {
     }
     console.error('[unassignJudge] Error:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+export const getSubmissionReport = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    if (!submissionId) {
+      return res.status(400).json({ error: 'submissionId is required' });
+    }
+    const report = await getSubmissionReportDetails(submissionId);
+    return res.status(200).json({ data: report });
+  } catch (error) {
+    console.error('[getSubmissionReport] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };

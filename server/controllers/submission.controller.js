@@ -21,7 +21,7 @@ export const submitProject = async (req, res) => {
     }
 
     const id = crypto.randomUUID();
-    const submission = await createSubmission(id, userId, finalTeamId, hackathonId, title, finalDescription, finalGithubRepo, finalDemoVideoUrl, fileUrl);
+    const submission = await createSubmission(id, userId, finalTeamId, hackathonId, title, finalDescription, techStack || null, finalGithubRepo, finalDemoVideoUrl, fileUrl, notes || null);
 
     return res.status(201).json({ message: 'Project submitted successfully', data: submission });
   } catch (error) {

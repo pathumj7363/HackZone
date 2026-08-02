@@ -22,6 +22,28 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.get('/api/files/preview/:filename', (req, res) => {
+  const filePath = path.join(__dirname, 'uploads', req.params.filename);
+  // Force browser to display inline as PDF
+  res.sendFile(filePath, { 
+    headers: { 
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline; filename="preview.pdf"'
+    } 
+  }, (err) => {
+    if (err) res.status(404).send("File not found");
+  });
+});
+
+app.get('/api/files/download/:filename', (req, res) => {
+  const filePath = path.join(__dirname, 'uploads', req.params.filename);
+  // Force browser to download as PDF if no extension
+  const fileName = req.params.filename.includes('.') ? req.params.filename : 'document.pdf';
+  res.download(filePath, fileName, (err) => {
+    if (err) res.status(404).send("File not found");
+  });
+});
+
 app.get("/", (req, res) => {
   res.send("Backend server is running");
 });

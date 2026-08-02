@@ -5,7 +5,8 @@ import {
   editEvaluation,
   getLeaderboard,
   assignJudge,
-  unassignJudge
+  unassignJudge,
+  getSubmissionReport
 } from '../controllers/evaluation.controller.js';
 import { verifyToken, isJudge, isJudgeOrOrganizer, isOrganizer } from '../middleware/auth.middleware.js';
 
@@ -22,5 +23,6 @@ router.get('/leaderboard/:hackathonId', isJudgeOrOrganizer, getLeaderboard);
 // Organizer-only: assign and unassign judges to submissions
 router.post('/assign', isOrganizer, assignJudge);
 router.delete('/assign', isOrganizer, unassignJudge);
+router.get('/submission/:submissionId/report', isOrganizer, getSubmissionReport);
 
 export default router;
