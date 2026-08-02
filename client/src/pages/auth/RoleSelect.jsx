@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
+import { ThemeContext } from '../../context/ThemeContext';
 
 const roles = [
   {
@@ -48,6 +49,7 @@ const roles = [
 export default function RoleSelect() {
   const [hoveredRole, setHoveredRole] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
+  const { isDark } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -61,6 +63,16 @@ export default function RoleSelect() {
     }, 400);
   };
 
+  const bg = isDark ? '#020202' : '#f1f5f9';
+  const textMain = isDark ? '#ffffff' : '#0f172a';
+  const textSub = isDark ? '#94a3b8' : '#334155';
+  const gridLine = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.07)';
+  const gridMask = 'radial-gradient(circle at center, black 20%, transparent 80%)';
+  
+  const backBtnBg = isDark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const backBtnBorder = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  const backBtnHovBg = isDark ? 'rgba(255,255,255,0.08)' : '#f1f5f9';
+
   return (
     <div style={{
       display: 'flex',
@@ -68,11 +80,12 @@ export default function RoleSelect() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      background: '#020202',
+      background: bg,
       fontFamily: 'Inter, sans-serif',
       position: 'relative',
       overflow: 'hidden',
-      padding: '2rem 1rem'
+      padding: '2rem 1rem',
+      transition: 'background 0.3s ease'
     }}>
       
       {/* ── Global Styles ── */}
@@ -83,11 +96,11 @@ export default function RoleSelect() {
           position: absolute;
           inset: 0;
           background-image: 
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            linear-gradient(to right, ${gridLine} 1px, transparent 1px),
+            linear-gradient(to bottom, ${gridLine} 1px, transparent 1px);
           background-size: 50px 50px;
-          mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
-          -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+          mask-image: ${gridMask};
+          -webkit-mask-image: ${gridMask};
           z-index: 0;
           pointer-events: none;
         }
@@ -112,18 +125,19 @@ export default function RoleSelect() {
           flex-direction: column;
           padding: 2.5rem 1.5rem;
           border-radius: 16px;
-          background: rgba(255, 255, 255, 0.02);
+          background: ${isDark ? 'rgba(255, 255, 255, 0.02)' : '#ffffff'};
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid ${isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.1)'};
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
           width: 100%;
+          box-shadow: ${isDark ? 'none' : '0 10px 25px -5px rgba(0,0,0,0.08)'};
         }
 
         .role-card:hover {
-          background: rgba(255, 255, 255, 0.04);
+          background: ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#f8fafc'};
           transform: translateY(-4px);
         }
 
@@ -155,12 +169,13 @@ export default function RoleSelect() {
           onClick={() => navigate(-1)} 
           style={{ 
             position: 'absolute', left: 0, 
-            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', 
-            color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s', 
-            padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center'
+            background: backBtnBg, border: `1px solid ${backBtnBorder}`, 
+            color: textSub, cursor: 'pointer', transition: 'all 0.2s', 
+            padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center',
+            boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.05)'
           }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }} 
-          onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+          onMouseEnter={e => { e.currentTarget.style.color = textMain; e.currentTarget.style.background = backBtnHovBg }} 
+          onMouseLeave={e => { e.currentTarget.style.color = textSub; e.currentTarget.style.background = backBtnBg }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
@@ -171,10 +186,10 @@ export default function RoleSelect() {
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: '3.5rem', position: 'relative', zIndex: 1, maxWidth: '500px' }}>
-        <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2.5rem', fontWeight: 700, color: '#f8fafc', marginBottom: '1rem' }}>
+        <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2.5rem', fontWeight: 700, color: textMain, marginBottom: '1rem', transition: 'color 0.3s' }}>
           Select Your Path
         </h2>
-        <p style={{ fontSize: '1.1rem', color: '#94a3b8', lineHeight: '1.6' }}>
+        <p style={{ fontSize: '1.1rem', color: textSub, lineHeight: '1.6', transition: 'color 0.3s' }}>
           Choose how you want to experience HackZone. Your journey begins here.
         </p>
       </div>
@@ -202,8 +217,8 @@ export default function RoleSelect() {
               onMouseEnter={() => setHoveredRole(role.id)}
               onMouseLeave={() => setHoveredRole(null)}
               style={{
-                borderColor: isSelected ? role.color : isHovered ? `rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.4)` : 'rgba(255, 255, 255, 0.05)',
-                boxShadow: isSelected ? `0 0 20px rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.3)` : 'none',
+                borderColor: isSelected ? role.color : isHovered ? `rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.4)` : (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.1)'),
+                boxShadow: isSelected ? `0 0 20px rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.3)` : (isDark ? 'none' : '0 15px 30px -5px rgba(0,0,0,0.08)'),
                 '--pulse-color': `rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.6)`,
                 animation: isSelected ? 'selectPulse 0.4s ease-out' : 'none'
               }}
@@ -229,7 +244,7 @@ export default function RoleSelect() {
                 fontFamily: 'Chakra Petch',
                 fontSize: '1.4rem',
                 fontWeight: 700,
-                color: '#fff',
+                color: textMain,
                 transition: 'color 0.3s ease'
               }}>
                 {role.label}
@@ -238,8 +253,9 @@ export default function RoleSelect() {
               <p style={{
                 margin: 0,
                 fontSize: '0.95rem',
-                color: '#94a3b8',
+                color: textSub,
                 lineHeight: '1.6',
+                transition: 'color 0.3s ease'
               }}>
                 {role.description}
               </p>
@@ -261,7 +277,7 @@ export default function RoleSelect() {
         })}
       </div>
 
-      <p style={{ fontSize: '1rem', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
+      <p style={{ fontSize: '1rem', color: textSub, position: 'relative', zIndex: 1, transition: 'color 0.3s' }}>
         Already have an account?{' '}
         <Link to="/login" style={{ color: '#22c55e', fontWeight: 600, textDecoration: 'none' }}>
           Sign in

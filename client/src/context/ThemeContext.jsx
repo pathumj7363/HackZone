@@ -14,10 +14,10 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('hz_theme', isDark ? 'dark' : 'light');
     if (isDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
-      document.body.style.backgroundColor = '#0a0a0a';
+      document.body.style.backgroundColor = '#020202';
     } else {
       document.documentElement.removeAttribute('data-theme');
-      document.body.style.backgroundColor = '#f8fafc'; // Default light surface background
+      document.body.style.backgroundColor = '#e2e8f0';
     }
   }, [isDark]);
 

@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import FeatureSection from '../components/home/InteractiveFeatures';
+import { ThemeContext } from '../context/ThemeContext';
 
 export default function Home() {
+  const { isDark } = useContext(ThemeContext);
+
   /* Typing effect for the hero section */
   const TYPING_WORDS = ['Hack', 'Build', 'Innovate', 'Ship'];
   const [wIdx, setWIdx] = useState(0);
@@ -53,8 +56,24 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
+  // Theme Colors
+  const bg = isDark ? '#020202' : '#f1f5f9';
+  const textMain = isDark ? '#ffffff' : '#0f172a';
+  const textSub = isDark ? '#94a3b8' : '#334155';
+  const gridLine = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.07)';
+  const gridMask = isDark ? 'radial-gradient(circle at center, black, transparent 80%)' : 'radial-gradient(circle at center, black, transparent 80%)';
+  const glowStart = isDark ? 'rgba(6,182,212,0.15)' : 'rgba(6,182,212,0.18)';
+  const glowMid = isDark ? 'rgba(34,197,94,0.05)' : 'rgba(34,197,94,0.1)';
+  const statBg = isDark ? 'rgba(255,255,255,0.02)' : '#ffffff';
+  const statBorder = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)';
+  const statBorderHov = isDark ? 'rgba(6,182,212,0.3)' : 'rgba(6,182,212,0.5)';
+  const ctaBg = isDark ? 'rgba(255,255,255,0.02)' : '#ffffff';
+  const btnSecBg = isDark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const btnSecBorder = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)';
+  const btnSecHovBg = isDark ? 'rgba(255,255,255,0.08)' : '#f8fafc';
+
   return (
-    <div style={{ background: '#020202', color: '#f8fafc', position: 'relative', overflow: 'hidden', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ background: bg, color: textMain, position: 'relative', overflow: 'hidden', minHeight: '100vh', fontFamily: 'Inter, sans-serif', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
       {/* ── Global Styles & Animations ── */}
       <style>{`
@@ -64,13 +83,14 @@ export default function Home() {
           position: absolute;
           inset: 0;
           background-image: 
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            linear-gradient(to right, ${gridLine} 1px, transparent 1px),
+            linear-gradient(to bottom, ${gridLine} 1px, transparent 1px);
           background-size: 60px 60px;
-          mask-image: radial-gradient(circle at center, black, transparent 80%);
-          -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
+          mask-image: ${gridMask};
+          -webkit-mask-image: ${gridMask};
           z-index: 0;
           pointer-events: none;
+          transition: background-image 0.3s ease;
         }
         
         .hz-home-glow {
@@ -80,11 +100,12 @@ export default function Home() {
           transform: translateX(-50%);
           width: 800px;
           height: 800px;
-          background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, rgba(34,197,94,0.05) 40%, transparent 70%);
+          background: radial-gradient(circle, ${glowStart} 0%, ${glowMid} 40%, transparent 70%);
           filter: blur(60px);
           z-index: 0;
           pointer-events: none;
           animation: pulseGlow 8s ease-in-out infinite alternate;
+          transition: background 0.3s ease;
         }
 
         @keyframes pulseGlow {
@@ -104,15 +125,17 @@ export default function Home() {
           line-height: 1.1;
           letter-spacing: -0.04em;
           margin-bottom: 1.5rem;
-          color: #ffffff;
+          color: ${textMain};
+          transition: color 0.3s ease;
         }
 
         .hz-hero-subtitle {
           font-size: clamp(1rem, 2vw, 1.25rem);
-          color: #94a3b8;
+          color: ${textSub};
           max-width: 650px;
           margin: 0 auto 3rem;
           line-height: 1.6;
+          transition: color 0.3s ease;
         }
 
         .hz-btn-primary {
@@ -148,9 +171,9 @@ export default function Home() {
         }
 
         .hz-btn-secondary {
-          background: rgba(255,255,255,0.03);
-          color: #f8fafc;
-          border: 1px solid rgba(255,255,255,0.1);
+          background: ${btnSecBg};
+          color: ${textMain};
+          border: 1px solid ${btnSecBorder};
           padding: 0.875rem 2.5rem;
           border-radius: 8px;
           font-size: 1.05rem;
@@ -158,27 +181,28 @@ export default function Home() {
           cursor: pointer;
           transition: all 0.3s ease;
           backdrop-filter: blur(10px);
+          box-shadow: ${isDark ? 'none' : '0 4px 6px -1px rgba(0, 0, 0, 0.05)'};
         }
         
         .hz-btn-secondary:hover {
-          background: rgba(255,255,255,0.08);
-          border-color: rgba(255,255,255,0.25);
+          background: ${btnSecHovBg};
           transform: translateY(-2px);
         }
 
         .hz-stat-card {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05);
+          background: ${statBg};
+          border: 1px solid ${statBorder};
           border-radius: 12px;
           padding: 1.5rem 2rem;
           min-width: 180px;
           backdrop-filter: blur(10px);
           transition: all 0.3s ease;
+          box-shadow: ${isDark ? 'none' : '0 10px 25px -5px rgba(0, 0, 0, 0.08)'};
         }
         .hz-stat-card:hover {
-          border-color: rgba(6,182,212,0.3);
-          background: rgba(255,255,255,0.04);
+          border-color: ${statBorderHov};
           transform: translateY(-4px);
+          box-shadow: ${isDark ? 'none' : '0 25px 30px -5px rgba(6, 182, 212, 0.15)'};
         }
       `}</style>
 
@@ -193,15 +217,16 @@ export default function Home() {
         <div style={{ animation: 'hz-fade-up 0.8s ease-out both' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            background: 'rgba(6,182,212,0.1)',
-            border: '1px solid rgba(6,182,212,0.3)',
-            color: '#22d3ee',
+            background: isDark ? 'rgba(6,182,212,0.1)' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(6,182,212,0.3)' : 'rgba(6,182,212,0.2)'}`,
+            color: isDark ? '#22d3ee' : '#0891b2',
             padding: '0.4rem 1.25rem',
             borderRadius: '9999px',
             fontSize: '0.85rem', fontWeight: 600,
             marginBottom: '2rem',
             letterSpacing: '0.05em',
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
+            boxShadow: isDark ? 'none' : '0 4px 6px -1px rgba(6, 182, 212, 0.1)'
           }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e' }}></span>
             HackZone 2.0 is Live
@@ -243,44 +268,45 @@ export default function Home() {
           marginTop: '5rem', animation: 'hz-fade-up 0.8s ease-out 0.45s both' 
         }}>
           <div className="hz-stat-card">
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '0.25rem' }}>{devs.toLocaleString()}+</div>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Hackers</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: textMain, marginBottom: '0.25rem' }}>{devs.toLocaleString()}+</div>
+            <div style={{ fontSize: '0.9rem', color: textSub, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Hackers</div>
           </div>
           <div className="hz-stat-card">
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '0.25rem' }}>${prizes.toLocaleString()}+</div>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>In Prizes Won</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: textMain, marginBottom: '0.25rem' }}>${prizes.toLocaleString()}+</div>
+            <div style={{ fontSize: '0.9rem', color: textSub, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>In Prizes Won</div>
           </div>
           <div className="hz-stat-card">
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '0.25rem' }}>{hacks}+</div>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live Events</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: textMain, marginBottom: '0.25rem' }}>{hacks}+</div>
+            <div style={{ fontSize: '0.9rem', color: textSub, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live Events</div>
           </div>
         </div>
       </section>
 
       {/* ── Interactive Features ── */}
       <section style={{ position: 'relative', zIndex: 10, padding: '4rem 0' }}>
-        <FeatureSection dark />
+        <FeatureSection dark={isDark} />
       </section>
 
       {/* ── Bottom CTA ── */}
       <section style={{ position: 'relative', zIndex: 10, padding: '6rem 1.5rem', textAlign: 'center' }}>
         <div style={{
           maxWidth: '800px', margin: '0 auto',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.05)',
+          background: ctaBg,
+          border: `1px solid ${statBorder}`,
           borderRadius: '24px',
           padding: '4rem 2rem',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxShadow: isDark ? 'none' : '0 25px 50px -12px rgba(0,0,0,0.05)'
         }}>
           {/* Subtle Corner Glows inside CTA */}
           <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '200px', height: '200px', background: 'rgba(6,182,212,0.15)', filter: 'blur(50px)', borderRadius: '50%' }}></div>
           <div style={{ position: 'absolute', bottom: '-50px', right: '-50px', width: '200px', height: '200px', background: 'rgba(34,197,94,0.15)', filter: 'blur(50px)', borderRadius: '50%' }}></div>
           
-          <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2.5rem', fontWeight: 700, color: '#fff', marginBottom: '1rem', position: 'relative', zIndex: 1 }}>
+          <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2.5rem', fontWeight: 700, color: textMain, marginBottom: '1rem', position: 'relative', zIndex: 1, transition: 'color 0.3s ease' }}>
             Ready to shape the future?
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: '1.1rem', marginBottom: '2.5rem', maxWidth: '500px', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
+          <p style={{ color: textSub, fontSize: '1.1rem', marginBottom: '2.5rem', maxWidth: '500px', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1, transition: 'color 0.3s ease' }}>
             Join the most vibrant community of builders, designers, and creators on the internet.
           </p>
           <Link to="/register/role-select" style={{ textDecoration: 'none', position: 'relative', zIndex: 1 }}>

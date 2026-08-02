@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { registerApi } from '../../api/auth.api';
 import Input from '../../components/ui/Input';
 import Logo from '../../components/common/Logo';
+import { ThemeContext } from '../../context/ThemeContext';
 
 const roleMeta = {
   participant: {
@@ -28,6 +29,7 @@ export default function Register() {
   const role = searchParams.get('role') || '';
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { isDark } = useContext(ThemeContext);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -109,6 +111,28 @@ export default function Register() {
     }
   };
 
+  const bg = isDark ? '#020202' : '#f1f5f9';
+  const textMain = isDark ? '#ffffff' : '#0f172a';
+  const textSub = isDark ? '#94a3b8' : '#334155';
+  const gridLine = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.07)';
+  const gridMask = 'radial-gradient(circle at center, black 20%, transparent 80%)';
+  const containerBg = isDark ? 'rgba(255, 255, 255, 0.02)' : '#ffffff';
+  const containerBorder = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.1)';
+  const containerShadow = isDark ? '0 25px 50px -12px rgba(0,0,0,0.5)' : '0 25px 50px -12px rgba(0,0,0,0.15)';
+  
+  const inputBg = isDark ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc';
+  const inputBorder = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.15)';
+  const inputFocusBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
+
+  const backBtnBg = isDark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const backBtnBorder = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  const backBtnHovBg = isDark ? 'rgba(255,255,255,0.08)' : '#f1f5f9';
+  
+  const oauthBtnBg = isDark ? 'rgba(255, 255, 255, 0.03)' : '#ffffff';
+  const oauthBtnBorder = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.15)';
+  const oauthBtnHovBg = isDark ? 'rgba(255, 255, 255, 0.08)' : '#f8fafc';
+  const oauthBtnShadow = isDark ? '0 4px 14px rgba(0,0,0,0.2)' : '0 4px 14px rgba(0,0,0,0.05)';
+
   return (
     <>
       <style>{`
@@ -118,11 +142,11 @@ export default function Register() {
           position: absolute;
           inset: 0;
           background-image: 
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            linear-gradient(to right, ${gridLine} 1px, transparent 1px),
+            linear-gradient(to bottom, ${gridLine} 1px, transparent 1px);
           background-size: 50px 50px;
-          mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
-          -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+          mask-image: ${gridMask};
+          -webkit-mask-image: ${gridMask};
           z-index: 0;
           pointer-events: none;
         }
@@ -133,10 +157,11 @@ export default function Register() {
           align-items: center;
           padding: 2rem 1rem;
           min-height: 100vh;
-          background: #020202;
+          background: ${bg};
           font-family: 'Inter', sans-serif;
           position: relative;
           overflow: hidden;
+          transition: background 0.3s ease;
         }
         .hz-register-container {
           width: 100%;
@@ -144,13 +169,14 @@ export default function Register() {
           position: relative;
           z-index: 1;
           margin-top: 2rem;
-          background: rgba(255, 255, 255, 0.02);
+          background: ${containerBg};
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid ${containerBorder};
           border-radius: 24px;
           padding: 3rem 4rem;
-          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+          box-shadow: ${containerShadow};
+          transition: all 0.3s ease;
         }
         .hz-split-layout {
           display: flex;
@@ -164,7 +190,7 @@ export default function Register() {
         .hz-divider {
           display: flex;
           align-items: center;
-          color: #64748b;
+          color: ${textSub};
           font-size: 0.85rem;
           font-weight: 700;
           text-transform: uppercase;
@@ -176,7 +202,7 @@ export default function Register() {
           content: "";
           flex: 1;
           height: 1px;
-          background: rgba(255, 255, 255, 0.1);
+          background: ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.1)'};
         }
         .hz-divider::before { margin-right: 1rem; }
         .hz-divider::after { margin-left: 1rem; }
@@ -198,7 +224,7 @@ export default function Register() {
           .hz-divider::after {
             width: 1px;
             height: auto;
-            background: rgba(255, 255, 255, 0.1);
+            background: ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.1)'};
             margin: 0;
           }
           .hz-divider::before { margin-bottom: 1.5rem; }
@@ -218,15 +244,16 @@ export default function Register() {
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #f8fafc;
+          background: ${oauthBtnBg};
+          border: 1px solid ${oauthBtnBorder};
+          color: ${textMain};
+          box-shadow: ${isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.02)'};
         }
         .hz-oauth-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.2);
-          box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+          background: ${oauthBtnHovBg};
+          border-color: ${isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0,0,0,0.2)'};
+          box-shadow: ${oauthBtnShadow};
         }
         .hz-oauth-btn:disabled {
           opacity: 0.7;
@@ -242,22 +269,22 @@ export default function Register() {
         .hz-input-label {
           font-size: 0.85rem;
           font-weight: 600;
-          color: #94a3b8;
+          color: ${textSub};
         }
         .hz-modern-input {
           width: 100%;
           padding: 0.85rem 1rem;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: ${inputBg};
+          border: 1px solid ${inputBorder};
           border-radius: 8px;
-          color: #f8fafc;
+          color: ${textMain};
           font-family: 'Inter', sans-serif;
           font-size: 1rem;
           transition: all 0.2s ease;
         }
         .hz-modern-input:focus {
           outline: none;
-          background: rgba(255, 255, 255, 0.06);
+          background: ${inputFocusBg};
           border-color: ${meta.color};
           box-shadow: 0 0 0 3px rgba(${parseInt(meta.color.slice(1,3),16)},${parseInt(meta.color.slice(3,5),16)},${parseInt(meta.color.slice(5,7),16)}, 0.2);
         }
@@ -296,8 +323,8 @@ export default function Register() {
           <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
             <button 
               onClick={() => navigate(-1)} 
-              style={{ position: 'absolute', left: 0, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s', padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', zIndex: 10 }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+              style={{ position: 'absolute', left: 0, background: backBtnBg, border: `1px solid ${backBtnBorder}`, color: textSub, cursor: 'pointer', transition: 'all 0.2s', padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', zIndex: 10, boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.05)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = textMain; e.currentTarget.style.background = backBtnHovBg }} onMouseLeave={e => { e.currentTarget.style.color = textSub; e.currentTarget.style.background = backBtnBg }}
               title="Go back"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -313,16 +340,17 @@ export default function Register() {
             gap: '0.75rem',
             marginTop: '1.5rem',
             padding: '0.5rem 1.25rem',
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: isDark ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
             borderRadius: '50px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.1)'}`,
             backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)'
+            WebkitBackdropFilter: 'blur(10px)',
+            boxShadow: isDark ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.05)'
           }}>
-            <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Registering as</span>
+            <span style={{ fontSize: '0.85rem', color: textSub, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Registering as</span>
             <span style={{ fontSize: '0.9rem', fontWeight: '800', color: meta.color }}>{meta.label}</span>
-            <div style={{ width: '1px', height: '16px', background: 'rgba(255, 255, 255, 0.2)', margin: '0 0.25rem' }}></div>
-            <Link to="/register/role-select" style={{ fontSize: '0.85rem', color: '#fff', fontWeight: '600', textDecoration: 'none' }}>Change</Link>
+            <div style={{ width: '1px', height: '16px', background: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0,0,0,0.1)', margin: '0 0.25rem' }}></div>
+            <Link to="/register/role-select" style={{ fontSize: '0.85rem', color: textMain, fontWeight: '600', textDecoration: 'none' }}>Change</Link>
           </div>
         </div>
 
@@ -330,7 +358,7 @@ export default function Register() {
           <div className="hz-split-layout">
             {/* Left Side: Traditional Form */}
             <div className="hz-col-left">
-              <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2rem', fontWeight: 700, color: '#fff', marginBottom: '1.5rem' }}>Create Account</h2>
+              <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2rem', fontWeight: 700, color: textMain, marginBottom: '1.5rem', transition: 'color 0.3s' }}>Create Account</h2>
               
               {error && <div style={{ padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem', fontWeight: 500 }}>{error}</div>}
 
@@ -405,7 +433,7 @@ export default function Register() {
           </div>
 
           <div style={{ marginTop: '3.5rem', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.95rem', marginBottom: 0, color: '#94a3b8' }}>
+            <p style={{ fontSize: '0.95rem', marginBottom: 0, color: textSub }}>
               Already have an account? <Link to="/login" style={{ color: '#06b6d4', fontWeight: '600', textDecoration: 'none' }}>Log in here</Link>
             </p>
           </div>
