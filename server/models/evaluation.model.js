@@ -1,5 +1,22 @@
 import pool from '../database/db.js';
 
+// Auto-migrate tables
+(async () => {
+  try {
+    try { await pool.query(`ALTER TABLE evaluations ADD COLUMN dynamicScores JSON NULL`); } catch (e) {
+      if (e.code !== 'ER_DUP_FIELDNAME') console.error('Migration dynamicScores error:', e);
+    }
+    try {
+      await pool.query('UPDATE evaluations SET innovationScore = innovationScore * 10, technicalComplexityScore = technicalComplexityScore * 10, designScore = designScore * 10, usabilityScore = usabilityScore * 10 WHERE innovationScore <= 10 AND innovationScore > 0');
+      await pool.query('UPDATE submissions SET average_score = average_score * 10 WHERE average_score <= 10 AND average_score > 0');
+    } catch(e) {
+      console.error('Migration scores error:', e);
+    }
+  } catch (err) {
+    console.error("Error altering evaluations table:", err);
+  }
+})();
+
 /**
  * Custom error thrown when a judge is assigned to a submission that already
  * has an assignment for that judge. Callers can use `instanceof` to detect
@@ -25,19 +42,27 @@ export class DuplicateAssignmentError extends Error {
  * @returns {Promise<Object>} The created evaluation
  */
 export const createEvaluation = async (id, submissionId, judgeId, hackathonId, scores) => {
-  const { innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback } = scores;
+  const { innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback, dynamicScores } = scores;
 
   const query = `
     INSERT INTO evaluations (
       id, submissionId, judgeId, hackathonId, 
-      innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback
+      innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback, dynamicScores
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      innovationScore = VALUES(innovationScore),
+      technicalComplexityScore = VALUES(technicalComplexityScore),
+      designScore = VALUES(designScore),
+      usabilityScore = VALUES(usabilityScore),
+      feedback = VALUES(feedback),
+      dynamicScores = VALUES(dynamicScores)
   `;
 
   await pool.query(query, [
     id, submissionId, judgeId, hackathonId,
-    innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback
+    innovationScore || null, technicalComplexityScore || null, designScore || null, usabilityScore || null, feedback || null,
+    dynamicScores ? JSON.stringify(dynamicScores) : null
   ]);
 
   return { id, submissionId, judgeId, hackathonId, ...scores };
@@ -194,6 +219,7 @@ export const removeJudgeFromSubmission = async (judgeId, submissionId) => {
     'technicalComplexityScore',
     'designScore',
     'usabilityScore',
+    'dynamicScores'
   ];
   const filledScores = SCORE_COLUMNS.filter(col => row[col] !== null);
   if (filledScores.length > 0) {
@@ -254,6 +280,10 @@ export const getSubmissionsForJudge = async (judgeId) => {
       SELECT 
         s.id as submissionId, 
         s.title as submissionTitle, 
+        s.description,
+        s.techStack,
+        s.notes,
+        s.fileUrl,
         s.githubRepo, 
         s.demoVideoUrl, 
         s.hackathonId,
@@ -264,6 +294,8 @@ export const getSubmissionsForJudge = async (judgeId) => {
         e.technicalComplexityScore,
         e.designScore,
         e.usabilityScore,
+        e.dynamicScores,
+        e.feedback,
         i.evaluationAreas as judgeEvaluationAreas
       FROM submissions s
       JOIN hackathons h ON s.hackathonId = h.id
@@ -290,16 +322,18 @@ export const getSubmissionsForJudge = async (judgeId) => {
  * @returns {Promise<boolean>} True if updated
  */
 export const updateEvaluation = async (id, scores) => {
-  const { innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback } = scores;
+  const { innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback, dynamicScores } = scores;
 
   const query = `
     UPDATE evaluations 
-    SET innovationScore = ?, technicalComplexityScore = ?, designScore = ?, usabilityScore = ?, feedback = ?
+    SET innovationScore = ?, technicalComplexityScore = ?, designScore = ?, usabilityScore = ?, feedback = ?, dynamicScores = ?
     WHERE id = ?
   `;
 
   const [result] = await pool.query(query, [
-    innovationScore, technicalComplexityScore, designScore, usabilityScore, feedback, id
+    innovationScore || null, technicalComplexityScore || null, designScore || null, usabilityScore || null, feedback || null,
+    dynamicScores ? JSON.stringify(dynamicScores) : null,
+    id
   ]);
 
   return result.affectedRows > 0;
@@ -329,4 +363,15 @@ export const getLeaderboardData = async (hackathonId, judgeId) => {
     }
     throw err;
   }
+};
+
+export const getSubmissionReportDetails = async (submissionId) => {
+  const query = `
+    SELECT e.*, u.name as judgeName, u.email as judgeEmail 
+    FROM evaluations e 
+    LEFT JOIN users u ON e.judgeId = u.id 
+    WHERE e.submissionId = ?
+  `;
+  const [rows] = await pool.query(query, [submissionId]);
+  return rows;
 };

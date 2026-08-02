@@ -109,7 +109,7 @@ export const getSubmissionsWithAssignments = async (hackathonId) => {
       SELECT 
         s.id, s.title, s.description, s.techStack, s.notes, s.githubRepo, s.demoVideoUrl, s.fileUrl, s.created_at, s.teamId, s.userId,
         t.name as teamName, submitter.name as participantName,
-        e.id as evaluationId, e.judgeId,
+        e.id as evaluationId, e.judgeId, e.innovationScore, e.dynamicScores,
         u.name as judgeName, u.email as judgeEmail, u.occupation as judgeRole, u.expertiseTags as judgeTags
       FROM submissions s
       LEFT JOIN teams t ON s.teamId = t.id
@@ -164,6 +164,7 @@ export const getSubmissionsWithAssignments = async (hackathonId) => {
       try { tags = typeof row.judgeTags === 'string' ? JSON.parse(row.judgeTags) : row.judgeTags || []; } catch (e) { }
 
       const initials = row.judgeName ? row.judgeName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
+      const hasEvaluated = (row.innovationScore !== null || row.dynamicScores !== null);
 
       submissionsMap.get(row.id).assigned.push({
         id: row.judgeId,
@@ -171,7 +172,8 @@ export const getSubmissionsWithAssignments = async (hackathonId) => {
         email: row.judgeEmail,
         role: row.judgeRole,
         tags: tags,
-        initials: initials
+        initials: initials,
+        hasEvaluated: hasEvaluated
       });
     }
   }
