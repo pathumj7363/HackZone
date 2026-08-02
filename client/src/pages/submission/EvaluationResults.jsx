@@ -20,16 +20,16 @@ export default function EvaluationResults() {
     );
   }
 
-  const score = 8.4;
+  const score = 84.0;
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 10) * circumference;
+  const offset = circumference - (score / 100) * circumference;
 
   const criteria = [
-    { label: 'Innovation', score: 9.0 },
-    { label: 'Technical Execution', score: 8.0 },
-    { label: 'Design & UX', score: 8.5 },
-    { label: 'Presentation', score: 8.0 },
+    { label: 'Innovation', score: 90.0 },
+    { label: 'Technical Execution', score: 80.0 },
+    { label: 'Design & UX', score: 85.0 },
+    { label: 'Presentation', score: 80.0 },
   ];
 
   const feedback = [
@@ -82,7 +82,7 @@ export default function EvaluationResults() {
                 {score}
               </span>
               <span style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--hz-text-muted)', marginTop: '4px' }}>
-                out of 10
+                out of 100
               </span>
             </div>
           </div>
@@ -126,12 +126,12 @@ export default function EvaluationResults() {
               <div key={c.label} style={{ marginBottom: idx === criteria.length - 1 ? 0 : '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
                   <span style={{ color: 'var(--hz-text-secondary)', fontWeight: '500' }}>{c.label}</span>
-                  <span style={{ fontWeight: '700', color: 'var(--hz-text)' }}>{c.score.toFixed(1)}/10</span>
+                  <span style={{ fontWeight: '700', color: 'var(--hz-text)' }}>{c.score.toFixed(1)}/100</span>
                 </div>
                 <div style={{ width: '100%', height: '8px', background: 'var(--hz-surface)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div 
                     style={{ 
-                      width: `${(c.score/10)*100}%`, 
+                      width: `${(c.score/100)*100}%`, 
                       height: '100%', 
                       background: 'var(--hz-success)', 
                       borderRadius: '4px',

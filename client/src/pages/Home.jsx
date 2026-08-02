@@ -7,7 +7,7 @@ import FeatureSection from '../components/home/InteractiveFeatures';
 ───────────────────────────────────────────── */
 const TYPING_WORDS = [
   'Hack', 'Develop', 'Organizers', 'Build', 'Innovate'];
-const BG = '#07091a';
+const BG = '#0a0a0a';
 
 /* ─────────────────────────────────────────────
    SVG Icons for Floating Cards

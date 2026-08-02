@@ -241,7 +241,7 @@ export default function Register() {
         }
       `}</style>
 
-      <div className="hz-register-wrapper" style={{ background: '#0f172a', position: 'relative', overflow: 'hidden' }}>
+      <div className="hz-register-wrapper" style={{ background: 'var(--hz-bg)', position: 'relative', overflow: 'hidden' }}>
         {/* Ambient Glow */}
         <div style={{ position: 'absolute', top: '5%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 

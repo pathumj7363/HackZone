@@ -4,7 +4,6 @@ import { ToastContainer } from 'react-toastify'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute from './components/common/ProtectedRoute'
-import GlobalBackground from './components/common/GlobalBackground'
 
 import Home from './pages/Home'
 import Login from './pages/auth/Login'
@@ -22,6 +21,7 @@ import EvaluationResults from './pages/submission/EvaluationResults'
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard'
 import ManageHackathon from './pages/organizer/ManageHackathon'
 import ManageSubmissions from './pages/organizer/ManageSubmissions'
+import OrganizerSubmissionPreview from './pages/organizer/OrganizerSubmissionPreview'
 import AssignJudges from './pages/organizer/AssignJudges'
 import Announcements from './pages/organizer/Announcements'
 import JudgeDashboard from './pages/judge/JudgeDashboard'
@@ -40,7 +40,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <GlobalBackground />
         <AuthProvider>
           <ToastContainer position="top-right" autoClose={3000} />
           <Routes>
@@ -69,6 +68,7 @@ export default function App() {
               <Route path="/organizer" element={<ProtectedRoute allowedRoles={['organizer']}><OrganizerDashboard /></ProtectedRoute>} />
               <Route path="/organizer/hackathon" element={<ProtectedRoute allowedRoles={['organizer']}><ManageHackathon /></ProtectedRoute>} />
               <Route path="/organizer/submissions" element={<ProtectedRoute allowedRoles={['organizer']}><ManageSubmissions /></ProtectedRoute>} />
+              <Route path="/organizer/submission/:id" element={<ProtectedRoute allowedRoles={['organizer']}><OrganizerSubmissionPreview /></ProtectedRoute>} />
               <Route path="/organizer/judges" element={<ProtectedRoute allowedRoles={['organizer']}><AssignJudges /></ProtectedRoute>} />
               <Route path="/organizer/announce" element={<ProtectedRoute allowedRoles={['organizer']}><Announcements /></ProtectedRoute>} />
 

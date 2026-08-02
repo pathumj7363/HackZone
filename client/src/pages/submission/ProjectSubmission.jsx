@@ -159,7 +159,7 @@ export default function ProjectSubmission() {
   // --- Success State ---
   if (submitted) {
     return (
-      <div className="hz-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hz-bg)' }}>
+      <div className="hz-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ maxWidth: '560px', width: '100%', margin: 'auto', textAlign: 'center', padding: '3rem', background: 'var(--hz-surface)', borderRadius: '24px', boxShadow: 'var(--hz-shadow-xl)', border: '1px solid var(--hz-border)' }}>
           <div style={{
             width: '88px', height: '88px', borderRadius: '50%',
@@ -203,7 +203,7 @@ export default function ProjectSubmission() {
   ];
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '5rem', background: 'var(--hz-bg)' }}>
+    <div className="hz-page" style={{ paddingBottom: '5rem' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
         position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
@@ -291,19 +291,23 @@ export default function ProjectSubmission() {
                         return (
                           <div key={h.id}
                             onClick={() => {
-                              setForm(prev => ({ ...prev, hackathonId: h.id, teamId: h.teamId }));
+                              setForm(prev => ({ 
+                                ...prev, 
+                                hackathonId: isSelected ? '' : h.id, 
+                                teamId: isSelected ? '' : h.teamId 
+                              }));
                               if (errors.hackathonId) setErrors(prev => ({ ...prev, hackathonId: '' }));
                             }}
                             style={{
                               padding: '1.5rem', borderRadius: '16px', cursor: 'pointer',
                               border: `2px solid ${isSelected ? 'var(--hz-primary)' : 'var(--hz-border)'}`,
-                              background: isSelected ? 'var(--hz-primary-light)' : 'var(--hz-bg)',
+                              background: isSelected ? 'rgba(99,102,241,0.1)' : 'var(--hz-surface)',
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                               transition: 'all 0.2s', transform: isSelected ? 'scale(1.01)' : 'scale(1)'
                             }}
                           >
                             <div>
-                              <strong style={{ display: 'block', fontSize: '1.25rem', color: isSelected ? 'var(--hz-primary-dark)' : 'var(--hz-text)', marginBottom: '0.25rem' }}>{h.title}</strong>
+                              <strong style={{ display: 'block', fontSize: '1.25rem', color: isSelected ? 'var(--hz-primary)' : 'var(--hz-text)', marginBottom: '0.25rem' }}>{h.title}</strong>
                               <span style={{ fontSize: '0.9rem', color: 'var(--hz-text-muted)' }}>Submitting as: {h.regType === 'team' ? `Team (${h.teamName})` : 'Solo Participant'}</span>
                             </div>
                             <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: `2px solid ${isSelected ? 'var(--hz-primary)' : 'var(--hz-border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isSelected ? 'var(--hz-primary)' : 'transparent' }}>
@@ -414,7 +418,7 @@ export default function ProjectSubmission() {
                         Continue →
                       </button>
                     ) : (
-                      <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg, var(--hz-primary) 0%, #312e81 100%)', color: '#fff', border: 'none', padding: '0.75rem 2.5rem', borderRadius: '10px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 15px rgba(49,46,129,0.4)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseEnter={e=>{if(!loading) e.currentTarget.style.transform='translateY(-2px)'}} onMouseLeave={e=>{if(!loading) e.currentTarget.style.transform='none'}}>
+                      <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg, var(--hz-primary) 0%, var(--hz-surface-raised) 100%)', color: '#fff', border: 'none', padding: '0.75rem 2.5rem', borderRadius: '10px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseEnter={e=>{if(!loading) e.currentTarget.style.transform='translateY(-2px)'}} onMouseLeave={e=>{if(!loading) e.currentTarget.style.transform='none'}}>
                         {loading ? <span className="hz-spinner" style={{width:'16px',height:'16px',borderWidth:'2px'}}></span> : null}
                         {loading ? 'Submitting...' : 'Submit Project!'}
                       </button>
@@ -452,7 +456,7 @@ export default function ProjectSubmission() {
             </div>
 
             <div style={{ 
-              background: 'linear-gradient(135deg, #1e1b4b 0%, var(--hz-primary) 100%)', 
+              background: 'linear-gradient(135deg, var(--hz-bg) 0%, var(--hz-primary) 100%)', 
               borderRadius: '24px', padding: '2rem', color: '#fff', position: 'relative', overflow: 'hidden',
               boxShadow: '0 10px 30px rgba(99,102,241,0.2)'
             }}>

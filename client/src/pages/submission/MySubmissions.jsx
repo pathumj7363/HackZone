@@ -35,7 +35,7 @@ function StatusBadge({ status }) {
 }
 
 const PROJECT_GRADIENTS = [
-  'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)',
+  'linear-gradient(135deg, #4f46e5 0%, var(--hz-surface-raised) 100%)',
   'linear-gradient(135deg, #10b981 0%, #064e3b 100%)',
   'linear-gradient(135deg, #f59e0b 0%, #78350f 100%)',
   'linear-gradient(135deg, #ec4899 0%, #831843 100%)',
@@ -93,7 +93,7 @@ export default function MySubmissions() {
   }
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '5rem', background: 'var(--hz-bg)' }}>
+    <div className="hz-page" style={{ paddingBottom: '5rem' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
         position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',

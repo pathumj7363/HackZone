@@ -237,7 +237,7 @@ export default function Announcements() {
           
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', minWidth: '250px' }}>
-              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none', zIndex: 1 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
               <input
@@ -391,7 +391,7 @@ export default function Announcements() {
   );
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', minHeight: '100vh', transition: 'background 0.3s' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem', minHeight: '100vh' }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -468,12 +468,13 @@ export default function Announcements() {
                       WebkitAppearance: 'none'
                     }}
                   >
-                    <option value="" disabled style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Select Hackathon...</option>
-                    {hackathons.map(h => (
-                      <option key={h.id} value={h.id} style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>{h.title}</option>
-                    ))}
-                    {!loadingHackathons && hackathons.length === 0 && (
-                      <option value="" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>No events found</option>
+                    <option value="" disabled style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Select Hackathon...</option>
+                    {hackathons.length > 0 ? (
+                      hackathons.map(h => (
+                      <option key={h.id} value={h.id} style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>{h.title}</option>
+                      ))
+                    ) : (
+                      <option value="" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>No events found</option>
                     )}
                   </select>
                   <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>

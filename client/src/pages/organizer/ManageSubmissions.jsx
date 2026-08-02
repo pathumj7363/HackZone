@@ -24,7 +24,8 @@ export default function ManageSubmissions() {
 
   // Search and filter state
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('all'); // for proposals
+  const [submissionFilter, setSubmissionFilter] = useState('all'); // for final submissions
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -83,8 +84,7 @@ export default function ManageSubmissions() {
   };
 
   const openSubmissionDetails = (submission) => {
-    setSelectedSubmission(submission);
-    setView('details');
+    navigate(`/organizer/submission/${submission.id}`, { state: { submission } });
   };
 
   const filteredRegistrations = registrations.filter(r => {
@@ -96,7 +96,21 @@ export default function ManageSubmissions() {
 
   const filteredSubmissions = submissions.filter(s => {
     const matchesSearch = s.title?.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
+    
+    // Determine evaluation status:
+    // A submission is 'evaluated' if it has judges assigned and ALL of them have evaluated.
+    // If no judges assigned, or some haven't evaluated, it's 'pending'.
+    const hasAssignedJudges = s.assigned && s.assigned.length > 0;
+    const isEvaluated = hasAssignedJudges && s.assigned.every(j => j.hasEvaluated);
+    
+    let matchesFilter = true;
+    if (submissionFilter === 'evaluated') {
+      matchesFilter = isEvaluated;
+    } else if (submissionFilter === 'pending') {
+      matchesFilter = !isEvaluated;
+    }
+
+    return matchesSearch && matchesFilter;
   });
 
   const handleUpdateStatus = async (registrationId, newStatus) => {
@@ -222,7 +236,7 @@ export default function ManageSubmissions() {
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <div style={{ position: 'relative', flex: '1' }}>
-              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none', zIndex: 1 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
               <input
@@ -255,10 +269,38 @@ export default function ManageSubmissions() {
                     cursor: 'pointer'
                   }}
                 >
-                  <option value="all" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>All Statuses</option>
-                  <option value="pending" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Pending</option>
-                  <option value="approved" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Approved</option>
-                  <option value="rejected" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Rejected</option>
+                  <option value="all" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>All Statuses</option>
+                  <option value="pending" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Pending</option>
+                  <option value="approved" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Approved</option>
+                  <option value="rejected" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Rejected</option>
+                </select>
+                <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            )}
+
+            {activeTab === 'submissions' && (
+              <div style={{ position: 'relative', minWidth: '180px' }}>
+                <select
+                  value={submissionFilter}
+                  onChange={(e) => setSubmissionFilter(e.target.value)}
+                  className="hz-input"
+                  style={{
+                    padding: '0.75rem 2.5rem 0.75rem 1.25rem',
+                    borderRadius: '12px',
+                    border: '1px solid var(--hz-border)',
+                    backgroundColor: 'var(--hz-bg)',
+                    fontWeight: '600',
+                    color: 'var(--hz-text)',
+                    outline: 'none',
+                    width: '100%',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="all" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>All Submissions</option>
+                  <option value="pending" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Pending Evaluation</option>
+                  <option value="evaluated" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Evaluated</option>
                 </select>
                 <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
@@ -390,7 +432,12 @@ export default function ManageSubmissions() {
                         <span>Submitted: {formatDate(sub.created_at)}</span>
                       </div>
                     </div>
-                    <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '0.85rem', gap: '0.5rem' }}>
+                    <div>
+                      <Badge style={{ background: (sub.assigned && sub.assigned.length > 0 && sub.assigned.every(j => j.hasEvaluated)) ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: (sub.assigned && sub.assigned.length > 0 && sub.assigned.every(j => j.hasEvaluated)) ? '#10b981' : '#f59e0b', border: `1px solid ${(sub.assigned && sub.assigned.length > 0 && sub.assigned.every(j => j.hasEvaluated)) ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }}>
+                        {(sub.assigned && sub.assigned.length > 0 && sub.assigned.every(j => j.hasEvaluated)) ? 'Evaluated' : 'Pending Evaluation'}
+                      </Badge>
+                    </div>
+                    <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '0.85rem', gap: '0.5rem', marginLeft: '1rem' }}>
                       View Details <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                   </div>
@@ -522,22 +569,40 @@ export default function ManageSubmissions() {
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--hz-border)' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--hz-text)' }}>Attached Documents</h3>
                 {r.proposalUrl ? (
-                  <a href={r.proposalUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                    <div
-                      style={{ background: 'var(--hz-primary-light)', padding: '1.25rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-primary)', cursor: 'pointer', transition: 'transform 0.2s' }}
-                      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                      onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                    >
-                      <div style={{ width: '48px', height: '48px', background: '#fff', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <a href={r.proposalUrl.replace('/uploads/', '/api/files/preview/')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                      <div
+                        style={{ background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-text)', cursor: 'pointer', transition: 'all 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--hz-border)'}
+                      >
+                        <div style={{ width: '40px', height: '40px', background: 'var(--hz-surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '0.15rem' }}>Preview Document</strong>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Open in new tab</span>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '0.25rem' }}>View Proposal</strong>
-                        <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>PDF or Doc file</span>
+                    </a>
+                    <a href={r.proposalUrl.replace('/uploads/', '/api/files/download/')} download target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                      <div
+                        style={{ background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-text)', cursor: 'pointer', transition: 'all 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--hz-border)'}
+                      >
+                        <div style={{ width: '40px', height: '40px', background: 'var(--hz-surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '0.15rem' }}>Download File</strong>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--hz-text-muted)' }}>Save original file format</span>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                       </div>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </div>
-                  </a>
+                    </a>
+                  </div>
                 ) : (
                   <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'var(--hz-bg)', borderRadius: '16px', border: '1px dashed var(--hz-border)', color: 'var(--hz-text-muted)' }}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 0.5rem auto' }}><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
@@ -679,7 +744,7 @@ export default function ManageSubmissions() {
   };
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', transition: 'background 0.3s' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
         position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
@@ -723,9 +788,9 @@ export default function ManageSubmissions() {
                     WebkitAppearance: 'none'
                   }}
                 >
-                  <option value="" disabled style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Select Hackathon...</option>
+                  <option value="" disabled style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Select Hackathon...</option>
                   {hackathons.map(h => (
-                    <option key={h.id} value={h.id} style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>{h.title}</option>
+                    <option key={h.id} value={h.id} style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>{h.title}</option>
                   ))}
                 </select>
                 <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>

@@ -1,7 +1,7 @@
 .registration-container {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  background: linear-gradient(135deg, #09090b 0%, #171717 100%);
   display: flex;
   flex-direction: column;
   padding: 0;

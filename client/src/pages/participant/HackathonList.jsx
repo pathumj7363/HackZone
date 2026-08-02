@@ -115,7 +115,7 @@ export default function HackathonList() {
   });
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem' }}>
       
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
@@ -292,7 +292,7 @@ export default function HackathonList() {
                         }}
                       >
                         {/* Image Container */}
-                        <div style={{ height: '200px', position: 'relative', background: '#1e293b', overflow: 'hidden' }}>
+                        <div style={{ height: '200px', position: 'relative', background: 'var(--hz-surface-raised)', overflow: 'hidden' }}>
                           {!hasImgError ? (
                             <img
                               className="hack-img"

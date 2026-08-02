@@ -162,7 +162,7 @@ export default function Navbar() {
             {dropdownOpen && (
               <div style={{ 
                 position: 'absolute', top: '120%', right: 0, 
-                background: isDark ? '#1e293b' : '#fff',
+                background: isDark ? 'var(--hz-surface)' : '#fff',
                 border: `1px solid ${border}`,
                 borderRadius: '8px',
                 padding: '0.5rem',

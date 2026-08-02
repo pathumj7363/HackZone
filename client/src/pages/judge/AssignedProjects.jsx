@@ -42,8 +42,10 @@ export default function AssignedProjects() {
     return matchesSearch && matchesHackathon && matchesStatus;
   });
 
+  const uniqueHackathons = [...new Set(projects.map(p => p.hackathon))].filter(Boolean);
+
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', minHeight: '100vh', transition: 'background 0.3s' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem', minHeight: '100vh' }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -73,7 +75,7 @@ export default function AssignedProjects() {
           
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', minWidth: '250px' }}>
-              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--hz-text-muted)', pointerEvents: 'none', zIndex: 1 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
               <input 
@@ -85,28 +87,36 @@ export default function AssignedProjects() {
                 style={{ width: '100%', padding: '0.75rem 1.25rem 0.75rem 2.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none' }}
               />
             </div>
-            <select 
-              value={hackathonFilter}
-              onChange={e => setHackathonFilter(e.target.value)}
-              className="hz-input"
-              style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none', appearance: 'none' }}
-            >
-              <option value="" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>All Hackathons</option>
-              <option value="Global AI Innovate 2024" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Global AI Innovate 2024</option>
-              <option value="FinTech Frontier Hack" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>FinTech Frontier Hack</option>
-            </select>
-            <select 
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              className="hz-input"
-              style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none', appearance: 'none' }}
-            >
-              <option value="" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>All Statuses</option>
-              <option value="Not Started" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Not Started</option>
-              <option value="Pending" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Pending</option>
-              <option value="In Progress" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>In Progress</option>
-              <option value="Completed" style={{ color: '#f8fafc', backgroundColor: '#1e293b' }}>Completed</option>
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select 
+                value={hackathonFilter}
+                onChange={e => setHackathonFilter(e.target.value)}
+                className="hz-input"
+                style={{ padding: '0.75rem 2.5rem 0.75rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none', appearance: 'none', WebkitAppearance: 'none' }}
+              >
+                <option value="" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>All Hackathons</option>
+                {uniqueHackathons.map(h => (
+                  <option key={h} value={h} style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>{h}</option>
+                ))}
+              </select>
+              <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--hz-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            
+            <div style={{ position: 'relative' }}>
+              <select 
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+                className="hz-input"
+                style={{ padding: '0.75rem 2.5rem 0.75rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', color: 'var(--hz-text)', outline: 'none', appearance: 'none', WebkitAppearance: 'none' }}
+              >
+                <option value="" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>All Statuses</option>
+                <option value="Not Started" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Not Started</option>
+                <option value="Pending" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Pending</option>
+                <option value="In Progress" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>In Progress</option>
+                <option value="Completed" style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Completed</option>
+              </select>
+              <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--hz-text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
           </div>
         </div>
       </div>

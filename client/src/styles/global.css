@@ -91,15 +91,29 @@
 }
 
 [data-theme='dark'] {
-  --hz-bg: transparent;
-  --hz-surface: #111827;
-  --hz-surface-raised: #1f2937;
-  --hz-border: #374151;
-  --hz-border-strong: #4b5563;
-  --hz-text: #f9fafb;
-  --hz-text-secondary: #e5e7eb;
-  --hz-text-muted: #9ca3af;
+  color-scheme: dark;
+  --hz-bg: #0a0a0a;
+  --hz-surface: #171717;
+  --hz-surface-raised: #262626;
+  --hz-border: #404040;
+  --hz-border-strong: #525252;
+  --hz-text: #fafafa;
+  --hz-text-secondary: #e5e5e5;
+  --hz-text-muted: #a3a3a3;
   --hz-text-inverse: #ffffff;
+}
+
+/* Fix browser autofill background for dark mode */
+[data-theme='dark'] input:-webkit-autofill,
+[data-theme='dark'] input:-webkit-autofill:hover, 
+[data-theme='dark'] input:-webkit-autofill:focus, 
+[data-theme='dark'] input:-webkit-autofill:active,
+[data-theme='dark'] select:-webkit-autofill,
+[data-theme='dark'] select:-webkit-autofill:hover,
+[data-theme='dark'] select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px var(--hz-bg) inset !important;
+    -webkit-text-fill-color: var(--hz-text) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 /* -------------------------------------------------------------------------- */
