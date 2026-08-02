@@ -35,7 +35,7 @@ export default function UnifiedProfile() {
 
   useEffect(() => {
     if (!targetId) {
-      if (!user) navigate('/login');
+      if (!user) navigate('/');
       return;
     }
 

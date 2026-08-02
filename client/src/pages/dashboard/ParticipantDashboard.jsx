@@ -265,7 +265,7 @@ export default function ParticipantDashboard() {
                             </Link>
                           ) : hasSubmitted ? (
                             <Link to="/submissions" style={{ textDecoration: 'none' }}>
-                              <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)', background: 'var(--hz-primary-dark)' }}>
+                              <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }}>
                                 View Submission
                               </Button>
                             </Link>

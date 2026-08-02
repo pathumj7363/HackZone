@@ -1,15 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Button from '../ui/Button';
-import Badge from '../ui/Badge';
 
 /* ─────────────────────────────────────────────
-   Tilt Card (3-D hover)
+   Tilt Card (Frosted Glass Bento Box)
 ───────────────────────────────────────────── */
 const TiltCard = ({ children, borderColor, dark }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const bg      = dark ? 'rgba(255,255,255,0.03)' : undefined;
-  const border  = dark ? '2px solid rgba(255,255,255,0.08)' : '2px solid transparent';
+
+  const bg = dark ? 'rgba(255,255,255,0.02)' : '#ffffff';
+  const border = dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)';
+  const hoverShadow = dark 
+    ? `0 30px 60px -12px rgba(0,0,0,0.8), 0 0 40px ${borderColor}40`
+    : `0 30px 60px -12px rgba(0,0,0,0.15), 0 0 40px ${borderColor}40`;
+  const defaultShadow = dark ? 'none' : '0 10px 25px -5px rgba(0,0,0,0.08)';
 
   return (
     <div
@@ -17,10 +20,10 @@ const TiltCard = ({ children, borderColor, dark }) => {
       onMouseLeave={() => setIsHovered(false)}
       style={{
         height: '100%',
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease',
-        transform: isHovered ? 'translateY(-12px)' : 'translateY(0)',
-        boxShadow: isHovered ? `0 20px 40px rgba(0,0,0,0.3), 0 0 20px ${borderColor}40` : 'none',
-        borderRadius: '12px',
+        transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        transform: isHovered ? 'translateY(-10px)' : 'translateY(0)',
+        boxShadow: isHovered ? hoverShadow : defaultShadow,
+        borderRadius: '24px',
         position: 'relative',
         zIndex: isHovered ? 10 : 1,
       }}
@@ -28,171 +31,36 @@ const TiltCard = ({ children, borderColor, dark }) => {
       <div
         style={{
           background: bg,
-          border,
-          borderTop: `4px solid ${borderColor}`,
-          borderRadius: '12px',
+          border: `1px solid ${border}`,
+          borderTop: `2px solid ${borderColor}`,
+          borderRadius: '24px',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          padding: '1.5rem',
-          backdropFilter: dark ? 'blur(10px)' : undefined,
-          WebkitBackdropFilter: dark ? 'blur(10px)' : undefined,
+          padding: '2.5rem',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
-        {children}
-      </div>
-    </div>
-  );
-};
-
-/* ─────────────────────────────────────────────
-   Mock: Team Builder (Participant)
-───────────────────────────────────────────── */
-const MockTeamBuilder = ({ dark }) => {
-  const [team,      setTeam]      = useState(['You']);
-  const [available, setAvailable] = useState(['Alex (Frontend)', 'Sam (Backend)', 'Jordan (Design)']);
-
-  const add = (i) => {
-    if (team.length >= 4) return;
-    setTeam(t => [...t, available[i]]);
-    setAvailable(a => a.filter((_, idx) => idx !== i));
-  };
-
-  const cardBg   = dark ? '#0d1130' : 'var(--hz-bg)';
-  const slotBg   = dark ? 'rgba(255,255,255,0.05)' : 'var(--hz-surface)';
-  const slotBord = dark ? 'rgba(255,255,255,0.1)'  : 'var(--hz-border)';
-  const txt      = dark ? '#e2e8f0' : 'var(--hz-text)';
-  const muted    = dark ? 'rgba(255,255,255,0.45)' : 'var(--hz-text-muted)';
-  const addedBg  = dark ? '#4f46e5' : 'var(--hz-info)';
-
-  return (
-    <div style={{ padding: '1.5rem', background: cardBg, borderRadius: '10px', color: txt }}>
-      <h4 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Team Builder (Max 4)</h4>
-      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-        <div style={{ flex: '1 1 200px' }}>
-          <div style={{ fontSize: '0.82rem', color: muted, marginBottom: '0.75rem', fontWeight: 700 }}>Available Developers</div>
-          {available.length === 0 && <div style={{ fontSize: '0.82rem', fontStyle: 'italic', color: muted }}>No more developers available</div>}
-          {available.map((m, i) => (
-            <div key={m} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.7rem', background: slotBg, border: `1px solid ${slotBord}`, marginBottom: '0.5rem', borderRadius: '8px', fontSize: '0.875rem' }}>
-              <span style={{ color: txt }}>{m}</span>
-              <button onClick={e => { e.stopPropagation(); add(i); }} style={{ background: '#4f46e5', color: '#fff', border: 'none', borderRadius: '6px', width: '28px', height: '28px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}>+</button>
-            </div>
-          ))}
+        {/* Subtle internal gradient glow based on borderColor */}
+        <div style={{
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: `radial-gradient(circle at center, ${borderColor}15 0%, transparent 60%)`,
+          opacity: isHovered ? (dark ? 1 : 0.6) : (dark ? 0.5 : 0.1),
+          transition: 'opacity 0.5s ease',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} />
+        <div style={{ position: 'relative', zIndex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          {children}
         </div>
-        <div style={{ flex: '1 1 200px' }}>
-          <div style={{ fontSize: '0.82rem', color: muted, marginBottom: '0.75rem', fontWeight: 700 }}>Your Team ({team.length}/4)</div>
-          {team.map((m, i) => (
-            <div key={i} style={{ padding: '0.7rem', background: addedBg, color: '#fff', marginBottom: '0.5rem', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'rgba(255,255,255,0.8)' }} />
-              {m}
-            </div>
-          ))}
-          {Array.from({ length: 4 - team.length }).map((_, i) => (
-            <div key={`e${i}`} style={{ padding: '0.7rem', border: `1px dashed ${slotBord}`, color: muted, marginBottom: '0.5rem', borderRadius: '8px', fontSize: '0.875rem' }}>Empty Slot</div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ─────────────────────────────────────────────
-   Mock: Live Metrics Chart (Organizer)
-───────────────────────────────────────────── */
-const MockMetricsChart = ({ dark }) => {
-  const [bars, setBars] = useState([20, 50, 30, 80, 60]);
-
-  useEffect(() => {
-    const id = setInterval(() => setBars(b => b.map(() => Math.floor(Math.random() * 65) + 30)), 2500);
-    return () => clearInterval(id);
-  }, []);
-
-  const cardBg = dark ? '#0d1130' : 'var(--hz-bg)';
-  const txt    = dark ? '#e2e8f0' : 'var(--hz-text)';
-  const muted  = dark ? 'rgba(255,255,255,0.45)' : 'var(--hz-text-muted)';
-  const bord   = dark ? 'rgba(255,255,255,0.12)' : 'var(--hz-border)';
-
-  return (
-    <div style={{ padding: '1.5rem', background: cardBg, borderRadius: '10px', color: txt }}>
-      <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Live Hackathon Registrations</h4>
-      <div style={{ display: 'flex', alignItems: 'flex-end', height: '180px', gap: '1.5rem', borderBottom: `2px solid ${bord}`, paddingBottom: '0.5rem' }}>
-        {bars.map((h, i) => (
-          <div key={i} style={{ flex: 1, background: 'linear-gradient(to top, #10b981, #34d399)', height: `${h}%`, transition: 'height 0.8s cubic-bezier(.4,0,.2,1)', borderRadius: '6px 6px 0 0', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-22px', width: '100%', textAlign: 'center', fontSize: '0.72rem', fontWeight: 700, color: muted }}>{h}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontSize: '0.82rem', color: muted, fontWeight: 500 }}>
-        {['Mon','Tue','Wed','Thu','Fri'].map(d => <span key={d} style={{ flex: 1, textAlign: 'center' }}>{d}</span>)}
-      </div>
-    </div>
-  );
-};
-
-/* ─────────────────────────────────────────────
-   Mock: Grading Sliders (Judge)
-───────────────────────────────────────────── */
-const MockJudgingSlider = ({ dark }) => {
-  const [scores, setScores] = useState({ innovation: 80, technicalExecution: 70, impact: 0 });
-  const total = Object.values(scores).reduce((a, b) => a + b, 0);
-
-  const cardBg = dark ? '#0d1130' : 'var(--hz-bg)';
-  const txt    = dark ? '#e2e8f0' : 'var(--hz-text)';
-  const muted  = dark ? 'rgba(255,255,255,0.45)' : 'var(--hz-text-muted)';
-  const tagBg  = (c) => dark ? `rgba(${c},0.18)` : `rgba(${c},0.1)`;
-
-  return (
-    <div style={{ padding: '1.5rem', background: cardBg, borderRadius: '10px', color: txt }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div>
-          <h4 style={{ margin: '0 0 0.4rem', fontSize: '1.05rem' }}>Grading Portal</h4>
-          <div style={{ fontSize: '0.82rem', color: muted }}>Project: DeFi Lending Protocol</div>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-            {[{ label:'Solidity', c:'16,185,129' }, { label:'React', c:'59,130,246' }, { label:'Web3.js', c:'139,92,246' }].map(t => (
-              <span key={t.label} style={{ padding: '0.15rem 0.6rem', background: tagBg(t.c), borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, color: dark ? '#c4b5fd' : '#4f46e5', border: `1px solid rgba(${t.c},0.3)` }}>{t.label}</span>
-            ))}
-          </div>
-        </div>
-        <span style={{ padding: '0.3rem 0.8rem', background: 'rgba(239,68,68,0.15)', color: '#f87171', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid rgba(239,68,68,0.3)', whiteSpace: 'nowrap' }}>
-          {total} / {Object.keys(scores).length * 100} evaluated
-        </span>
-      </div>
-
-      {/* Sliders */}
-      {Object.entries(scores).map(([k, v]) => (
-        <div key={k} style={{ marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', marginBottom: '0.45rem', fontWeight: 500 }}>
-            <span style={{ color: txt, textTransform: 'capitalize' }}>{k.replace(/([A-Z])/g,' $1')}</span>
-            <span style={{ color: '#a78bfa', fontWeight: 700 }}>{v} / 100</span>
-          </div>
-          <input
-            type="range" min="0" max="100" value={v}
-            onChange={e => setScores(s => ({ ...s, [k]: +e.target.value }))}
-            onClick={e => e.stopPropagation()}
-            style={{ width: '100%', cursor: 'pointer', accentColor: '#7c6fff', height: '6px' }}
-          />
-        </div>
-      ))}
-
-      {/* Submit */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-        <button
-          onClick={e => { e.stopPropagation(); }}
-          style={{
-            background: 'linear-gradient(135deg,#6c63ff,#8b5cf6)',
-            color: '#fff', border: 'none',
-            padding: '0.55rem 1.4rem', borderRadius: '8px',
-            fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(108,99,255,0.35)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
-        >
-          Submit Score →
-        </button>
       </div>
     </div>
   );
@@ -201,60 +69,59 @@ const MockJudgingSlider = ({ dark }) => {
 /* ─────────────────────────────────────────────
    Main Feature Section
 ───────────────────────────────────────────── */
-export default function FeatureSection({ dark = false }) {
+export default function FeatureSection({ dark = true }) {
 
   const features = [
     {
       id: 'participant', role: 'Participants',
-      badgeStyle: { background: 'rgba(59,130,246,0.2)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.35)' },
-      color: '#3b82f6',
+      badgeStyle: { background: dark ? 'rgba(6,182,212,0.1)' : '#ecfeff', color: '#06b6d4', border: `1px solid ${dark ? 'rgba(6,182,212,0.3)' : 'rgba(6,182,212,0.2)'}` },
+      color: '#06b6d4',
       title: 'Join & Build',
       desc: 'Discover exciting hackathons, form dynamic teams with other developers, and seamlessly submit your projects to win prizes.',
-      link: '/register?role=participant', btnText: 'Join Now',
+      link: '/register/role-select', btnText: 'Start Building',
     },
     {
       id: 'organizer', role: 'Organizers',
-      badgeStyle: { background: 'rgba(16,185,129,0.2)', color: '#34d399', border: '1px solid rgba(16,185,129,0.35)' },
-      color: '#10b981',
+      badgeStyle: { background: dark ? 'rgba(34,197,94,0.1)' : '#f0fdf4', color: '#22c55e', border: `1px solid ${dark ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.2)'}` },
+      color: '#22c55e',
       title: 'Host & Manage',
       desc: 'Create hackathons, track registrations, manage teams, and assign judges with a powerful, zero-friction dashboard.',
-      link: '/register?role=organizer', btnText: 'Host Event',
+      link: '/register/role-select', btnText: 'Host an Event',
     },
     {
       id: 'judge', role: 'Judges',
-      badgeStyle: { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' },
-      color: '#f59e0b',
+      badgeStyle: { background: dark ? 'rgba(168,85,247,0.1)' : '#faf5ff', color: '#a855f7', border: `1px solid ${dark ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.2)'}` },
+      color: '#a855f7',
       title: 'Evaluate & Score',
       desc: 'Review assigned submissions efficiently with our integrated grading portal and provide detailed feedback to participants.',
-      link: '/register?role=judge', btnText: 'Start Judging',
+      link: '/register/role-select', btnText: 'Begin Judging',
     },
   ];
 
-  const sectionBg  = dark ? 'transparent'               : 'transparent';
-  const headingClr = dark ? '#ffffff'                    : 'var(--hz-text)';
-  const subClr     = dark ? 'rgba(255,255,255,0.55)'     : 'var(--hz-text-muted)';
-  const winBg      = dark ? 'rgba(255,255,255,0.03)'     : 'var(--hz-surface)';
-  const winBord    = dark ? 'rgba(255,255,255,0.08)'     : 'var(--hz-border)';
-  const winHead    = dark ? 'rgba(255,255,255,0.04)'     : 'rgba(0,0,0,0.06)';
-  const winTxt     = dark ? 'rgba(255,255,255,0.45)'     : 'var(--hz-text-muted)';
-  const descClr    = dark ? 'rgba(255,255,255,0.55)'     : 'var(--hz-text-muted)';
-  const titleClr   = dark ? '#ffffff'                    : 'var(--hz-text)';
-  const btnVariant = dark ? 'ghost'                      : 'outline';
+  const textMain = dark ? '#ffffff' : '#0f172a';
+  const textSub = dark ? '#94a3b8' : '#334155';
+  const btnBg = dark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const btnBorder = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)';
 
   return (
-    <section className="hz-container" style={{ padding: '5rem 1.5rem' }}>
+    <section className="hz-container" style={{ padding: '8rem 1.5rem', position: 'relative' }}>
+      
+      {/* Background Decor */}
+      <div style={{ position: 'absolute', top: '10%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(34,197,94,0.03) 0%, transparent 70%)', filter: 'blur(60px)', zIndex: 0, pointerEvents: 'none' }}></div>
+      <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(6,182,212,0.03) 0%, transparent 70%)', filter: 'blur(60px)', zIndex: 0, pointerEvents: 'none' }}></div>
+
       {/* Section heading */}
-      <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-        <h2 style={{ fontSize: 'clamp(1.75rem,3.5vw,2.4rem)', fontWeight: 800, color: headingClr, letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '5rem', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontFamily: 'Chakra Petch, sans-serif', fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, color: textMain, letterSpacing: '-0.02em', marginBottom: '1rem', textTransform: 'uppercase', transition: 'color 0.3s' }}>
           Everything You Need
         </h2>
-        <p style={{ fontSize: '1.05rem', color: subClr }}>
-          Explore the features of our platform tailored to your role.
+        <p style={{ fontSize: '1.15rem', color: textSub, maxWidth: '600px', margin: '0 auto', lineHeight: 1.6, transition: 'color 0.3s' }}>
+          Explore the features of our platform perfectly tailored to your role. Built for speed, designed for impact.
         </p>
       </div>
 
       {/* Role cards */}
-      <div className="row g-4 justify-content-center">
+      <div className="row g-5 justify-content-center" style={{ position: 'relative', zIndex: 1 }}>
         {features.map(f => (
           <div className="col-12 col-md-6 col-lg-4" key={f.id}>
             <TiltCard
@@ -266,32 +133,34 @@ export default function FeatureSection({ dark = false }) {
                 <span style={{
                   ...f.badgeStyle,
                   display: 'inline-block',
-                  padding: '0.2rem 0.75rem',
+                  padding: '0.3rem 1rem',
                   borderRadius: '9999px',
                   fontSize: '0.75rem',
                   fontWeight: 700,
-                  marginBottom: '1rem',
+                  marginBottom: '1.5rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
                   {f.role}
                 </span>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: titleClr, marginBottom: '0.6rem' }}>{f.title}</h3>
-                <p style={{ fontSize: '0.875rem', color: descClr, lineHeight: 1.6, marginBottom: '1.5rem' }}>{f.desc}</p>
+                <h3 style={{ fontFamily: 'Chakra Petch, sans-serif', fontSize: '1.75rem', fontWeight: 700, color: textMain, marginBottom: '1rem', transition: 'color 0.3s' }}>{f.title}</h3>
+                <p style={{ fontSize: '0.95rem', color: textSub, lineHeight: 1.7, marginBottom: '2.5rem', transition: 'color 0.3s' }}>{f.desc}</p>
               </div>
               <div>
                 <Link to={f.link} style={{ textDecoration: 'none' }}>
                   <button style={{
                     width: '100%',
-                    padding: '0.65rem 1rem',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
-                    background: f.color,
-                    color: '#fff',
-                    border: 'none',
-                    boxShadow: `0 4px 12px ${f.color}50`,
-                    transition: 'all 0.2s',
+                    padding: '0.85rem 1rem',
+                    borderRadius: '12px',
+                    fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer',
+                    background: btnBg,
+                    color: textMain,
+                    border: `1px solid ${btnBorder}`,
+                    transition: 'all 0.3s ease',
+                    boxShadow: dark ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.05)'
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 6px 16px ${f.color}80`; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = `0 4px 12px ${f.color}50`; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = f.color; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = f.color; e.currentTarget.style.boxShadow = `0 10px 25px ${f.color}60`; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = btnBg; e.currentTarget.style.color = textMain; e.currentTarget.style.borderColor = btnBorder; e.currentTarget.style.boxShadow = dark ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.05)'; }}
                   >
                     {f.btnText}
                   </button>

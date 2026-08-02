@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Logo from '../../components/common/Logo';
+import { ThemeContext } from '../../context/ThemeContext';
 
 const roles = [
   {
@@ -7,55 +9,49 @@ const roles = [
     label: 'Participant',
     description: 'Join hackathons, form teams, build projects and compete for prizes.',
     icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
       </svg>
     ),
-    color: '#3b82f6',
-    bgLight: 'rgba(59, 130, 246, 0.15)',
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    color: '#06b6d4',
   },
   {
     id: 'organizer',
     label: 'Organizer',
     description: 'Host hackathons, manage teams, assign judges and track submissions.',
     icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1" />
         <rect x="14" y="3" width="7" height="7" rx="1" />
         <rect x="3" y="14" width="7" height="7" rx="1" />
         <rect x="14" y="14" width="7" height="7" rx="1" />
       </svg>
     ),
-    color: '#10b981',
-    bgLight: 'rgba(16, 185, 129, 0.15)',
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    color: '#22c55e',
   },
   {
     id: 'judge',
     label: 'Judge',
     description: 'Evaluate submissions, provide feedback and score projects fairly.',
     icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 20h9" />
         <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
       </svg>
     ),
-    color: '#f59e0b',
-    bgLight: 'rgba(245, 158, 11, 0.15)',
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    color: '#8b5cf6',
   },
 ];
 
 export default function RoleSelect() {
   const [hoveredRole, setHoveredRole] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
+  const { isDark } = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  // Reset scroll to top upon page navigation
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -64,162 +60,214 @@ export default function RoleSelect() {
     setSelectedRole(roleId);
     setTimeout(() => {
       navigate(`/register?role=${roleId}`);
-    }, 350);
+    }, 400);
   };
 
+  const bg = isDark ? '#020202' : '#f1f5f9';
+  const textMain = isDark ? '#ffffff' : '#0f172a';
+  const textSub = isDark ? '#94a3b8' : '#334155';
+  const gridLine = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.07)';
+  const gridMask = 'radial-gradient(circle at center, black 20%, transparent 80%)';
+  
+  const backBtnBg = isDark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const backBtnBorder = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  const backBtnHovBg = isDark ? 'rgba(255,255,255,0.08)' : '#f1f5f9';
+
   return (
-      <div
-        className="px-3 py-5"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-          background: 'var(--hz-bg)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Ambient Glow */}
-        <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, rgba(139,92,246,0.1) 45%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      background: bg,
+      fontFamily: 'Inter, sans-serif',
+      position: 'relative',
+      overflow: 'hidden',
+      padding: '2rem 1rem',
+      transition: 'background 0.3s ease'
+    }}>
+      
+      {/* ── Global Styles ── */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap');
+        
+        .hz-bg-grid {
+          position: absolute;
+          inset: 0;
+          background-image: 
+            linear-gradient(to right, ${gridLine} 1px, transparent 1px),
+            linear-gradient(to bottom, ${gridLine} 1px, transparent 1px);
+          background-size: 50px 50px;
+          mask-image: ${gridMask};
+          -webkit-mask-image: ${gridMask};
+          z-index: 0;
+          pointer-events: none;
+        }
+        
+        .hz-bg-glow {
+          position: absolute;
+          top: 30%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, rgba(34,197,94,0.05) 50%, transparent 70%);
+          filter: blur(50px);
+          z-index: 0;
+          pointer-events: none;
+        }
 
-        {/* Header with Back Button and Logo */}
-        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '820px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <button 
-            onClick={() => navigate(-1)} 
-            style={{ position: 'absolute', left: 0, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s', padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-            title="Go back"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          
-          <Link to="/" style={{ textDecoration: 'none', fontWeight: '900', fontSize: '2.5rem', background: 'linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', letterSpacing: '-0.03em' }}>
-            HackZone
-          </Link>
-        </div>
+        .role-card {
+          all: unset;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          padding: 2.5rem 1.5rem;
+          border-radius: 16px;
+          background: ${isDark ? 'rgba(255, 255, 255, 0.02)' : '#ffffff'};
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid ${isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.1)'};
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          width: 100%;
+          box-shadow: ${isDark ? 'none' : '0 10px 25px -5px rgba(0,0,0,0.08)'};
+        }
 
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem', maxWidth: '500px', position: 'relative', zIndex: 1 }} className="px-2">
-          <h2 className="hz-heading-2" style={{ fontSize: '1.75rem', marginBottom: '0.75rem', color: '#f8fafc' }}>
-            Who are you?
-          </h2>
-          <p style={{ fontSize: 'var(--hz-font-size-sm)', lineHeight: '1.6', color: '#94a3b8' }}>
-            Select your role to get started. This helps us personalize your experience on HackZone.
-          </p>
-        </div>
+        .role-card:hover {
+          background: ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#f8fafc'};
+          transform: translateY(-4px);
+        }
 
-      {/* Role Cards */}
+        .role-icon-box {
+          width: 56px;
+          height: 56px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 1.5rem;
+          transition: all 0.3s ease;
+        }
+
+        @keyframes selectPulse {
+          0% { box-shadow: 0 0 0 0 var(--pulse-color); transform: scale(0.98); }
+          50% { box-shadow: 0 0 0 15px transparent; }
+          100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+        }
+      `}</style>
+
+      {/* ── Background Elements ── */}
+      <div className="hz-bg-grid"></div>
+      <div className="hz-bg-glow"></div>
+
+      {/* ── Header Area ── */}
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '880px', marginBottom: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ 
+            position: 'absolute', left: 0, 
+            background: backBtnBg, border: `1px solid ${backBtnBorder}`, 
+            color: textSub, cursor: 'pointer', transition: 'all 0.2s', 
+            padding: '0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center',
+            boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.05)'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = textMain; e.currentTarget.style.background = backBtnHovBg }} 
+          onMouseLeave={e => { e.currentTarget.style.color = textSub; e.currentTarget.style.background = backBtnBg }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <Logo width={200} />
+        </Link>
+      </div>
+
+      <div style={{ textAlign: 'center', marginBottom: '3.5rem', position: 'relative', zIndex: 1, maxWidth: '500px' }}>
+        <h2 style={{ fontFamily: 'Chakra Petch', fontSize: '2.5rem', fontWeight: 700, color: textMain, marginBottom: '1rem', transition: 'color 0.3s' }}>
+          Select Your Path
+        </h2>
+        <p style={{ fontSize: '1.1rem', color: textSub, lineHeight: '1.6', transition: 'color 0.3s' }}>
+          Choose how you want to experience HackZone. Your journey begins here.
+        </p>
+      </div>
+
+      {/* ── Role Cards Grid ── */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
         gap: '1.5rem',
         width: '100%',
-        maxWidth: '820px',
-        marginBottom: '2.5rem',
+        maxWidth: '920px',
+        marginBottom: '3rem',
         position: 'relative',
         zIndex: 1
       }}>
         {roles.map((role) => {
           const isHovered = hoveredRole === role.id;
           const isSelected = selectedRole === role.id;
+          
           return (
             <button
               key={role.id}
-              type="button"
+              className="role-card"
               onClick={() => handleSelect(role.id)}
               onMouseEnter={() => setHoveredRole(role.id)}
               onMouseLeave={() => setHoveredRole(null)}
               style={{
-                all: 'unset',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-                padding: '2rem 1.25rem 1.75rem',
-                borderRadius: '24px',
-                background: isSelected ? role.bgLight : 'rgba(255, 255, 255, 0.03)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: `1px solid ${isSelected ? role.color : isHovered ? role.color : 'rgba(255, 255, 255, 0.08)'}`,
-                boxShadow: isHovered || isSelected
-                  ? `0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px ${role.color}`
-                  : '0 4px 20px rgba(0,0,0,0.2)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isHovered ? 'translateY(-6px)' : isSelected ? 'scale(0.97)' : 'translateY(0)',
-                position: 'relative',
-                overflow: 'hidden',
+                borderColor: isSelected ? role.color : isHovered ? `rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.4)` : (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.1)'),
+                boxShadow: isSelected ? `0 0 20px rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.3)` : (isDark ? 'none' : '0 15px 30px -5px rgba(0,0,0,0.08)'),
+                '--pulse-color': `rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.6)`,
+                animation: isSelected ? 'selectPulse 0.4s ease-out' : 'none'
               }}
             >
-              {/* Top accent bar */}
+              {/* Highlight bar */}
               <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: isHovered || isSelected ? role.color : 'transparent',
-                transition: 'background 0.3s ease',
-                borderRadius: '16px 16px 0 0',
+                position: 'absolute', top: 0, left: 0, height: '100%', width: '4px',
+                background: role.color,
+                opacity: isHovered || isSelected ? 1 : 0,
+                transition: 'opacity 0.3s ease'
               }} />
 
-              {/* Icon */}
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: role.bgLight,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+              <div className="role-icon-box" style={{
+                background: `rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.1)`,
                 color: role.color,
-                marginBottom: '1.25rem',
-                transition: 'all 0.3s ease',
-                transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                boxShadow: isHovered ? `0 4px 16px ${role.borderColor}` : 'none',
+                boxShadow: isHovered ? `0 0 15px rgba(${parseInt(role.color.slice(1,3),16)},${parseInt(role.color.slice(3,5),16)},${parseInt(role.color.slice(5,7),16)}, 0.3)` : 'none'
               }}>
                 {role.icon}
               </div>
 
-              {/* Title */}
               <h3 style={{
-                margin: '0 0 0.5rem',
-                fontSize: '1.2rem',
-                fontWeight: '700',
-                color: isHovered || isSelected ? role.color : '#f8fafc',
-                transition: 'color 0.3s ease',
+                margin: '0 0 0.75rem',
+                fontFamily: 'Chakra Petch',
+                fontSize: '1.4rem',
+                fontWeight: 700,
+                color: textMain,
+                transition: 'color 0.3s ease'
               }}>
                 {role.label}
               </h3>
 
-              {/* Description */}
               <p style={{
                 margin: 0,
-                fontSize: 'var(--hz-font-size-sm)',
-                color: '#94a3b8',
-                lineHeight: '1.55',
+                fontSize: '0.95rem',
+                color: textSub,
+                lineHeight: '1.6',
+                transition: 'color 0.3s ease'
               }}>
                 {role.description}
               </p>
 
-              {/* Selected indicator */}
+              {/* Checkmark when selected */}
               {isSelected && (
                 <div style={{
-                  position: 'absolute',
-                  top: '12px',
-                  right: '12px',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  background: role.color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  animation: 'roleSelectPop 0.3s ease',
+                  position: 'absolute', top: '1.5rem', right: '1.5rem',
+                  color: role.color,
+                  animation: 'hz-fade-up 0.2s ease-out'
                 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
@@ -229,22 +277,13 @@ export default function RoleSelect() {
         })}
       </div>
 
-      {/* Footer link */}
-      <p style={{ fontSize: 'var(--hz-font-size-sm)', textAlign: 'center', color: '#94a3b8', position: 'relative', zIndex: 1 }}>
+      <p style={{ fontSize: '1rem', color: textSub, position: 'relative', zIndex: 1, transition: 'color 0.3s' }}>
         Already have an account?{' '}
-        <Link to="/login" style={{ color: '#8b5cf6', fontWeight: '700', textDecoration: 'none' }}>
+        <Link to="/login" style={{ color: '#22c55e', fontWeight: 600, textDecoration: 'none' }}>
           Sign in
         </Link>
       </p>
 
-      {/* Keyframe animation injected inline */}
-      <style>{`
-        @keyframes roleSelectPop {
-          0% { transform: scale(0); opacity: 0; }
-          60% { transform: scale(1.2); }
-          100% { transform: scale(1); opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 }
