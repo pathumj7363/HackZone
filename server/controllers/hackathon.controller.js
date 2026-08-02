@@ -9,7 +9,9 @@ import {
   getRegistrationsByHackathonId,
   updateRegistrationStatus,
   getOrganizerStats as getOrganizerStatsModel,
-  deleteHackathonById
+  deleteHackathonById,
+  publishHackathonResults,
+  getHackathonScoreboard
 } from '../models/hackathon.model.js';
 import { findUserByEmail } from '../models/user.model.js';
 import { createJudgeInvitation } from '../models/invitation.model.js';
@@ -466,6 +468,76 @@ export const deleteHackathon = async (req, res) => {
     return res.status(200).json({ message: 'Hackathon deleted successfully' });
   } catch (error) {
     console.error('[deleteHackathon] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /hackathons/:id/publish
+ * Organizer publishes the results.
+ */
+export const publishResults = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Hackathon ID is required' });
+    }
+
+    const hackathon = await getHackathonById(id);
+    if (!hackathon) {
+      return res.status(404).json({ error: 'Hackathon not found' });
+    }
+
+    if (hackathon.organizerId !== req.user?.id) {
+      return res.status(403).json({ error: 'You do not have permission to publish results for this hackathon' });
+    }
+
+    const success = await publishHackathonResults(id);
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to publish results' });
+    }
+
+    return res.status(200).json({ message: 'Results published successfully' });
+  } catch (error) {
+    console.error('[publishResults] Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /hackathons/:id/scoreboard
+ * Get the scoreboard for a hackathon.
+ */
+export const getScoreboard = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Hackathon ID is required' });
+    }
+
+    const hackathon = await getHackathonById(id);
+    if (!hackathon) {
+      return res.status(404).json({ error: 'Hackathon not found' });
+    }
+
+    const isOrganizer = req.user?.role === 'organizer' && hackathon.organizerId === req.user?.id;
+    
+    if (!isOrganizer && !hackathon.resultsPublished) {
+      return res.status(403).json({ error: 'Results are not yet published for this hackathon' });
+    }
+
+    const scoreboardData = await getHackathonScoreboard(id);
+
+    return res.status(200).json({ 
+      data: {
+        ...scoreboardData,
+        isPublished: hackathon.resultsPublished
+      }
+    });
+  } catch (error) {
+    console.error('[getScoreboard] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
