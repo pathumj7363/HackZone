@@ -23,7 +23,7 @@ export default function JudgeLeaderboard() {
   }, [hackathonId]);
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', minHeight: '100vh', transition: 'background 0.3s' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem', minHeight: '100vh' }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -138,7 +138,7 @@ export default function JudgeLeaderboard() {
                         <td style={{ padding: '1.5rem', textAlign: 'center' }}>
                           <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: '0.25rem', padding: '0.5rem 1rem', background: 'var(--hz-bg)', borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
                             <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--hz-primary)' }}>{Number(entry.averageScore).toFixed(1)}</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--hz-text-muted)' }}>/ 10</span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--hz-text-muted)' }}>/ 100</span>
                           </div>
                         </td>
                         <td style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--hz-text-secondary)', fontWeight: 600 }}>

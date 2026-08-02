@@ -76,7 +76,7 @@ export default function RoleSelect() {
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: '100vh',
-          background: '#0f172a',
+          background: 'var(--hz-bg)',
           position: 'relative',
           overflow: 'hidden'
         }}

@@ -65,7 +65,7 @@ export default function ParticipantDashboard() {
   const newAnnouncementsCount = announcements.length; // Simplified for now
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
         position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
@@ -196,7 +196,9 @@ export default function ParticipantDashboard() {
                     />
                   </div>
                 ) : (
-                  registeredHackathons.map(hackathon => (
+                  registeredHackathons.map(hackathon => {
+                    const hasSubmitted = submissions.some(sub => sub.hackathonId === hackathon.id);
+                    return (
                     <div key={hackathon.id} style={{ 
                       display: 'flex', 
                       background: 'var(--hz-surface)', 
@@ -228,11 +230,13 @@ export default function ParticipantDashboard() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.75rem' }}>
                           <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'var(--hz-text)' }}>{hackathon.title || 'Untitled Hackathon'}</h3>
                           <Badge variant={
+                            hasSubmitted ? 'primary' :
                             hackathon.registrationStatus === 'approved' ? 'success' :
                               hackathon.registrationStatus === 'rejected' ? 'danger' : 'warning'
                           } style={{ borderRadius: '8px', padding: '0.35rem 0.75rem', fontWeight: '600' }}>
-                            {hackathon.registrationStatus === 'approved' ? 'Project Approved' :
-                              hackathon.registrationStatus === 'rejected' ? 'Project Rejected' : 'Pending Approval'}
+                            {hasSubmitted ? 'Project Submitted' :
+                             hackathon.registrationStatus === 'approved' ? 'Registration Approved' :
+                              hackathon.registrationStatus === 'rejected' ? 'Registration Rejected' : 'Pending Approval'}
                           </Badge>
                         </div>
                         
@@ -251,17 +255,25 @@ export default function ParticipantDashboard() {
                               View Details
                             </Button>
                           </Link>
-                          {hackathon.registrationStatus === 'approved' && (
-                            <Link to="/submit" style={{ textDecoration: 'none' }}>
-                              <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }}>
-                                Submit Project
+                          {hasSubmitted ? (
+                            <Link to="/submissions" style={{ textDecoration: 'none' }}>
+                              <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)', background: 'var(--hz-primary-dark)' }}>
+                                View Submission
                               </Button>
                             </Link>
+                          ) : (
+                            hackathon.registrationStatus === 'approved' && (
+                              <Link to="/submit" style={{ textDecoration: 'none' }}>
+                                <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)' }}>
+                                  Submit Project
+                                </Button>
+                              </Link>
+                            )
                           )}
                         </div>
                       </div>
                     </div>
-                  ))
+                  )})
                 )}
               </div>
             </section>
@@ -455,7 +467,7 @@ export default function ParticipantDashboard() {
                 <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.95rem', opacity: 0.9, lineHeight: 1.5 }}>Discover top-tier hackathons and collaborate with global talent.</p>
                 <Link to="/hackathons" style={{ textDecoration: 'none' }}>
                   <button style={{ 
-                    background: 'white', 
+                    background: 'var(--hz-surface)', 
                     color: 'var(--hz-primary)', 
                     border: 'none', 
                     padding: '0.8rem 1.5rem', 

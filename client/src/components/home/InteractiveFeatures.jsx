@@ -134,7 +134,7 @@ const MockMetricsChart = ({ dark }) => {
    Mock: Grading Sliders (Judge)
 ───────────────────────────────────────────── */
 const MockJudgingSlider = ({ dark }) => {
-  const [scores, setScores] = useState({ innovation: 8, technicalExecution: 7, impact: 0 });
+  const [scores, setScores] = useState({ innovation: 80, technicalExecution: 70, impact: 0 });
   const total = Object.values(scores).reduce((a, b) => a + b, 0);
 
   const cardBg = dark ? '#0d1130' : 'var(--hz-bg)';
@@ -156,7 +156,7 @@ const MockJudgingSlider = ({ dark }) => {
           </div>
         </div>
         <span style={{ padding: '0.3rem 0.8rem', background: 'rgba(239,68,68,0.15)', color: '#f87171', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid rgba(239,68,68,0.3)', whiteSpace: 'nowrap' }}>
-          {total} / {Object.keys(scores).length * 10} evaluated
+          {total} / {Object.keys(scores).length * 100} evaluated
         </span>
       </div>
 
@@ -165,10 +165,10 @@ const MockJudgingSlider = ({ dark }) => {
         <div key={k} style={{ marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', marginBottom: '0.45rem', fontWeight: 500 }}>
             <span style={{ color: txt, textTransform: 'capitalize' }}>{k.replace(/([A-Z])/g,' $1')}</span>
-            <span style={{ color: '#a78bfa', fontWeight: 700 }}>{v} / 10</span>
+            <span style={{ color: '#a78bfa', fontWeight: 700 }}>{v} / 100</span>
           </div>
           <input
-            type="range" min="0" max="10" value={v}
+            type="range" min="0" max="100" value={v}
             onChange={e => setScores(s => ({ ...s, [k]: +e.target.value }))}
             onClick={e => e.stopPropagation()}
             style={{ width: '100%', cursor: 'pointer', accentColor: '#7c6fff', height: '6px' }}

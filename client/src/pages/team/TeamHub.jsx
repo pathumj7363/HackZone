@@ -252,7 +252,7 @@ export default function TeamHub() {
   }
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
         position: 'relative', padding: '4rem 0 0 0', marginBottom: '2rem', overflow: 'hidden',

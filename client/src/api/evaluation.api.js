@@ -111,3 +111,18 @@ export const saveDraftEvaluationApi = async (projectId, evaluationData) => {
   // Stub for now
   return { success: true };
 };
+
+/**
+ * Get the evaluation report for a specific submission (Organizer only).
+ * @param {string} submissionId 
+ * @returns {Promise<Array>} Array of evaluations
+ */
+export const getSubmissionReportApi = async (submissionId) => {
+  try {
+    const response = await API.get(`/evaluations/submission/${submissionId}/report`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching submission report:', error);
+    throw error.response?.data || { error: 'Network error occurred' };
+  }
+};

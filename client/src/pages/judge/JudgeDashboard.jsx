@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { getAssignedSubmissions } from '../../api/evaluation.api';
 import { getMyPendingInvitationsApi, respondToInvitationApi } from '../../api/invitation.api';
+import { getHackathonDetailApi } from '../../api/hackathon.api';
 import { Button, Card, Badge, LoadingSpinner, PageHeader } from '../../components/ui';
 import { toast } from 'react-toastify';
 
@@ -12,6 +13,10 @@ export default function JudgeDashboard() {
   const [projects, setProjects] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [selectedHackathonId, setSelectedHackathonId] = useState('');
+  const [hackathonDetails, setHackathonDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const loadData = () => {
     Promise.all([
@@ -31,6 +36,30 @@ export default function JudgeDashboard() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (projects.length > 0 && !selectedHackathonId) {
+      // Safely find the first available hackathon
+      const firstId = projects[0]?.hackathonId;
+      if (firstId) setSelectedHackathonId(firstId);
+    }
+  }, [projects, selectedHackathonId]);
+
+  useEffect(() => {
+    if (selectedHackathonId) {
+      setLoadingDetails(true);
+      getHackathonDetailApi(selectedHackathonId).then(data => {
+        setHackathonDetails(data);
+        setLoadingDetails(false);
+      }).catch(err => {
+        console.error('Failed to load hackathon details', err);
+        setHackathonDetails(null);
+        setLoadingDetails(false);
+      });
+    } else {
+      setHackathonDetails(null);
+    }
+  }, [selectedHackathonId]);
+
   const handleRespond = async (inviteId, status) => {
     try {
       await respondToInvitationApi(inviteId, status);
@@ -41,17 +70,26 @@ export default function JudgeDashboard() {
     }
   };
 
+  // Filter projects by selected hackathon
+  const filteredProjects = selectedHackathonId ? projects.filter(p => p.hackathonId === selectedHackathonId) : projects;
+
   // Filter projects by evaluation status
-  // Assuming our API returns evaluations that may or may not be completed yet.
-  // Actually, getAssignedSubmissions returns the evaluations assigned. If innovationScore is not null, it's completed.
-  const completedProjects = projects.filter(p => p.innovationScore != null);
-  const pendingProjects = projects.filter(p => p.innovationScore == null);
+  const completedProjects = filteredProjects.filter(p => p.status === 'Completed');
+  const pendingProjects = filteredProjects.filter(p => p.status !== 'Completed');
   
   // Calculate total hackathons by finding unique hackathonIds
   const hackathons = [...new Set(projects.map(p => p.hackathonId))];
+  
+  const uniqueHackathonsMap = new Map();
+  projects.forEach(p => {
+    if (!uniqueHackathonsMap.has(p.hackathonId)) {
+      uniqueHackathonsMap.set(p.hackathonId, p.hackathon || `Hackathon #${p.hackathonId}`);
+    }
+  });
+  const uniqueHackathonsList = Array.from(uniqueHackathonsMap.entries()).map(([id, title]) => ({ id, title }));
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', minHeight: '100vh', transition: 'background 0.3s' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem', minHeight: '100vh' }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -120,6 +158,70 @@ export default function JudgeDashboard() {
           </div>
         )}
 
+        {/* Assigned Hackathon Details Section */}
+        {uniqueHackathonsList.length > 0 && (
+          <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginBottom: '3rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--hz-border)' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: 'var(--hz-text)' }}>Hackathon Details</h3>
+              <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+                <select 
+                  value={selectedHackathonId} 
+                  onChange={e => setSelectedHackathonId(e.target.value)}
+                  className="hz-input"
+                  style={{ width: '100%', padding: '0.75rem 2.5rem 0.75rem 1.25rem', borderRadius: '12px', border: '1px solid var(--hz-border)', backgroundColor: 'var(--hz-bg)', color: 'var(--hz-text)', outline: 'none', appearance: 'none', WebkitAppearance: 'none' }}
+                >
+                  <option value="" disabled style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>Select Hackathon...</option>
+                  {uniqueHackathonsList.map(h => (
+                    <option key={h.id} value={h.id} style={{ color: 'var(--hz-text)', backgroundColor: 'var(--hz-bg)' }}>{h.title}</option>
+                  ))}
+                </select>
+                <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--hz-text-muted)', zIndex: 1 }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
+            
+            {loadingDetails ? (
+              <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--hz-text-muted)' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '3px solid var(--hz-border)', borderTopColor: 'var(--hz-primary)', animation: 'spin 1s linear infinite', margin: '0 auto 1rem auto' }}></div>
+                Loading details...
+              </div>
+            ) : hackathonDetails ? (
+              <div className="row g-4">
+                <div className="col-12 col-md-8">
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--hz-text)', margin: '0 0 0.75rem 0' }}>{hackathonDetails.title}</h4>
+                  <p style={{ color: 'var(--hz-text-secondary)', lineHeight: 1.6, marginBottom: '1.5rem', fontSize: '0.95rem' }}>{hackathonDetails.description}</p>
+                  <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-muted)', fontSize: '0.9rem', fontWeight: '600' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                      <span>{new Date(hackathonDetails.startDate).toLocaleDateString()} - {new Date(hackathonDetails.endDate).toLocaleDateString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-text-muted)', fontSize: '0.9rem', fontWeight: '600' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <span style={{ textTransform: 'capitalize' }}>Status: {hackathonDetails.status}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-12 col-md-4">
+                  <div style={{ background: 'var(--hz-bg)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--hz-border)', height: '100%' }}>
+                     <h5 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--hz-text)', margin: '0 0 1rem 0' }}>Event Focus</h5>
+                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                       {(() => {
+                         let tags = hackathonDetails.tags || [];
+                         if (typeof tags === 'string') {
+                           try { tags = JSON.parse(tags); } catch(e) { tags = [tags]; }
+                         }
+                         if (!Array.isArray(tags)) tags = [];
+                         return tags.length > 0 ? tags.map((t, i) => (
+                           <span key={i} style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--hz-primary)', padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '700' }}>{t}</span>
+                         )) : <span style={{ color: 'var(--hz-text-muted)', fontSize: '0.9rem' }}>No tags available.</span>;
+                       })()}
+                     </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+
         {/* 1. Metric Cards */}
         <div className="row g-4 mb-5">
           <div className="col-12 col-md-4">
@@ -148,10 +250,10 @@ export default function JudgeDashboard() {
             <div style={{ padding: '2rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.1) 100%)', border: '1px solid rgba(99,102,241,0.2)', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: 'rgba(99,102,241,0.2)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--hz-primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Total Hackathons</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--hz-primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Total Submissions</span>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
               </div>
-              <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)' }}>{hackathons.length}</div>
+              <div style={{ fontSize: '3rem', fontWeight: '800', lineHeight: 1, color: 'var(--hz-text)' }}>{filteredProjects.length}</div>
             </div>
           </div>
         </div>
@@ -230,9 +332,9 @@ export default function JudgeDashboard() {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    {hackathons.map(hId => {
+                    {hackathons.filter(hId => !selectedHackathonId || hId === selectedHackathonId).map(hId => {
                       const hProjects = projects.filter(p => p.hackathonId === hId);
-                      const hCompleted = hProjects.filter(p => p.innovationScore != null).length;
+                      const hCompleted = hProjects.filter(p => p.status === 'Completed').length;
                       const hTotal = hProjects.length;
                       const progressPercent = Math.round((hCompleted / hTotal) * 100) || 0;
 

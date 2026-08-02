@@ -315,7 +315,7 @@ export default function Dashboard() {
 
             {/* Go Pro Organizer Card */}
             <Card padding={false} style={{
-              background: 'linear-gradient(135deg, var(--hz-primary) 0%, #312e81 100%)',
+              background: 'linear-gradient(135deg, var(--hz-primary) 0%, var(--hz-surface-raised) 100%)',
               color: 'var(--hz-text-inverse)',
               border: 'none',
               borderRadius: 'var(--hz-radius)',

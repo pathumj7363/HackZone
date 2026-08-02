@@ -14,7 +14,7 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('hz_theme', isDark ? 'dark' : 'light');
     if (isDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
-      document.body.style.backgroundColor = '#07091a';
+      document.body.style.backgroundColor = '#0a0a0a';
     } else {
       document.documentElement.removeAttribute('data-theme');
       document.body.style.backgroundColor = '#f8fafc'; // Default light surface background

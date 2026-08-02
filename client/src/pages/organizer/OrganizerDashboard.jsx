@@ -83,7 +83,7 @@ export default function OrganizerDashboard() {
   }
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)' }}>
+    <div className="hz-page" style={{ paddingBottom: '4rem' }}>
       {/* ── Dynamic Gradient Hero ── */}
       <div style={{
         position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
@@ -439,7 +439,7 @@ export default function OrganizerDashboard() {
                 <h3 style={{ fontSize: '1.4rem', fontWeight: '800', margin: '0 0 0.75rem 0', color: 'white' }}>Need Help?</h3>
                 <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.95rem', opacity: 0.9, lineHeight: 1.5 }}>Our support team is available 24/7 to help you manage your events.</p>
                 <button style={{ 
-                  background: 'white', 
+                  background: 'var(--hz-surface)', 
                   color: 'var(--hz-primary)', 
                   border: 'none', 
                   padding: '0.8rem 1.5rem', 

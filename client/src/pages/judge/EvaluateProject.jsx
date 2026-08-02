@@ -1,27 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getAssignedSubmissions, submitEvaluation } from '../../api/evaluation.api';
-import { Button, Card, Badge, LoadingSpinner, TextArea } from '../../components/ui';
+import { LoadingSpinner } from '../../components/ui';
 
 export default function EvaluateProject() {
-  const { id } = useParams(); // This is the submissionId
+  const { id } = useParams(); // submissionId
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [showImageModal, setShowImageModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
-  const [scores, setScores] = useState({
-    innovationScore: 0,
-    technicalComplexityScore: 0,
-    designScore: 0,
-    usabilityScore: 0
-  });
-  const [feedback, setFeedback] = useState('');
+  // Dynamic scoring state
+  const [dynamicScores, setDynamicScores] = useState([]);
+  const [activeAreaIndex, setActiveAreaIndex] = useState(0);
+  
+  // Refs for keyboard navigation
+  const scoreInputsRef = useRef([]);
 
   useEffect(() => {
-    // Fetch all assigned submissions and find the one that matches this ID
     getAssignedSubmissions().then(data => {
       const foundProject = data.find(p => String(p.submissionId) === String(id));
       if (!foundProject) {
@@ -30,16 +27,14 @@ export default function EvaluateProject() {
       }
       setProject(foundProject);
 
-      // If already scored, prefill the values
-      if (foundProject.innovationScore != null) {
-        setScores({
-          innovationScore: foundProject.innovationScore || 0,
-          technicalComplexityScore: foundProject.technicalComplexityScore || 0,
-          designScore: foundProject.designScore || 0,
-          usabilityScore: foundProject.usabilityScore || 0
-        });
-        setFeedback(foundProject.feedback || '');
+      if (foundProject.dynamicScores && Array.isArray(foundProject.dynamicScores) && foundProject.dynamicScores.length > 0) {
+        setDynamicScores(foundProject.dynamicScores.map(ds => ({ ...ds, feedback: ds.feedback || '', metrics: ds.metrics || [] })));
+      } else if (foundProject.judgeEvaluationAreas && Array.isArray(foundProject.judgeEvaluationAreas) && foundProject.judgeEvaluationAreas.length > 0) {
+        setDynamicScores(foundProject.judgeEvaluationAreas.map(area => ({ criteria: area, metrics: [], feedback: '' })));
+      } else {
+        setDynamicScores([{ criteria: 'Overall Impression', metrics: [], feedback: '' }]);
       }
+      
       setLoading(false);
     }).catch(err => {
       console.error(err);
@@ -47,222 +42,383 @@ export default function EvaluateProject() {
     });
   }, [id, navigate]);
 
-  const totalScore = scores.innovationScore + scores.technicalComplexityScore + scores.designScore + scores.usabilityScore;
+  const addCriteria = () => {
+    setDynamicScores([...dynamicScores, { criteria: 'New Criteria', metrics: [], feedback: '' }]);
+  };
+
+  const removeCriteria = (index) => {
+    const newScores = [...dynamicScores];
+    newScores.splice(index, 1);
+    setDynamicScores(newScores);
+    if (activeAreaIndex >= newScores.length) {
+      setActiveAreaIndex(Math.max(0, newScores.length - 1));
+    }
+  };
+
+  const updateCriteria = (index, field, value) => {
+    const newScores = [...dynamicScores];
+    newScores[index][field] = value;
+    setDynamicScores(newScores);
+  };
+
+  const addMetric = () => {
+    const newScores = [...dynamicScores];
+    if (!newScores[activeAreaIndex].metrics) newScores[activeAreaIndex].metrics = [];
+    newScores[activeAreaIndex].metrics.push({ name: '', score: '' });
+    setDynamicScores(newScores);
+  };
+
+  const removeMetric = (metricIndex) => {
+    const newScores = [...dynamicScores];
+    newScores[activeAreaIndex].metrics.splice(metricIndex, 1);
+    setDynamicScores(newScores);
+  };
+
+  const updateMetric = (metricIndex, field, value) => {
+    const newScores = [...dynamicScores];
+    newScores[activeAreaIndex].metrics[metricIndex][field] = value;
+    setDynamicScores(newScores);
+  };
+
+  const getAreaAverage = (areaObj) => {
+    if (areaObj.metrics && areaObj.metrics.length > 0) {
+      const sum = areaObj.metrics.reduce((acc, m) => acc + (Number(m.score) || 0), 0);
+      return Math.round(sum / areaObj.metrics.length);
+    }
+    return Number(areaObj.score) || 0;
+  };
+
+  const calculateAverage = () => {
+    if (dynamicScores.length === 0) return 0;
+    const sum = dynamicScores.reduce((acc, curr) => acc + getAreaAverage(curr), 0);
+    return Math.round(sum / dynamicScores.length);
+  };
 
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await submitEvaluation(id, project.hackathonId, { ...scores, feedback });
+      // Convert empty strings to 0 before saving
+      const finalScores = dynamicScores.map(ds => ({ 
+        ...ds, 
+        score: getAreaAverage(ds),
+        metrics: (ds.metrics || []).map(m => ({ ...m, score: Number(m.score) || 0 }))
+      }));
+      await submitEvaluation(id, project.hackathonId, { dynamicScores: finalScores, feedback: '' });
       navigate('/judge/dashboard');
     } catch (err) {
       console.error("Failed to submit:", err);
-      // Depending on the API, if it already exists it might throw a 409
-      // You could call updateEvaluation here instead if needed, but for Phase 5 we'll just redirect
       navigate('/judge/dashboard');
     }
   };
 
   if (loading) {
-    return <div className="hz-page hz-container hz-spinner-wrap--centered"><LoadingSpinner size="lg" /></div>;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--hz-bg)' }}>
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
-  const SliderField = ({ label, value, onChange }) => (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <label className="hz-label" style={{ margin: 0 }}>{label}</label>
-        <Badge variant="neutral" style={{ background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', fontWeight: 600, padding: '0.25rem 0.5rem' }}>
-          {value}/10
-        </Badge>
-      </div>
-      <input
-        type="range"
-        min="0" max="10"
-        value={value}
-        onChange={e => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: 'var(--hz-primary)', cursor: 'pointer' }}
-      />
-    </div>
-  );
+  // --- STYLING ---
+  const pageStyle = {
+    background: 'var(--hz-bg)',
+    minHeight: '100vh',
+    color: 'var(--hz-text)',
+    fontFamily: '"Inter", sans-serif',
+    paddingBottom: '120px' // space for sticky footer
+  };
+
+  const containerStyle = {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '2rem 1.5rem',
+  };
+
+  const sectionLabelStyle = {
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: 'var(--hz-text-muted)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '0.5rem',
+  };
+
+  const inputStyle = {
+    background: 'var(--hz-bg)',
+    border: '1px solid var(--hz-border)',
+    borderRadius: '6px',
+    color: 'var(--hz-text)',
+    fontSize: '1rem',
+    outline: 'none',
+    padding: '0.75rem 1rem',
+    transition: 'all 0.2s',
+    width: '100%'
+  };
+
+  const allAreasEvaluated = dynamicScores.length > 0 && dynamicScores.every(ds => ds.metrics && ds.metrics.length > 0);
 
   return (
-    <div className="hz-page" style={{ paddingBottom: '4rem', background: 'var(--hz-bg)', minHeight: '100vh', transition: 'background 0.3s' }}>
+    <div style={pageStyle}>
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
         }
+        .minimal-input:focus { border-color: var(--hz-primary) !important; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
+        .row-hover:hover { background: rgba(255,255,255,0.02); }
       `}</style>
       
-      {/* ── Dynamic Gradient Hero ── */}
-      <div style={{
-        position: 'relative', padding: '4rem 0', marginBottom: '3rem', overflow: 'hidden',
-        borderBottom: '1px solid var(--hz-border)'
-      }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--hz-surface)', zIndex: 0 }}>
-          <div style={{ position: 'absolute', top: '-50%', left: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
-          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
+      {/* Navbar / Top Back Button */}
+      <div style={{ borderBottom: '1px solid var(--hz-border)', position: 'sticky', top: 0, background: 'rgba(9,9,11,0.8)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ background: 'transparent', border: 'none', color: 'var(--hz-text-muted)', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: 0 }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Back
+          </button>
         </div>
+      </div>
+
+      <div style={containerStyle}>
         
-        <div className="hz-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
-          <div>
-            <a href="#" onClick={(e) => { e.preventDefault(); navigate(-1); }} className="hz-text-muted" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--hz-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--hz-text-muted)'}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              Back to Dashboard
-            </a>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-              <h1 style={{ fontSize: '2.5rem', fontWeight: '800', margin: 0, color: 'var(--hz-text)', letterSpacing: '-0.02em' }}>
-                {project.submissionTitle || `Submission #${project.submissionId}`}
-              </h1>
-              <span style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--hz-primary)', padding: '0.35rem 1rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: '700' }}>
-                Hackathon {project.hackathonId}
-              </span>
-            </div>
-            <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', color: 'var(--hz-text-secondary)', margin: 0, fontWeight: 500 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              Submitted by <span style={{ color: 'var(--hz-text)', fontWeight: 700 }}>Team / User</span>
+        {/* --- HEADER --- */}
+        <div style={{ marginBottom: '3rem' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.5rem', lineHeight: 1.2 }}>
+            {project.submissionTitle || `Submission #${project.submissionId}`}
+          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-text-secondary)', fontSize: '0.95rem' }}>
+            <span>By <strong>{project.teamName}</strong></span>
+            <span style={{ color: 'var(--hz-border)' }}>|</span>
+            <span>Hackathon {project.hackathonId}</span>
+          </div>
+        </div>
+
+        {/* --- PROJECT CONTENT --- */}
+        <div style={{ marginBottom: '3rem', background: 'var(--hz-surface)', padding: '2.5rem', borderRadius: '16px', border: '1px solid var(--hz-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <div style={{ marginBottom: '2.5rem' }}>
+            <div style={sectionLabelStyle}>Description</div>
+            <p style={{ margin: 0, fontSize: '1rem', lineHeight: 1.7, color: 'var(--hz-text-secondary)', whiteSpace: 'pre-line' }}>
+              {project.description || 'No description provided.'}
             </p>
           </div>
-        </div>
-      </div>
 
-      <div className="hz-container" style={{ animation: 'fadeIn 0.5s ease' }}>
-        <div className="row g-4">
-
-          {/* Left Column: Project Details */}
-          <div className="col-12 col-lg-7">
-            <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-border)', padding: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', height: '100%' }}>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 1.5rem', color: 'var(--hz-text)' }}>Project Details</h3>
-              <div style={{ background: 'var(--hz-bg)', padding: '1.5rem', borderRadius: '16px', border: '1px dashed var(--hz-border)', marginBottom: '2.5rem' }}>
-                <p style={{ color: 'var(--hz-text-secondary)', lineHeight: 1.6, margin: 0, fontSize: '1rem' }}>
-                  This is the submission details area. The user would see the actual description of the project here if it were populated by the database join.
-                </p>
-              </div>
-
-              <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--hz-text)' }}>Repository</h4>
-              <div style={{ marginBottom: '2.5rem' }}>
-                {project.githubRepo ? (
-                  <a href={project.githubRepo} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', border: '1px solid var(--hz-border)', borderRadius: '16px', background: 'var(--hz-bg)', color: 'var(--hz-text)', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--hz-primary)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 15px rgba(0,0,0,0.05)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--hz-border)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.02)'; }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <div style={{ width: '40px', height: '40px', background: 'var(--hz-primary-light)', color: 'var(--hz-primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                      </div>
-                      <span style={{ fontSize: '1.05rem' }}>GitHub Repository</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--hz-primary)' }}>
-                      <span style={{ fontSize: '0.9rem' }}>View Source</span>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </div>
-                  </a>
-                ) : (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', border: '1px dashed var(--hz-border)', borderRadius: '16px', background: 'var(--hz-bg)', color: 'var(--hz-text-muted)', fontWeight: 500 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                      No GitHub Repo Provided
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--hz-text)' }}>Demo Video</h4>
-              <div>
-                <div
-                  onClick={() => { if (project.demoVideoUrl) setShowVideoModal(true) }}
-                  style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', cursor: project.demoVideoUrl ? 'pointer' : 'default', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', height: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--hz-border)', transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
-                  onMouseEnter={e => { if (project.demoVideoUrl) { e.currentTarget.style.transform = 'scale(1.02)'; } }}
-                  onMouseLeave={e => { if (project.demoVideoUrl) { e.currentTarget.style.transform = 'scale(1)'; } }}
-                >
-                  <div style={{ width: '80px', height: '80px', background: project.demoVideoUrl ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.3s' }}>
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill={project.demoVideoUrl ? "white" : "none"} stroke={project.demoVideoUrl ? "white" : "rgba(255,255,255,0.3)"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: project.demoVideoUrl ? '6px' : '0' }}><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-                  </div>
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.9))', color: 'white', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: '32px', height: '32px', background: project.demoVideoUrl ? 'var(--hz-primary)' : 'rgba(255,255,255,0.2)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                    </div>
-                    <span style={{ fontSize: '1.05rem', fontWeight: 600 }}>{project.demoVideoUrl ? "Play Demo Video" : "No Demo Video Attached"}</span>
-                  </div>
-                </div>
+          {project.techStack && (
+            <div style={{ marginBottom: '2.5rem' }}>
+              <div style={sectionLabelStyle}>Tech Stack</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {project.techStack.split(',').map((tech, idx) => (
+                  <span key={idx} style={{ padding: '0.25rem 0.75rem', background: 'var(--hz-surface)', border: '1px solid var(--hz-border)', borderRadius: '6px', fontSize: '0.85rem', color: 'var(--hz-text)' }}>
+                    {tech.trim()}
+                  </span>
+                ))}
               </div>
             </div>
+          )}
+
+          {project.notes && (
+            <div style={{ marginBottom: '2.5rem', padding: '1rem', background: 'var(--hz-surface)', borderLeft: '3px solid var(--hz-border)', borderRadius: '0 8px 8px 0' }}>
+              <div style={sectionLabelStyle}>Participant Notes</div>
+              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--hz-text-secondary)', whiteSpace: 'pre-line' }}>
+                {project.notes}
+              </p>
+            </div>
+          )}
+
+          {/* Links Row */}
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
+            {project.githubRepo && (
+              <a href={project.githubRepo} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--hz-text)', textDecoration: 'none', background: 'var(--hz-surface)', padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--hz-border)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                Repository
+              </a>
+            )}
+            {project.demoVideoUrl && (
+              <button onClick={() => setShowVideoModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--hz-text)', textDecoration: 'none', background: 'var(--hz-surface)', padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--hz-border)', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                Demo Video
+              </button>
+            )}
+            {project.fileUrl && (
+              <a href={project.fileUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--hz-text)', textDecoration: 'none', background: 'var(--hz-surface)', padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--hz-border)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                Attached File
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* --- EVALUATION FORM --- */}
+        <div style={{ background: 'var(--hz-surface)', padding: '2.5rem', borderRadius: '16px', border: '1px solid var(--hz-border)', borderTop: '4px solid var(--hz-primary)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          
+          <div style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0 0 0.5rem' }}>Area-Specific Evaluation</h2>
+            <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--hz-text-secondary)' }}>Select an area from the dropdown below to provide its score and specific feedback.</p>
           </div>
 
-          {/* Right Column: Evaluation Form */}
-          <div className="col-12 col-lg-5">
-            <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', border: '1px solid var(--hz-primary)', padding: '2.5rem', boxShadow: '0 10px 40px rgba(99,102,241,0.1)', position: 'sticky', top: '2rem' }}>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--hz-border)' }}>
+          {dynamicScores.length > 0 && (
+            <>
+              {/* Area Selector */}
+              <div style={{ marginBottom: '2rem' }}>
+                <div style={sectionLabelStyle}>Select Evaluation Area</div>
+                <div style={{ position: 'relative' }}>
+                  <select 
+                    value={activeAreaIndex} 
+                    onChange={(e) => setActiveAreaIndex(Number(e.target.value))}
+                    style={{ 
+                      width: '100%', padding: '1rem', borderRadius: '8px', 
+                      border: '1px solid var(--hz-primary)', background: 'var(--hz-bg)', color: 'var(--hz-text)',
+                      fontSize: '1rem', fontWeight: 600, appearance: 'none', cursor: 'pointer'
+                    }}
+                  >
+                    {dynamicScores.map((ds, idx) => (
+                      <option key={idx} value={idx}>{ds.criteria}</option>
+                    ))}
+                  </select>
+                  <svg style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+
+              {/* Active Area Form */}
+              <div style={{ padding: '2rem', background: 'var(--hz-bg)', borderRadius: '12px', border: '1px solid var(--hz-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>{dynamicScores[activeAreaIndex].criteria}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--hz-surface)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--hz-primary)' }}>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--hz-text-muted)' }}>AREA AVERAGE</span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--hz-primary)' }}>{getAreaAverage(dynamicScores[activeAreaIndex])}</span>
+                    <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--hz-text-muted)' }}>/ 100</span>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '2rem' }}>
+                  <div style={{ ...sectionLabelStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <span>Evaluation Metrics</span>
+                    <button 
+                      onClick={addMetric}
+                      style={{ background: 'var(--hz-primary)', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                      Add Metric
+                    </button>
+                  </div>
+
+                  {!dynamicScores[activeAreaIndex].metrics || dynamicScores[activeAreaIndex].metrics.length === 0 ? (
+                    <div style={{ padding: '1.5rem', textAlign: 'center', background: 'var(--hz-surface)', borderRadius: '8px', border: '1px dashed var(--hz-border)' }}>
+                      <p style={{ margin: 0, color: 'var(--hz-text-muted)', fontSize: '0.9rem' }}>No metrics added yet. Click "Add Metric" to start scoring specific aspects of this area.</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {dynamicScores[activeAreaIndex].metrics.map((metric, mIdx) => (
+                        <div key={mIdx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            value={metric.name}
+                            onChange={e => updateMetric(mIdx, 'name', e.target.value)}
+                            placeholder="Metric Name (e.g., Code Quality)"
+                            style={{ ...inputStyle, flex: 1, padding: '0.5rem 0.75rem' }}
+                          />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <input
+                              type="number"
+                              min="0" max="100"
+                              value={metric.score}
+                              onChange={e => {
+                                let val = e.target.value;
+                                if (val !== '') {
+                                  let num = Number(val);
+                                  if (num > 100) num = 100;
+                                  if (num < 0) num = 0;
+                                  val = num;
+                                }
+                                updateMetric(mIdx, 'score', val);
+                              }}
+                              placeholder="0"
+                              style={{ ...inputStyle, width: '70px', padding: '0.5rem', textAlign: 'center', fontWeight: 700, color: 'var(--hz-primary)', borderColor: 'var(--hz-primary)' }}
+                            />
+                          </div>
+                          <button 
+                            onClick={() => removeMetric(mIdx)}
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '6px' }}
+                            title="Remove metric"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 0.5rem', color: 'var(--hz-text)' }}>Scoring Rubric</h3>
-                  <p style={{ margin: 0, color: 'var(--hz-text-secondary)', fontSize: '0.9rem' }}>Evaluate the project out of 40 points.</p>
+                  <div style={sectionLabelStyle}>Specific Feedback for this Area</div>
+                  <textarea
+                    placeholder={`Provide detailed feedback on how the project performed regarding ${dynamicScores[activeAreaIndex].criteria}...`}
+                    value={dynamicScores[activeAreaIndex].feedback}
+                    onChange={(e) => updateCriteria(activeAreaIndex, 'feedback', e.target.value)}
+                    style={{ 
+                      width: '100%', minHeight: '150px', padding: '1rem', borderRadius: '8px', 
+                      border: '1px solid var(--hz-border)', background: 'var(--hz-surface)', color: 'var(--hz-text)',
+                      fontSize: '0.95rem', lineHeight: 1.6, outline: 'none', resize: 'vertical',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={e => e.target.style.borderColor = 'var(--hz-primary)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--hz-border)'}
+                  />
                 </div>
-                <div style={{ textAlign: 'right', background: 'var(--hz-bg)', padding: '0.75rem 1.25rem', borderRadius: '16px', border: '1px solid var(--hz-border)' }}>
-                  <p style={{ fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: 700, color: 'var(--hz-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Score</p>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                    <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--hz-primary)', lineHeight: 1 }}>{totalScore}</span>
-                    <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>/ 40</span>
-                  </div>
-                </div>
               </div>
+            </>
+          )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
-                <SliderField label="Innovation & Originality" value={scores.innovationScore} onChange={(val) => setScores({ ...scores, innovationScore: val })} />
-                <SliderField label="Technical Complexity" value={scores.technicalComplexityScore} onChange={(val) => setScores({ ...scores, technicalComplexityScore: val })} />
-                <SliderField label="Design & Architecture" value={scores.designScore} onChange={(val) => setScores({ ...scores, designScore: val })} />
-                <SliderField label="Usability & Polish" value={scores.usabilityScore} onChange={(val) => setScores({ ...scores, usabilityScore: val })} />
-              </div>
+        </div>
 
-              <div style={{ marginBottom: '2.5rem' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--hz-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                  Constructive Feedback
-                </h4>
-                <textarea
-                  placeholder="Provide detailed feedback for the team to help them improve..."
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="hz-input"
-                  style={{ 
-                    width: '100%', minHeight: '150px', padding: '1.25rem', borderRadius: '16px', 
-                    border: '1px solid var(--hz-border)', background: 'var(--hz-bg)', color: 'var(--hz-text)',
-                    fontSize: '1rem', lineHeight: 1.6, outline: 'none', resize: 'vertical'
-                  }}
-                />
-              </div>
+      </div>
 
-              <Button 
-                onClick={handleSubmit} 
-                disabled={submitting}
-                style={{ 
-                  width: '100%', padding: '1.25rem', borderRadius: '16px', fontSize: '1.1rem', fontWeight: 700,
-                  background: 'linear-gradient(90deg, var(--hz-primary) 0%, #a855f7 100%)', color: 'white', border: 'none',
-                  boxShadow: '0 8px 25px rgba(99,102,241,0.4)', transition: 'all 0.2s', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1
-                }}
-                onMouseEnter={e => { if (!submitting) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(99,102,241,0.5)'; } }}
-                onMouseLeave={e => { if (!submitting) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(99,102,241,0.4)'; } }}
-              >
-                {submitting ? 'Submitting Evaluation...' : 'Submit Evaluation'}
-              </Button>
+      {/* --- STICKY SUBMISSION BAR --- */}
+      <div style={{ 
+        position: 'fixed', bottom: 0, left: 0, right: 0, 
+        background: 'var(--hz-bg)', borderTop: '1px solid var(--hz-border)', 
+        padding: '1rem 0', zIndex: 100, boxShadow: '0 -10px 40px rgba(0,0,0,0.2)' 
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--hz-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Average Score</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+              <span style={{ fontSize: '1.5rem', fontWeight: 800 }}>{calculateAverage()}</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--hz-text-muted)' }}>/ 100</span>
             </div>
           </div>
-
+          
+          <button 
+            onClick={handleSubmit} 
+            disabled={submitting || !allAreasEvaluated}
+            style={{ 
+              background: 'var(--hz-text)', color: 'var(--hz-bg)', 
+              border: 'none', borderRadius: '6px', padding: '0.75rem 2rem', 
+              fontSize: '0.95rem', fontWeight: 700, cursor: (submitting || !allAreasEvaluated) ? 'not-allowed' : 'pointer',
+              opacity: (submitting || !allAreasEvaluated) ? 0.5 : 1
+            }}
+          >
+            {submitting ? 'Submitting...' : (allAreasEvaluated ? 'Submit Evaluation' : 'Evaluate All Areas First')}
+          </button>
         </div>
       </div>
 
-      {/* Video Modal Placeholder */}
+      {/* Video Modal */}
       {showVideoModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(10px)', animation: 'fadeIn 0.3s ease' }}>
-          <div style={{ position: 'relative', width: '90%', maxWidth: '1000px', aspectRatio: '16/9', background: '#000', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(5px)' }}>
+          <div style={{ position: 'relative', width: '90%', maxWidth: '1000px', aspectRatio: '16/9', background: '#000', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <button 
               onClick={() => setShowVideoModal(false)} 
-              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, transition: 'background 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+              style={{ position: 'absolute', top: '-3rem', right: '0', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              Close <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <div style={{ textAlign: 'center', color: 'white' }}>
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5, marginBottom: '1rem' }}><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-              <h3 style={{ fontSize: '1.5rem', margin: '0 0 0.5rem' }}>Video Player Demo</h3>
-              <p style={{ opacity: 0.7 }}>URL: {project.demoVideoUrl}</p>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.5, marginBottom: '1rem' }}><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+              <h3>Demo Video Player</h3>
+              <a href={project.demoVideoUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--hz-text-muted)' }}>Open externally</a>
             </div>
           </div>
         </div>
