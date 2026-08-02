@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getMyRegisteredHackathonsApi, getScoreboardApi } from '../../api/hackathon.api';
+import { getMySubmissionsApi } from '../../api/submission.api';
 import useAuth from '../../hooks/useAuth';
 
 export default function ParticipantScoreboard() {
   const { user } = useAuth();
+  const location = useLocation();
+  const queryHackathonId = new URLSearchParams(location.search).get('hackathonId');
+  
   const [hackathons, setHackathons] = useState([]);
   const [selectedHackathonId, setSelectedHackathonId] = useState('');
   
@@ -14,12 +19,23 @@ export default function ParticipantScoreboard() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    getMyRegisteredHackathonsApi()
-      .then(data => {
-        const hacks = Array.isArray(data) ? data : (data?.data || []);
-        setHackathons(hacks);
-        if (hacks.length > 0) {
-          setSelectedHackathonId(hacks[0].id);
+    Promise.all([
+      getMyRegisteredHackathonsApi(),
+      getMySubmissionsApi()
+    ])
+      .then(([hackathonsData, submissionsData]) => {
+        const hacks = Array.isArray(hackathonsData) ? hackathonsData : (hackathonsData?.data || []);
+        const subs = Array.isArray(submissionsData) ? submissionsData : (submissionsData?.data || []);
+        
+        // Filter out hackathons where the user hasn't submitted a project
+        const submittedHacks = hacks.filter(h => subs.some(sub => sub.hackathonId === h.id));
+        
+        setHackathons(submittedHacks);
+        
+        if (queryHackathonId && submittedHacks.some(h => h.id === queryHackathonId)) {
+          setSelectedHackathonId(queryHackathonId);
+        } else if (submittedHacks.length > 0) {
+          setSelectedHackathonId(submittedHacks[0].id);
         }
         setLoading(false);
       })

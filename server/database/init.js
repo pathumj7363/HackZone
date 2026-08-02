@@ -13,6 +13,15 @@ const createUsersTable = async () => {
     `;
     
     await pool.query(query);
+
+    // Ensure profilePicture column exists (for migrating existing databases)
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN profilePicture VARCHAR(255) DEFAULT NULL');
+      console.log("ℹ️ Added profilePicture column to users table.");
+    } catch (e) {
+      // Ignore error if column already exists (ER_DUP_FIELDNAME)
+    }
+
     console.log("✅ Users table initialized successfully!");
     
     // Close the pool so the script exits properly

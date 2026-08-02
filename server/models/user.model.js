@@ -1,5 +1,34 @@
 import pool from '../database/db.js';
 
+// Auto-migrate profile columns
+(async () => {
+  try {
+    const migrations = [
+      'ALTER TABLE users ADD COLUMN profilePicture VARCHAR(255) DEFAULT NULL',
+      'ALTER TABLE users ADD COLUMN skills JSON',
+      'ALTER TABLE users ADD COLUMN githubUrl VARCHAR(255) DEFAULT NULL',
+      'ALTER TABLE users ADD COLUMN linkedInUrl VARCHAR(255) DEFAULT NULL',
+      'ALTER TABLE users ADD COLUMN bio TEXT',
+      'ALTER TABLE users ADD COLUMN occupation VARCHAR(255) DEFAULT NULL',
+      'ALTER TABLE users ADD COLUMN expertiseTags JSON',
+      'ALTER TABLE users ADD COLUMN organizationName VARCHAR(255) DEFAULT NULL',
+      'ALTER TABLE users ADD COLUMN websiteUrl VARCHAR(255) DEFAULT NULL',
+      'ALTER TABLE users ADD COLUMN isVerified BOOLEAN DEFAULT FALSE'
+    ];
+
+    for (const migration of migrations) {
+      try {
+        await pool.query(migration);
+      } catch (e) {
+        // Ignore duplicate column errors
+      }
+    }
+    console.log("ℹ️ User table profile columns verified/migrated.");
+  } catch (e) {
+    console.error("Migration error:", e);
+  }
+})();
+
 /**
  * Fetch a user by their email address.
  * @param {string} email 
@@ -15,6 +44,22 @@ export const findUserByEmail = async (email) => {
     return null;
   }
 
+  return rows[0];
+};
+
+/**
+ * Fetch a user by their ID.
+ * @param {string} id 
+ * @returns {Promise<Object|null>} The user object or null if not found
+ */
+export const getUserById = async (id) => {
+  const query = `SELECT * FROM users WHERE id = ?`;
+  const [rows] = await pool.query(query, [id]);
+  
+  if (rows.length === 0) {
+    return null;
+  }
+  
   return rows[0];
 };
 
@@ -123,7 +168,7 @@ export const getUsersByRole = async (role) => {
 export const searchUsers = async (searchQuery) => {
   try {
     const query = `
-      SELECT id, name, email, role 
+      SELECT id, name, email, role, profilePicture 
       FROM users 
       WHERE (name LIKE ? OR email LIKE ?) AND role != 'admin'
       LIMIT 20
@@ -133,6 +178,23 @@ export const searchUsers = async (searchQuery) => {
     return rows;
   } catch (error) {
     console.error('Error searching users:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update user's profile picture
+ * @param {string} id - User ID
+ * @param {string} profilePicture - URL or path to the picture
+ * @returns {Promise<boolean>}
+ */
+export const updateProfilePicture = async (id, profilePicture) => {
+  try {
+    const query = `UPDATE users SET profilePicture = ? WHERE id = ?`;
+    const [result] = await pool.query(query, [profilePicture, id]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error updating profile picture:', error);
     throw error;
   }
 };

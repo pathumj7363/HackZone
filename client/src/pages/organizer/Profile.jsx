@@ -1,31 +1,29 @@
 import React, { useState, useEffect, useContext } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { ThemeContext } from '../../context/ThemeContext';
-import { getMyProfileApi, updateParticipantProfileApi } from '../../api/user.api';
+import { getMyProfileApi, updateOrganizerProfileApi } from '../../api/user.api';
 import { toast } from 'react-toastify';
 
 export default function Profile() {
   const { user } = useAuth();
   const { isDark } = useContext(ThemeContext);
   const [formData, setFormData] = useState({
-    skills: '',
-    githubUrl: '',
-    linkedInUrl: '',
-    bio: ''
+    organizationName: '',
+    websiteUrl: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const data = await getMyProfileApi();
         setFormData({
-          skills: data.skills ? data.skills.join(', ') : '',
-          githubUrl: data.githubUrl || '',
-          linkedInUrl: data.linkedInUrl || '',
-          bio: data.bio || ''
+          organizationName: data.organizationName || '',
+          websiteUrl: data.websiteUrl || ''
         });
+        setIsVerified(data.isVerified || false);
       } catch (err) {
         toast.error('Failed to load profile data');
       } finally {
@@ -41,10 +39,9 @@ export default function Profile() {
     e.preventDefault();
     setSaving(true);
     try {
-      const skillsArray = formData.skills.split(',').map(s => s.trim()).filter(s => s);
-      await updateParticipantProfileApi({
+      await updateOrganizerProfileApi({
         ...formData,
-        skills: skillsArray
+        isVerified // usually set by admin, but keeping it in the payload for consistency
       });
       toast.success('Profile updated successfully!');
     } catch (error) {
@@ -78,8 +75,8 @@ export default function Profile() {
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>My Profile</h1>
-        <p style={{ color: 'var(--hz-text-muted)', margin: 0 }}>Update your participant details, skills, and links.</p>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>Organizer Profile</h1>
+        <p style={{ color: 'var(--hz-text-muted)', margin: 0 }}>Update your organization details and web presence.</p>
       </div>
 
       <div style={{ 
@@ -93,39 +90,28 @@ export default function Profile() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2.5rem' }}>
           <div style={{ 
             width: '80px', height: '80px', borderRadius: '50%', 
-            background: 'linear-gradient(135deg, var(--hz-primary) 0%, #8b5cf6 100%)', 
+            background: 'linear-gradient(135deg, var(--hz-primary) 0%, #0ea5e9 100%)', 
             display: 'flex', alignItems: 'center', justifyContent: 'center', 
             color: '#fff', fontSize: '2rem', fontWeight: 'bold' 
           }}>
-            {(user.name || 'U').charAt(0).toUpperCase()}
+            {(user.name || 'O').charAt(0).toUpperCase()}
           </div>
           <div>
-            <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '1.25rem', fontWeight: 700 }}>{user.name}</h2>
+            <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '1.25rem', fontWeight: 700 }}>
+              {user.name}
+              {isVerified && <span style={{ marginLeft: '0.5rem', color: '#10b981', fontSize: '1rem' }}>✓</span>}
+            </h2>
             <div style={{ color: 'var(--hz-text-muted)', fontSize: '0.9rem' }}>{user.email}</div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>Bio</label>
-            <textarea 
-              name="bio"
-              placeholder="Tell us about yourself..." 
-              rows={4}
-              value={formData.bio} 
-              onChange={handleChange}
-              style={{ ...inputStyle, resize: 'vertical' }}
-              onFocus={e => e.target.style.borderColor = 'var(--hz-primary)'}
-              onBlur={e => e.target.style.borderColor = border}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>Skills (comma separated)</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>Organization Name</label>
             <input 
-              name="skills"
-              placeholder="e.g. React, Node.js, Python" 
-              value={formData.skills} 
+              name="organizationName"
+              placeholder="e.g. Acme Hackathons Inc." 
+              value={formData.organizationName} 
               onChange={handleChange}
               style={inputStyle}
               onFocus={e => e.target.style.borderColor = 'var(--hz-primary)'}
@@ -133,31 +119,17 @@ export default function Profile() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>GitHub URL</label>
-              <input 
-                name="githubUrl"
-                placeholder="https://github.com/username" 
-                value={formData.githubUrl} 
-                onChange={handleChange}
-                style={inputStyle}
-                onFocus={e => e.target.style.borderColor = 'var(--hz-primary)'}
-                onBlur={e => e.target.style.borderColor = border}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>LinkedIn URL</label>
-              <input 
-                name="linkedInUrl"
-                placeholder="https://linkedin.com/in/username" 
-                value={formData.linkedInUrl} 
-                onChange={handleChange}
-                style={inputStyle}
-                onFocus={e => e.target.style.borderColor = 'var(--hz-primary)'}
-                onBlur={e => e.target.style.borderColor = border}
-              />
-            </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--hz-text-muted)' }}>Website URL</label>
+            <input 
+              name="websiteUrl"
+              placeholder="https://www.your-organization.com" 
+              value={formData.websiteUrl} 
+              onChange={handleChange}
+              style={inputStyle}
+              onFocus={e => e.target.style.borderColor = 'var(--hz-primary)'}
+              onBlur={e => e.target.style.borderColor = border}
+            />
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', paddingTop: '1.5rem', borderTop: `1px solid ${border}` }}>

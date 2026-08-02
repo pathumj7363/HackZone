@@ -230,11 +230,13 @@ export default function ParticipantDashboard() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.75rem' }}>
                           <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'var(--hz-text)' }}>{hackathon.title || 'Untitled Hackathon'}</h3>
                           <Badge variant={
+                            hackathon.resultsPublished ? 'success' :
                             hasSubmitted ? 'primary' :
                             hackathon.registrationStatus === 'approved' ? 'success' :
                               hackathon.registrationStatus === 'rejected' ? 'danger' : 'warning'
                           } style={{ borderRadius: '8px', padding: '0.35rem 0.75rem', fontWeight: '600' }}>
-                            {hasSubmitted ? 'Project Submitted' :
+                            {hackathon.resultsPublished ? 'Result Published' :
+                             hasSubmitted ? 'Project Submitted' :
                              hackathon.registrationStatus === 'approved' ? 'Registration Approved' :
                               hackathon.registrationStatus === 'rejected' ? 'Registration Rejected' : 'Pending Approval'}
                           </Badge>
@@ -255,7 +257,13 @@ export default function ParticipantDashboard() {
                               View Details
                             </Button>
                           </Link>
-                          {hasSubmitted ? (
+                          {hackathon.resultsPublished ? (
+                            <Link to={`/participant/scoreboard?hackathonId=${hackathon.id}`} style={{ textDecoration: 'none' }}>
+                              <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(16,185,129,0.25)', background: '#10b981' }}>
+                                View Result
+                              </Button>
+                            </Link>
+                          ) : hasSubmitted ? (
                             <Link to="/submissions" style={{ textDecoration: 'none' }}>
                               <Button variant="primary" style={{ borderRadius: '10px', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: '600', boxShadow: '0 4px 12px rgba(99,102,241,0.25)', background: 'var(--hz-primary-dark)' }}>
                                 View Submission
