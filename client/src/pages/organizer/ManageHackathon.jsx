@@ -283,6 +283,7 @@ export default function ManageHackathon() {
       prizes: hack.prizes && Array.isArray(hack.prizes) && hack.prizes.length > 0 ? hack.prizes : initialForm.prizes,
       judges: hack.judges && Array.isArray(hack.judges) && hack.judges.length > 0 ? hack.judges : initialForm.judges,
       organization: orgData,
+      existingImage: hack.image,
     });
     setStep(1);
     setView('form');
@@ -411,6 +412,9 @@ export default function ManageHackathon() {
         </div>
         <div className="col-12 col-md-4">
           <label className="hz-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Event Banner</label>
+          {formData.existingImage && (
+            <div style={{ marginBottom: '0.5rem', width: '100%', height: '80px', borderRadius: '8px', background: `url(${formData.existingImage.startsWith('http') ? formData.existingImage : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${formData.existingImage}`}) center/cover` }}></div>
+          )}
           <input type="file" accept="image/*" onChange={handleFileChange} className="hz-input" style={{ width: '100%', padding: '0.65rem' }} />
         </div>
         <div className="col-12">
