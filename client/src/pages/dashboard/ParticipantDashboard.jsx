@@ -219,7 +219,7 @@ export default function ParticipantDashboard() {
                       {/* Image Thumbnail */}
                       <div style={{ 
                         width: '140px', 
-                        background: `url(${hackathon.image || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}) center/cover`,
+                        background: `url(${hackathon.image ? (hackathon.image.startsWith('http') ? hackathon.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${hackathon.image}`) : 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}) center/cover`,
                         position: 'relative'
                       }}>
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent, var(--hz-surface))' }}></div>

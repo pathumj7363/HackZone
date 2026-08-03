@@ -359,7 +359,11 @@ export default function Home() {
               <div style={{ position: 'relative', height: '420px', display: 'flex', justifyContent: 'center', alignItems: 'center', perspective: '1000px', overflow: 'hidden' }}>
                 {hackathonsPreview.map((h, i) => {
                   const sc = getStatusConfig(h.status);
-                  const image = h.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=800&q=80';
+                  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                  let image = h.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=800&q=80';
+                  if (h.image && !h.image.startsWith('http')) {
+                    image = `${backendUrl}${h.image}`;
+                  }
                   
                   const total = hackathonsPreview.length;
                   let offset = i - activeIndex;

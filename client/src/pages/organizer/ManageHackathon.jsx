@@ -317,7 +317,7 @@ export default function ManageHackathon() {
             return (
               <div key={hack.id} className="col-12 col-md-6 col-lg-4">
                 <Card style={{ borderRadius: '20px', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', border: '1px solid var(--hz-border)', transition: 'transform 0.2s, box-shadow 0.2s', ':hover': { transform: 'translateY(-4px)', boxShadow: '0 12px 40px rgba(0,0,0,0.1)' } }}>
-                  <div style={{ height: '160px', backgroundColor: '#e2e8f0', backgroundImage: `url(${hack.image || 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80'})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                  <div style={{ height: '160px', backgroundColor: '#e2e8f0', backgroundImage: `url(${hack.image ? (hack.image.startsWith('http') ? hack.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${hack.image}`) : 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80'})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: statusColor, color: statusTextColor, padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700', backdropFilter: 'blur(4px)', border: `1px solid ${statusTextColor}` }}>
                       {hack.status}
                     </div>

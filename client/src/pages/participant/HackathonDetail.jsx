@@ -120,7 +120,11 @@ export default function HackathonDetail() {
   const organizerDesc = orgData?.description || "Hosted on the HackZone Platform. Contact organizers through the official Discord server.";
   const organizerWebsite = orgData?.website || null;
   const judges = hackathon.judges && Array.isArray(hackathon.judges) ? hackathon.judges : [];
-  const image = hackathon.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  let image = hackathon.image || 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80';
+  if (hackathon.image && !hackathon.image.startsWith('http')) {
+    image = `${backendUrl}${hackathon.image}`;
+  }
   const displayStatus = hackathon.status || "COMING SOON";
   const description = hackathon.description || "No description provided.";
   const location = hackathon.location || "TBA";
