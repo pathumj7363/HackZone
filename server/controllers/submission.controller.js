@@ -13,7 +13,7 @@ export const submitProject = async (req, res) => {
 
     let fileUrl = null;
     if (req.file) {
-      fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+      fileUrl = `/uploads/${req.file.filename}`;
     }
 
     if (!hackathonId || !title) {
