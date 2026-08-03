@@ -285,7 +285,7 @@ export default function HackathonList() {
                           {!hasImgError ? (
                             <img
                               className="hack-img"
-                              src={h.image}
+                              src={h.image ? (h.image.startsWith('http') ? h.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${h.image}`) : 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
                               alt={h.title}
                               onError={() => setImgErrors(p => ({ ...p, [h.id]: true }))}
                               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
