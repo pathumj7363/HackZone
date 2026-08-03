@@ -25,7 +25,14 @@ export default function ManageSubmissions() {
   // Search and filter state
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all'); // for proposals
-  const [submissionFilter, setSubmissionFilter] = useState('all'); // for final submissions
+  const [submissionFilter, setSubmissionFilter] = useState('all');
+
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const getFileUrl = (url, action) => {
+    if (!url) return '#';
+    if (url.startsWith('http')) return url;
+    return `${backendUrl}${url.replace('/uploads/', `/api/files/${action}/`)}`;
+  }; // for final submissions
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -570,7 +577,7 @@ export default function ManageSubmissions() {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: 'var(--hz-text)' }}>Attached Documents</h3>
                 {r.proposalUrl ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <a href={r.proposalUrl.replace('/uploads/', '/api/files/preview/')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                    <a href={getFileUrl(r.proposalUrl, 'preview')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                       <div
                         style={{ background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-text)', cursor: 'pointer', transition: 'all 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
@@ -586,7 +593,7 @@ export default function ManageSubmissions() {
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                       </div>
                     </a>
-                    <a href={r.proposalUrl.replace('/uploads/', '/api/files/download/')} download target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                    <a href={getFileUrl(r.proposalUrl, 'download')} download target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                       <div
                         style={{ background: 'var(--hz-bg)', border: '1px solid var(--hz-border)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--hz-text)', cursor: 'pointer', transition: 'all 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--hz-primary)'}
@@ -688,7 +695,7 @@ export default function ManageSubmissions() {
             <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ background: 'var(--hz-surface)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--hz-border)' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--hz-text)' }}>Project Links</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {s.githubRepo ? (
                     <a href={s.githubRepo} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                       <div
@@ -720,7 +727,7 @@ export default function ManageSubmissions() {
                   )}
 
                   {s.fileUrl ? (
-                    <a href={s.fileUrl} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                    <a href={getFileUrl(s.fileUrl, 'download')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                       <div
                         style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', padding: '1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: 'opacity 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
