@@ -18,6 +18,13 @@ export default function EvaluateProject() {
   // Refs for keyboard navigation
   const scoreInputsRef = useRef([]);
 
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const getFileUrl = (url, action) => {
+    if (!url) return '#';
+    if (url.startsWith('http')) return url;
+    return `${backendUrl}${url.replace('/uploads/', `/api/files/${action}/`)}`;
+  };
+
   useEffect(() => {
     getAssignedSubmissions().then(data => {
       const foundProject = data.find(p => String(p.submissionId) === String(id));
@@ -242,7 +249,7 @@ export default function EvaluateProject() {
               </button>
             )}
             {project.fileUrl && (
-              <a href={project.fileUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--hz-text)', textDecoration: 'none', background: 'var(--hz-surface)', padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--hz-border)' }}>
+              <a href={getFileUrl(project.fileUrl, 'download')} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--hz-text)', textDecoration: 'none', background: 'var(--hz-surface)', padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--hz-border)' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
                 Attached File
               </a>

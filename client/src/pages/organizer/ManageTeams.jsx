@@ -23,6 +23,13 @@ export default function ManageTeams() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const getFileUrl = (url, action) => {
+    if (!url) return '#';
+    if (url.startsWith('http')) return url;
+    return `${backendUrl}${url.replace('/uploads/', `/api/files/${action}/`)}`;
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchHackathons();
@@ -288,13 +295,13 @@ export default function ManageTeams() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {r.proposalUrl ? (
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <a href={r.proposalUrl.replace('/uploads/', '/api/files/preview/')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', flex: 1 }}>
+                    <a href={getFileUrl(r.proposalUrl, 'preview')} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', flex: 1 }}>
                       <Button variant="outline" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--hz-text)', borderColor: 'var(--hz-border)' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         Preview
                       </Button>
                     </a>
-                    <a href={r.proposalUrl.replace('/uploads/', '/api/files/download/')} download target="_blank" rel="noreferrer" style={{ textDecoration: 'none', flex: 1 }}>
+                    <a href={getFileUrl(r.proposalUrl, 'download')} download target="_blank" rel="noreferrer" style={{ textDecoration: 'none', flex: 1 }}>
                       <Button variant="primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
