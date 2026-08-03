@@ -60,8 +60,8 @@ export default function App() {
               <Route path="/profile/:id" element={<ProtectedRoute allowedRoles={['participant', 'judge', 'organizer']}><UnifiedProfile /></ProtectedRoute>} />
 
               <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['participant']}><ParticipantDashboard /></ProtectedRoute>} />
-              <Route path="/hackathons" element={<ProtectedRoute allowedRoles={['participant']}><HackathonList /></ProtectedRoute>} />
-              <Route path="/hackathons/:id" element={<ProtectedRoute allowedRoles={['participant']}><HackathonDetail /></ProtectedRoute>} />
+              <Route path="/hackathons" element={<HackathonList />} />
+              <Route path="/hackathons/:id" element={<HackathonDetail />} />
 
               <Route path="/teams/*" element={<ProtectedRoute allowedRoles={['participant']}><TeamHub /></ProtectedRoute>} />
 

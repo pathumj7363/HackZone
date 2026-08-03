@@ -102,8 +102,8 @@ export default function OrganizerScoreboard() {
               style={{
                 padding: '0.5rem 2rem 0.5rem 1rem', 
                 borderRadius: '8px', 
-                border: 'none', 
-                background: 'var(--hz-surface)', 
+                border: '1px solid var(--hz-border)', 
+                backgroundColor: 'var(--hz-bg)', 
                 color: 'var(--hz-text)', 
                 fontWeight: '600',
                 outline: 'none',
@@ -117,7 +117,7 @@ export default function OrganizerScoreboard() {
               }}
             >
               {!loading && hackathons.map(h => (
-                <option key={h.id} value={h.id}>{h.title}</option>
+                <option key={h.id} value={h.id} style={{ background: 'var(--hz-bg)', color: 'var(--hz-text)' }}>{h.title}</option>
               ))}
             </select>
           </div>

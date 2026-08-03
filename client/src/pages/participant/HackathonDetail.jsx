@@ -5,6 +5,7 @@ import { getMyTeamApi } from '../../api/team.api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { toast } from 'react-toastify';
+import useAuth from '../../hooks/useAuth';
 
 import { formatDateTime, parseRules, parsePrizes } from '../../utils/date';
 
@@ -20,6 +21,7 @@ const TimelineDot = ({ color }) => (
 export default function HackathonDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +33,7 @@ export default function HackathonDetail() {
   const [role, setRole] = useState('Developer');
   const [experienceLevel, setExperienceLevel] = useState('Intermediate');
   const [githubUrl, setGithubUrl] = useState('');
-  
+
   // New wizard states
   const [modalStep, setModalStep] = useState(1);
   const [idea, setIdea] = useState('');
@@ -318,10 +320,10 @@ export default function HackathonDetail() {
             <Card padding style={{ textAlign: 'center' }}>
               {isRegistered ? (
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', 
-                    padding: '0.75rem', borderRadius: '8px', 
-                    background: registrationStatus === 'approved' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)', 
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    padding: '0.75rem', borderRadius: '8px',
+                    background: registrationStatus === 'approved' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                     color: registrationStatus === 'approved' ? '#10b981' : '#d97706',
                     fontWeight: 'var(--hz-font-weight-semibold)'
                   }}>
@@ -351,7 +353,14 @@ export default function HackathonDetail() {
                       Your previous idea was rejected. You may register again with a different idea.
                     </div>
                   )}
-                  <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '1.25rem' }} onClick={() => navigate(`/hackathons/${id}/register`)}>
+                  <Button variant="primary" style={{ width: '100%', padding: '0.75rem', fontSize: 'var(--hz-font-size-base)', marginBottom: '1.25rem' }} onClick={() => {
+                    if (!user) {
+                      toast.info("Please sign in or create an account to register for this hackathon.");
+                      navigate('/login');
+                    } else {
+                      navigate(`/hackathons/${id}/register`);
+                    }
+                  }}>
                     Register for Hackathon
                   </Button>
                 </>
