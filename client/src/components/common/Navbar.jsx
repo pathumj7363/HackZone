@@ -177,7 +177,8 @@ export default function Navbar() {
       );
     }
 
-    const avatarUrl = user.profilePicture ? (user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:5000${user.profilePicture}`) : null;
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const avatarUrl = user.profilePicture ? (user.profilePicture.startsWith('http') ? user.profilePicture : `${backendUrl}${user.profilePicture}`) : null;
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative' }}>

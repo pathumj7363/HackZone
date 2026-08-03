@@ -104,7 +104,8 @@ export default function UnifiedProfile() {
     setUploadingAvatar(true);
     try {
       const result = await uploadProfilePictureApi(file);
-      const newAvatarUrl = `http://localhost:5000${result.profilePicture}`;
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const newAvatarUrl = `${backendUrl}${result.profilePicture}`;
       
       // Update local state
       setProfile(prev => ({ ...prev, profilePicture: newAvatarUrl }));
@@ -164,7 +165,8 @@ export default function UnifiedProfile() {
   const getAvatarUrl = () => {
     if (profile.profilePicture) {
       if (profile.profilePicture.startsWith('http')) return profile.profilePicture;
-      return `http://localhost:5000${profile.profilePicture}`;
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      return `${backendUrl}${profile.profilePicture}`;
     }
     return null;
   };
