@@ -243,6 +243,14 @@ export default function Home() {
           transform: translateY(-4px);
           box-shadow: ${isDark ? 'none' : '0 25px 30px -5px rgba(6, 182, 212, 0.15)'};
         }
+
+        @media (max-width: 768px) {
+          .hz-hero-title { font-size: 2.5rem; }
+          .hz-hero-subtitle { font-size: 1rem; margin-bottom: 2rem; }
+          .hz-btn-primary, .hz-btn-secondary { width: 100%; text-align: center; }
+          .hz-home-grid { background-size: 50px 50px; }
+          .hz-section-pad { padding: 4rem 1.5rem !important; }
+        }
       `}</style>
 
       {/* ── Background Elements ── */}
@@ -322,7 +330,7 @@ export default function Home() {
       </section>
 
       {/* ── Featured Hackathons Preview ── */}
-      <section style={{ position: 'relative', zIndex: 10, padding: '8rem 1.5rem', background: isDark ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.02)' }}>
+      <section className="hz-section-pad" style={{ position: 'relative', zIndex: 10, padding: '8rem 1.5rem', background: isDark ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.02)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
@@ -376,7 +384,7 @@ export default function Home() {
                       }}
                       style={{
                         position: 'absolute',
-                        width: '350px',
+                        width: 'min(350px, 85vw)',
                         height: '380px',
                         background: statBg, borderRadius: '24px', border: `1px solid ${isActive ? statBorderHov : statBorder}`,
                         overflow: 'hidden', display: 'flex', flexDirection: 'column',
@@ -464,12 +472,12 @@ export default function Home() {
       </section>
 
       {/* ── Interactive Features ── */}
-      <section style={{ position: 'relative', zIndex: 10, padding: '8rem 0' }}>
+      <section className="hz-section-pad" style={{ position: 'relative', zIndex: 10, padding: '8rem 0' }}>
         <FeatureSection dark={isDark} />
       </section>
 
       {/* ── Bottom CTA ── */}
-      <section style={{ position: 'relative', zIndex: 10, padding: '8rem 1.5rem', textAlign: 'center' }}>
+      <section className="hz-section-pad" style={{ position: 'relative', zIndex: 10, padding: '8rem 1.5rem', textAlign: 'center' }}>
         <div style={{
           maxWidth: '800px', margin: '0 auto',
           background: ctaBg,

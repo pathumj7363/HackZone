@@ -13,6 +13,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -276,6 +277,27 @@ export default function Navbar() {
           from { opacity: 0; transform: translateY(-10px) scale(0.95); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        .hz-desktop-nav {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+        }
+        .hz-mobile-menu-toggle {
+          display: none;
+          background: none;
+          border: none;
+          color: inherit;
+          cursor: pointer;
+          padding: 0.5rem;
+        }
+        @media (max-width: 768px) {
+          .hz-desktop-nav {
+            display: none !important;
+          }
+          .hz-mobile-menu-toggle {
+            display: flex !important;
+          }
+        }
       `}</style>
       <nav
         style={{
@@ -305,19 +327,42 @@ export default function Navbar() {
           <Logo width={160} />
         </Link>
 
-        {/* Center links */}
-        {user && user.role !== 'admin' && (
-          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'none' }}>
-            {/* Center links hidden here or repositioned based on design, typically flex layout handles it */}
-          </div>
-        )}
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        {/* Desktop Nav */}
+        <div className="hz-desktop-nav">
           {renderCenterLinks()}
           <div style={{ width: '1px', height: '24px', background: divClr }} />
           {renderRight()}
         </div>
+
+        {/* Mobile Toggle */}
+        <button 
+          className="hz-mobile-menu-toggle" 
+          style={{ color: metaClr }}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          )}
+        </button>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed', top: 'var(--hz-navbar-height, 60px)', left: 0, right: 0, bottom: 0,
+          background: bg, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+          zIndex: 40, display: 'flex', flexDirection: 'column', padding: '2rem',
+          overflowY: 'auto'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }} onClick={() => setMobileMenuOpen(false)}>
+            {renderCenterLinks()}
+            <div style={{ height: '1px', width: '100%', background: divClr, margin: '1rem 0' }} />
+            {renderRight()}
+          </div>
+        </div>
+      )}
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
