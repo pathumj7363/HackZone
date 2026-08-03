@@ -30,8 +30,9 @@ export default function ManageSubmissions() {
   const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const getFileUrl = (url, action) => {
     if (!url) return '#';
-    if (url.startsWith('http')) return url;
-    return `${backendUrl}${url.replace('/uploads/', `/api/files/${action}/`)}`;
+    let cleanUrl = url.replace('http://localhost:5000', '');
+    if (cleanUrl.startsWith('http')) return cleanUrl;
+    return `${backendUrl}${cleanUrl.replace('/uploads/', `/api/files/${action}/`)}`;
   }; // for final submissions
 
   useEffect(() => {

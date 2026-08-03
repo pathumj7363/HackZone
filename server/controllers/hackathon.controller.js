@@ -109,7 +109,7 @@ export const registerHackathon = async (req, res) => {
 
     let proposalUrl = null;
     if (req.file) {
-      proposalUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+      proposalUrl = `/uploads/${req.file.filename}`;
     }
 
     if (!hackathonId) {
