@@ -14,7 +14,8 @@ export default function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/notifications', {
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${backendUrl}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -51,7 +52,8 @@ export default function NotificationBell() {
   const handleMarkAsRead = async (id, e) => {
     if(e) e.stopPropagation();
     try {
-      await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      await fetch(`${backendUrl}/api/notifications/${id}/read`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -64,7 +66,8 @@ export default function NotificationBell() {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await fetch('http://localhost:5000/api/notifications/read-all', {
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      await fetch(`${backendUrl}/api/notifications/read-all`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });

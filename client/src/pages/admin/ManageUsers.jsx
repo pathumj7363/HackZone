@@ -16,26 +16,28 @@ export default function ManageUsers() {
   return (
     <div style={{ padding: '2rem' }}>
       <h2>Manage Users</h2>
-      <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
-        <thead>
-          <tr>
-            <th style={{ borderBottom: '1px solid #ccc', padding: '0.5rem 0' }}>Email</th>
-            <th style={{ borderBottom: '1px solid #ccc', padding: '0.5rem 0' }}>Role</th>
-            <th style={{ borderBottom: '1px solid #ccc', padding: '0.5rem 0' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id}>
-              <td style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>{u.email}</td>
-              <td style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>{u.role}</td>
-              <td style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                <button onClick={() => handleDelete(u.id)} style={{ color: 'red', cursor: 'pointer' }}>Ban</button>
-              </td>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
+          <thead>
+            <tr>
+              <th style={{ borderBottom: '1px solid #ccc', padding: '0.5rem 0' }}>Email</th>
+              <th style={{ borderBottom: '1px solid #ccc', padding: '0.5rem 0' }}>Role</th>
+              <th style={{ borderBottom: '1px solid #ccc', padding: '0.5rem 0' }}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={u.id}>
+                <td style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>{u.email}</td>
+                <td style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>{u.role}</td>
+                <td style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
+                  <button onClick={() => handleDelete(u.id)} style={{ color: 'red', cursor: 'pointer' }}>Ban</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -626,3 +626,41 @@ img {
   font-size: var(--hz-font-size-sm);
   color: var(--hz-text-muted);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Overrides                                                       */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  :root {
+    --hz-navbar-height: 60px;
+    --hz-space-12: 2rem;
+    --hz-space-16: 3rem;
+  }
+  
+  .hz-container {
+    padding-left: var(--hz-space-4);
+    padding-right: var(--hz-space-4);
+  }
+  
+  .hz-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .hz-heading-1 {
+    font-size: var(--hz-font-size-3xl);
+  }
+  
+  .hz-heading-2 {
+    font-size: var(--hz-font-size-2xl);
+  }
+  
+  .hz-btn {
+    width: 100%;
+  }
+  
+  .hz-btn-mobile-auto {
+    width: auto;
+  }
+}

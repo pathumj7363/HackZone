@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/announcements';
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/announcements` : 'http://localhost:5000/api/announcements';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
