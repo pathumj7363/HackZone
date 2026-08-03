@@ -159,11 +159,11 @@ export const getHackathonById = async (id) => {
 
     const hackathon = rows[0];
 
-    // Parse JSON fields back to objects/arrays
-    if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
-    if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
-    if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
-    if (hackathon.evaluationAreas) hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
+    // Parse JSON fields back to objects/arrays if they are strings
+    if (typeof hackathon.prizes === 'string') hackathon.prizes = JSON.parse(hackathon.prizes);
+    if (typeof hackathon.sponsors === 'string') hackathon.sponsors = JSON.parse(hackathon.sponsors);
+    if (typeof hackathon.judges === 'string') hackathon.judges = JSON.parse(hackathon.judges);
+    if (typeof hackathon.evaluationAreas === 'string') hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
 
     return hackathon;
   } catch (error) {
@@ -185,10 +185,10 @@ export const getHackathonsByOrganizerId = async (organizerId) => {
     const [rows] = await pool.query(query, [organizerId]);
 
     return rows.map(hackathon => {
-      if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
-      if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
-      if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
-      if (hackathon.evaluationAreas) hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
+      if (typeof hackathon.prizes === 'string') hackathon.prizes = JSON.parse(hackathon.prizes);
+      if (typeof hackathon.sponsors === 'string') hackathon.sponsors = JSON.parse(hackathon.sponsors);
+      if (typeof hackathon.judges === 'string') hackathon.judges = JSON.parse(hackathon.judges);
+      if (typeof hackathon.evaluationAreas === 'string') hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
       return hackathon;
     });
   } catch (error) {
@@ -226,10 +226,10 @@ export const getRegisteredHackathonsByUserId = async (userId) => {
     `;
     const [rows] = await pool.query(query, [userId]);
     return rows.map(hackathon => {
-      if (hackathon.prizes) hackathon.prizes = JSON.parse(hackathon.prizes);
-      if (hackathon.sponsors) hackathon.sponsors = JSON.parse(hackathon.sponsors);
-      if (hackathon.judges) hackathon.judges = JSON.parse(hackathon.judges);
-      if (hackathon.evaluationAreas) hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
+      if (typeof hackathon.prizes === 'string') hackathon.prizes = JSON.parse(hackathon.prizes);
+      if (typeof hackathon.sponsors === 'string') hackathon.sponsors = JSON.parse(hackathon.sponsors);
+      if (typeof hackathon.judges === 'string') hackathon.judges = JSON.parse(hackathon.judges);
+      if (typeof hackathon.evaluationAreas === 'string') hackathon.evaluationAreas = JSON.parse(hackathon.evaluationAreas);
       return hackathon;
     });
   } catch (error) {

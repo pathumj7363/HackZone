@@ -225,7 +225,7 @@ export const createHackathon = async (req, res) => {
     
     let image = req.body.image;
     if (req.file) {
-      image = `http://localhost:5000/uploads/${req.file.filename}`;
+      image = `/uploads/${req.file.filename}`;
     }
 
     if (!title || typeof title !== 'string' || title.trim() === '') {
@@ -329,7 +329,7 @@ export const updateHackathon = async (req, res) => {
     const updateData = { ...req.body };
     
     if (req.file) {
-      updateData.image = `http://localhost:5000/uploads/${req.file.filename}`;
+      updateData.image = `/uploads/${req.file.filename}`;
     }
 
     if (!id) {
