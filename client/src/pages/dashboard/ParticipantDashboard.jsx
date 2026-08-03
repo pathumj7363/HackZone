@@ -367,6 +367,13 @@ export default function ParticipantDashboard() {
           {/* Right Column (Secondary / Feed) */}
           <div className="col-12 col-lg-4" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
             
+            {/* Invisible spacer matching left column's header to ensure perfect horizontal alignment */}
+            <div className="d-none d-lg-block" style={{ marginBottom: '-2.5rem', visibility: 'hidden' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>Spacer</h2>
+              </div>
+            </div>
+
             {/* Announcements Glassmorphic Widget */}
             <section style={{ 
               background: 'var(--hz-surface)', 
@@ -428,7 +435,8 @@ export default function ParticipantDashboard() {
                       borderRadius: '16px', 
                       border: '1px solid var(--hz-border)',
                       position: 'relative',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      textAlign: 'left'
                     }}>
                       {/* Priority indicator line */}
                       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: ann.priority === 'high' ? '#ef4444' : 'var(--hz-primary)' }}></div>

@@ -162,6 +162,7 @@ export default function TeamHub() {
   
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   
   // Data states
   const [myTeam, setMyTeam] = useState(null);
@@ -234,8 +235,8 @@ export default function TeamHub() {
     }
   };
 
-  const handleLeaveTeam = async () => {
-    if (!window.confirm("Are you sure you want to leave this team?")) return;
+  const executeLeaveTeam = async () => {
+    setShowLeaveConfirm(false);
     try {
       await leaveTeamApi();
       toast.success('You have left the team.');
@@ -307,7 +308,7 @@ export default function TeamHub() {
                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 0.25rem' }}>{myTeam.name}</h2>
                     <span style={{ color: 'var(--hz-text-muted)', fontSize: '0.9rem' }}>Team Code: <strong style={{ color: 'var(--hz-text)', userSelect: 'all' }}>{myTeam.inviteCode}</strong></span>
                   </div>
-                  <Button variant="danger" onClick={handleLeaveTeam} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>Leave Team</Button>
+                  <Button variant="danger" onClick={() => setShowLeaveConfirm(true)} style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>Leave Team</Button>
                 </div>
 
                 <div style={{ background: 'var(--hz-bg)', borderRadius: '12px', padding: '1.25rem', border: '1px solid var(--hz-border)' }}>
@@ -471,6 +472,39 @@ export default function TeamHub() {
         )}
 
       </div>
+
+      {/* Leave Team Confirmation Modal */}
+      {showLeaveConfirm && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'var(--hz-surface)', border: '1px solid var(--hz-border)',
+            borderRadius: '24px', padding: '2.5rem 2rem', width: '100%', maxWidth: '420px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(239,68,68,0.1)',
+              color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 1.5rem'
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: '800', margin: '0 0 0.75rem', color: 'var(--hz-text)' }}>Leave Team</h3>
+            <p style={{ color: 'var(--hz-text-muted)', fontSize: '0.95rem', margin: '0 0 2rem', lineHeight: '1.5' }}>
+              Are you sure you want to leave this team? You will lose access to the team dashboard and you will have to be invited again to rejoin.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <Button variant="outline" onClick={() => setShowLeaveConfirm(false)} style={{ flex: 1, padding: '0.75rem' }}>Cancel</Button>
+              <Button variant="danger" onClick={executeLeaveTeam} style={{ flex: 1, padding: '0.75rem' }}>Leave Team</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
